@@ -1,0 +1,17 @@
+apply plugin: 'groovy'
+apply plugin: 'eclipse'
+
+version = '0.1.0'
+
+repositories {
+	mavenCentral()
+}
+
+dependencies {
+	compile gradleApi()
+	compile 'org.eclipse.jgit:org.eclipse.jgit:1.2.0.201112221803-r'
+}
+
+task wrapper(type: Wrapper) {
+	version = '1.0-milestone-7'
+}
