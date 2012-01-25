@@ -3,5 +3,4 @@ build
 .settings
 .project
 .classpath
-src
-
+bin
