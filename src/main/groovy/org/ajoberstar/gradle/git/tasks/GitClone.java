@@ -17,6 +17,7 @@ package org.ajoberstar.gradle.git.tasks;
 import java.io.File;
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -33,7 +34,7 @@ import org.gradle.api.tasks.TaskAction;
  * 
  * @since 0.1.0
  */
-public class GitCloneTask extends DefaultTask {
+public class GitClone extends DefaultTask {
 	private Object uri = null;
 	private Object remote = null;
 	private boolean bare = false;
@@ -59,8 +60,8 @@ public class GitCloneTask extends DefaultTask {
 	}
 	
 	@Input
-	public URI getUri() {
-		return getProject().uri(uri);
+	public String getUri() {
+		return ObjectUtil.unpackString(uri);
 	}
 	
 	public void setUri(Object uri) {
@@ -114,6 +115,9 @@ public class GitCloneTask extends DefaultTask {
 	
 	@Input
 	public Collection<String> getBranchesToClone() {
+		if (branchesToClone == null) {
+			return Arrays.asList(getBranch());
+		}
 		Collection<String> branches = new HashSet<String>();
 		for (Object branch : branchesToClone) {
 			branches.add(ObjectUtil.unpackString(branch));

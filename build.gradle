@@ -1,13 +1,16 @@
 apply plugin: 'groovy'
 apply plugin: 'eclipse'
+apply plugin: 'maven'
 
-version = '0.1.0'
+group = 'org.ajoberstar'
+version = '0.1.0-SNAPSHOT'
 
 repositories {
 	mavenCentral()
 }
 
 dependencies {
+	groovy localGroovy()
 	compile gradleApi()
 	compile 'org.eclipse.jgit:org.eclipse.jgit:1.2.0.201112221803-r'
 }

@@ -26,7 +26,7 @@ import org.gradle.api.tasks.TaskAction;
  * 
  * @since 0.1.0
  */
-public class GitAddTask extends GitSourceTask {
+public class GitAdd extends GitSource {
 	private boolean ignoreUntracked = false;
 	
 	@TaskAction

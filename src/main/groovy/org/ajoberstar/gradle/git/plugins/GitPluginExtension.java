@@ -12,29 +12,30 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.ajoberstar.gradle.util;
+package org.ajoberstar.gradle.git.plugins;
 
-import groovy.lang.Closure;
+import java.io.IOException;
+
+import org.eclipse.jgit.api.Git;
+import org.gradle.api.Project;
+import org.gradle.api.UncheckedIOException;
 
 /**
  * 
  * @since 0.1.0
  */
-public class ObjectUtil {
-	private ObjectUtil() {
-		throw new AssertionError("Cannot instantiate this class");
+public class GitPluginExtension {
+	private Project project;
+	
+	public GitPluginExtension(Project project) {
+		this.project = project;
 	}
 	
-	public static Object unpack(Object obj) {
-		Object value = obj;
-		while (value instanceof Closure) {
-			value = ((Closure) value).call();
+	public Git open(Object repositoryPath) {
+		try {
+			return Git.open(project.file(repositoryPath));
+		} catch (IOException e) {
+			throw new UncheckedIOException(e);
 		}
-		return value;
-	}
-	
-	public static String unpackString(Object obj) {
-		Object value = unpack(obj);
-		return value == null ? null : value.toString();
 	}
 }

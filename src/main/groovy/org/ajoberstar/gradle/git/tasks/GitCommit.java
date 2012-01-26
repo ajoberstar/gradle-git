@@ -29,7 +29,7 @@ import org.gradle.util.ConfigureUtil;
  * 
  * @since 0.1.0
  */
-public class GitCommitTask extends GitBaseTask {
+public class GitCommit extends GitBase {
 	private Object message = null;
 	private boolean commitAll = false;
 	private PersonIdent committer = null;
@@ -81,6 +81,7 @@ public class GitCommitTask extends GitBaseTask {
 		this.committer = committer;
 	}
 	
+	@SuppressWarnings("rawtypes") 
 	public void committer(Closure config) {
 		if (committer == null) {
 			this.committer = new PersonIdent(getGit().getRepository());

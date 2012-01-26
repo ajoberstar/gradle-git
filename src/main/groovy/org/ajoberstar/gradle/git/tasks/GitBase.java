@@ -26,7 +26,7 @@ import org.gradle.api.UncheckedIOException;
  * 
  * @since 0.1.0
  */
-public abstract class GitBaseTask extends DefaultTask {
+public abstract class GitBase extends DefaultTask {
 	private Git git = null;
 	private Object repoPath = null;
 	

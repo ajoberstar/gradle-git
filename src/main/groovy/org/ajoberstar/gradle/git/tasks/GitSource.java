@@ -29,12 +29,12 @@ import org.gradle.api.tasks.util.PatternSet;
  * 
  * @since 0.1.0
  */
-public abstract class GitSourceTask extends GitBaseTask implements PatternFilterable {
+public abstract class GitSource extends GitBase implements PatternFilterable {
 	private PatternFilterable patternSet = new PatternSet();
 	
 	@InputFiles
 	public FileTree getSource() {
-		FileTree src = getProject().fileTree(getGit().getRepository().getWorkTree());
+		FileTree src = getProject().fileTree(getRepoDir());
 		return src.matching(patternSet);
 	}
 	

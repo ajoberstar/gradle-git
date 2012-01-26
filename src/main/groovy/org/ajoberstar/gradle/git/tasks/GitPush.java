@@ -14,17 +14,25 @@
  */
 package org.ajoberstar.gradle.git.tasks;
 
+import groovy.lang.Closure;
+
 import org.ajoberstar.gradle.util.ObjectUtil;
 import org.eclipse.jgit.api.PushCommand;
+import org.eclipse.jgit.transport.CredentialsProvider;
+import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
 import org.gradle.api.GradleException;
+import org.gradle.api.artifacts.repositories.AuthenticationSupported;
+import org.gradle.api.artifacts.repositories.PasswordCredentials;
 import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.TaskAction;
+import org.gradle.util.ConfigureUtil;
 
 /**
  * 
  * @since 0.1.0
  */
-public class GitPushTask extends GitBaseTask {
+public class GitPush extends GitBase implements AuthenticationSupported {
+	private PasswordCredentials credentials = null;
 	private Object remote = null;
 	private boolean pushTags = false;
 	private boolean pushAll = false;
@@ -33,6 +41,7 @@ public class GitPushTask extends GitBaseTask {
 	@TaskAction
 	public void push() {
 		PushCommand cmd = getGit().push();
+		cmd.setCredentialsProvider(getCredentialsProvider());
 		cmd.setRemote(getRemote());
 		if (isPushTags()) {
 			cmd.setPushTags();
@@ -48,6 +57,29 @@ public class GitPushTask extends GitBaseTask {
 		}
 		//TODO add progress monitor to go to Gradle status bar
 		//TODO add support for credentials
+	}
+	
+	@Input
+	public PasswordCredentials getCredentials() {
+		return credentials;
+	}
+	
+	@SuppressWarnings("rawtypes")
+	public void credentials(Closure closure) {
+		ConfigureUtil.configure(closure, getCredentials());
+	}
+	
+	public void setCredentials(PasswordCredentials credentials) {
+		this.credentials = credentials;
+	}
+	
+	private CredentialsProvider getCredentialsProvider() {
+		if (getCredentials() == null
+			|| ((getCredentials().getUsername() == null || getCredentials().getUsername().trim() == "")
+			&& (getCredentials().getPassword() == null || getCredentials().getPassword().trim() == ""))) {
+			return null;
+		}
+		return new UsernamePasswordCredentialsProvider(getCredentials().getUsername(), getCredentials().getPassword());
 	}
 	
 	@Input
