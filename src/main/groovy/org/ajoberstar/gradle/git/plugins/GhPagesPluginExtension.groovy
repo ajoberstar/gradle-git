@@ -27,10 +27,7 @@ import org.gradle.util.ConfigureUtil
  */
 class GhPagesPluginExtension implements AuthenticationSupported {
 	private final Project project
-	private final PasswordCredentials credentials = new PasswordCredentials() {
-		String username
-		String password
-	}
+	private final PasswordCredentials credentials = new BasicPasswordCredentials()
 	final CopySpec ghpagesDistribution
 	Object githubRepoUri
 	Object destinationPath

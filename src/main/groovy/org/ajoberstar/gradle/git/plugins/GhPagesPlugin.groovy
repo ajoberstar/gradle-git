@@ -49,6 +49,7 @@ class GhPagesPlugin implements Plugin<Project> {
 
 	private void configureTasks(final Project project, final GhPagesPluginExtension extension) {
 		GitClone clone = project.tasks.add(CLONE_TASK_NAME, GitClone)
+		clone.credentials = extension.credentials
 		clone.uri = { extension.githubRepoUri }
 		clone.branch = 'gh-pages'
 		clone.destinationPath = { extension.destinationPath }
