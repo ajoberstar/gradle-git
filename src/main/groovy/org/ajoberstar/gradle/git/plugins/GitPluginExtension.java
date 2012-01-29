@@ -19,6 +19,7 @@ import java.io.IOException;
 import org.eclipse.jgit.api.Git;
 import org.gradle.api.Project;
 import org.gradle.api.UncheckedIOException;
+import org.gradle.api.file.CopySpec;
 
 /**
  * 

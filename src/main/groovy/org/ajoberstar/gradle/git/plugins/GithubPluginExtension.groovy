@@ -18,21 +18,31 @@ import org.ajoberstar.gradle.util.ObjectUtil
 import org.gradle.api.Project
 import org.gradle.api.artifacts.repositories.AuthenticationSupported
 import org.gradle.api.artifacts.repositories.PasswordCredentials
-import org.gradle.api.file.CopySpec
+import org.gradle.api.file.CopySpec;
 import org.gradle.util.ConfigureUtil
 
 /**
  * 
  * @since 0.1.0
  */
-class GhPagesPluginExtension {
-	final CopySpec distribution
-	Object destinationPath
+class GithubPluginExtension implements AuthenticationSupported {
+	private final PasswordCredentials credentials = new BasicPasswordCredentials()
+	final GhPagesPluginExtension ghpages
+	Object repoUri
 	
-	GhPagesPluginExtension(Project project) {
-		this.distribution = project.copySpec {
-			from 'src/main/ghpages'
-		}
-		this.destinationPath = "${project.buildDir}/ghpages"
+	GithubPluginExtension(Project project) {
+		this.ghpages = new GhPagesPluginExtension(project)
+	}
+	
+	public String getRepoUri() {
+		return ObjectUtil.unpackString(repoUri)
+	}
+	
+	public PasswordCredentials getCredentials() {
+		return credentials
+	}
+	
+	public void credentials(Closure closure) {
+		ConfigureUtil.configure(closure, getCredentials())
 	}
 }

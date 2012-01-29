@@ -23,54 +23,67 @@ import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.Task
 import org.gradle.api.tasks.Copy
+import org.gradle.api.tasks.TaskCollection
 
 /**
  * 
  * @since 0.1.0
  */
 class GhPagesPlugin implements Plugin<Project> {
-	static final String CLONE_TASK_NAME = 'ghPagesClone'
+	static final String GROUP_NAME = 'ghpages'
+	static final String CLONE_TASK_NAME = 'cloneGhPages'
 	static final String PROCESS_TASK_NAME = 'processGhPages'
-	static final String ADD_TASK_NAME = 'ghPagesAdd'
-	static final String COMMIT_TASK_NAME = 'ghPagesCommit'
-	static final String PUSH_TASK_NAME = 'ghPagesPush'
+	static final String ADD_TASK_NAME = 'addGhPages'
+	static final String COMMIT_TASK_NAME = 'commitGhPages'
+	static final String PUSH_TASK_NAME = 'pushGhPages'
 	static final String PUBLISH_TASK_NAME = 'publishGhPages'
 	
 	void apply(Project project) {
-		project.plugins.apply(GitPlugin)
-		GhPagesPluginExtension extension = new GhPagesPluginExtension(project)
-		project.extensions.ghpages = extension
+		project.plugins.apply(GithubPlugin)
+		GithubPluginExtension extension = project.extensions.getByType(GithubPluginExtension)
 		configureTasks(project, extension)
 		
-		project.tasks.matching { it.name ==~ /^ghPages.*/ }.withType(GitBase) {
-			it.repoPath = { extension.destinationPath }
+		TaskCollection tasks = project.tasks.matching { it.name.endsWith('GhPages') }
+		
+		tasks.all {
+			it.group = GROUP_NAME
+		}
+		
+		tasks.withType(GitBase) {
+			it.repoPath = { extension.ghpages.destinationPath }
 		}
 	}
 
-	private void configureTasks(final Project project, final GhPagesPluginExtension extension) {
+	private void configureTasks(final Project project, final GithubPluginExtension extension) {		
 		GitClone clone = project.tasks.add(CLONE_TASK_NAME, GitClone)
+		clone.description = 'Clones the Github repo checking out the gh-pages branch'
 		clone.credentials = extension.credentials
-		clone.uri = { extension.githubRepoUri }
+		clone.uri = { extension.repoUri }
 		clone.branch = 'gh-pages'
-		clone.destinationPath = { extension.destinationPath }
+		clone.destinationPath = { extension.ghpages.destinationPath }
 		
 		Copy process = project.tasks.add(PROCESS_TASK_NAME, Copy)
+		process.description = 'Processes the gh-pages files, copying them to the working repo'
 		process.dependsOn clone
-		process.with extension.getGhpagesDistribution()
-		process.into { extension.destinationPath }
+		process.with extension.ghpages.distribution
+		process.into { extension.ghpages.destinationPath }
 		
 		GitAdd add = project.tasks.add(ADD_TASK_NAME, GitAdd)
+		add.description = 'Adds all changes to the working gh-pages repo'
 		add.dependsOn process
 		
 		GitCommit commit = project.tasks.add(COMMIT_TASK_NAME, GitCommit)
+		commit.description = 'Commits all changes to the working gh-pages repo'
 		commit.dependsOn add
 		commit.message = 'Publish of github pages from Gradle'
 		
 		GitPush push = project.tasks.add(PUSH_TASK_NAME, GitPush)
+		push.description = 'Pushes all changes in the working gh-pages repo to Github'
 		push.dependsOn commit
 		push.credentials = extension.credentials
 		
 		Task publish = project.tasks.add(PUBLISH_TASK_NAME)
+		publish.description = 'Publishes all gh-pages changes to Github'
 		publish.dependsOn push
 	}
 }
