@@ -4,6 +4,10 @@ A set of plugins to support Git in the Gradle build tool.
 
 Credit goes to [Peter Ledbrook](https://github.com/pledbrook) for the initial idea.
 
+API Documentation:
+* [Javadoc](http://ajoberstar.org/gradle-git/docs/javadoc)
+* [Groovydoc](http://ajoberstar.org/gradle-git/docs/groovydoc)
+
 ---
 
 ## Adding the Plugins
