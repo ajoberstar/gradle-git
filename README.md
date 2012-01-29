@@ -61,6 +61,10 @@ By default all files in `src/main/ghpages` will be included.
 The default location the repository will be cloned to is `build/ghpages`.  This can be configured
 with `github.ghpages.destinationPath`.
 
+To publish your changes run:
+
+    ./gradlew publishGhPages
+
 ---
 
 ## Release Notes
