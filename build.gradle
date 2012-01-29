@@ -1,10 +1,20 @@
+buildscript {
+	repositories {
+		mavenCentral()
+		maven { url 'https://oss.sonatype.org/content/groups/public/' }
+	}
+	dependencies { classpath 'org.ajoberstar:gradle-git:0.1.0-SNAPSHOT' }
+}
+
 apply plugin: 'groovy'
 apply plugin: 'eclipse'
 apply plugin: 'maven'
 apply plugin: 'signing'
+apply plugin: 'gh-pages'
 
 group = 'org.ajoberstar'
 version = '0.1.0-SNAPSHOT'
+github.repoUri = 'https://ajoberstar@github.com/ajoberstar/gradle-git.git'
 
 repositories {
 	mavenCentral()
@@ -16,8 +26,13 @@ dependencies {
 	compile 'org.eclipse.jgit:org.eclipse.jgit:1.2.0.201112221803-r'
 }
 
-signing {
-	sign configurations.archives
+github.ghpages.distribution {
+	from(javadoc.outputs.files) {
+		into 'docs/javadoc'
+	}
+	from(groovydoc.outputs.files) {
+		into 'docs/groovydoc'
+	}
 }
 
 task sourcesJar(type:Jar) {
@@ -39,6 +54,10 @@ artifacts {
 	archives sourcesJar
 	archives javadocJar
 	archives groovydocJar
+}
+
+signing {
+	sign configurations.archives
 }
 
 uploadArchives {
@@ -65,7 +84,7 @@ uploadArchives {
 				developer {
 					id 'ajoberstar'
 					name 'Andrew Oberstar'
-					email 'ajoberstar@gmail.com'
+					email 'andrew@ajoberstar.org'
 				}
 			}
 			scm {

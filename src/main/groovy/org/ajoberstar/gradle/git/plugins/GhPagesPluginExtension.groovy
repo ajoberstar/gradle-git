@@ -47,4 +47,12 @@ class GhPagesPluginExtension {
 		}
 		this.destinationPath = "${project.buildDir}/ghpages"
 	}
+	
+	/**
+	 * Configures the gh-pages distribution.
+	 * @param closure the configuraiton closure
+	 */
+	void distribution(Closure closure) {
+		ConfigureUtil.configure(closure, distribution)
+	}
 }
