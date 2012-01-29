@@ -3,7 +3,7 @@ buildscript {
 		mavenCentral()
 		maven { url 'https://oss.sonatype.org/content/groups/public/' }
 	}
-	dependencies { classpath 'org.ajoberstar:gradle-git:0.1.0-SNAPSHOT' }
+	dependencies { classpath 'org.ajoberstar:gradle-git:0.1.0' }
 }
 
 apply plugin: 'groovy'
@@ -13,7 +13,8 @@ apply plugin: 'signing'
 apply plugin: 'gh-pages'
 
 group = 'org.ajoberstar'
-version = '0.1.0'
+description = 'Git plugins for Gradle'
+version = '0.1.1-SNAPSHOT'
 github.repoUri = 'https://ajoberstar@github.com/ajoberstar/gradle-git.git'
 
 repositories {
@@ -73,8 +74,8 @@ uploadArchives {
 		beforeDeployment { signPom it }
 
 		pom.project {
-			name name
-			description description
+			name project.name
+			description project.description
 			url 'http://github.com/ajoberstar/gradle-git'
 			licenses {
 				license {
