@@ -57,8 +57,9 @@ public class GitClone extends DefaultTask implements AuthenticationSupported {
 		cmd.setCredentialsProvider(getCredentialsProvider());
 		cmd.setURI(getUri().toString());
 		cmd.setRemote(getRemote());
+		cmd.setBare(getBare());
 		cmd.setNoCheckout(!getCheckout());
-		cmd.setBranch(getBranch());
+		cmd.setBranch("refs/heads/" + getBranch());
 		cmd.setBranchesToClone(getBranchesToClone());
 		cmd.setCloneAllBranches(getCloneAllBranches());
 		cmd.setDirectory(getDestinationDir());
