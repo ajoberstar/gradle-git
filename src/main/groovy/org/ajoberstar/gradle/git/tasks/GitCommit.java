@@ -26,7 +26,7 @@ import org.gradle.api.tasks.TaskAction;
 import org.gradle.util.ConfigureUtil;
 
 /**
- * 
+ * Task to commit changes to a Git repository.
  * @since 0.1.0
  */
 public class GitCommit extends GitBase {
@@ -35,6 +35,9 @@ public class GitCommit extends GitBase {
 	private PersonIdent committer = null;
 	private PersonIdent author = null;
 	
+	/**
+	 * Commits changes to the Git repository.
+	 */
 	@TaskAction
 	public void commit() {
 		CommitCommand cmd = getGit().commit();
@@ -53,34 +56,65 @@ public class GitCommit extends GitBase {
 		}
 	}
 	
+	/**
+	 * Gets the commit message to use.
+	 * @return the commit message to use
+	 */
 	@Input
 	public String getMessage() {
 		return ObjectUtil.unpackString(message);
 	}
 	
+	/**
+	 * Sets the commit message to use.
+	 * @param message the commit message
+	 */
 	public void setMessage(Object message) {
 		this.message = message;
 	}
 	
+	/**
+	 * Gets whether to commit all modified and deleted files.
+	 * New files will not be affected.
+	 * @return whether to commit all files
+	 */
 	@Input
 	public boolean getCommitAll() {
 		return commitAll;
 	}
 	
+	/**
+	 * Sets whether to commit all modified and deleted files.
+	 * New files will not be affected.
+	 * @param commitAll whetherh to commit all files
+	 */
 	public void setCommitAll(boolean commitAll) {
 		this.commitAll = commitAll;
 	}
 	
+	/**
+	 * Gets the committer to for this commit.
+	 * @return the committer
+	 */
 	@Input
 	@Optional
 	public PersonIdent getCommitter() {
 		return committer;
 	}
 	
+	/**
+	 * Sets the committer for this commit.
+	 * @param committer the committer
+	 */
 	public void setCommitter(PersonIdent committer) {
 		this.committer = committer;
 	}
 	
+	/**
+	 * Configures the committer for this commit.
+	 * A {@code PersonIdent} is passed to the closure.
+	 * @param config the configuration closure
+	 */
 	@SuppressWarnings("rawtypes") 
 	public void committer(Closure config) {
 		if (committer == null) {
@@ -89,16 +123,30 @@ public class GitCommit extends GitBase {
 		ConfigureUtil.configure(config, committer);
 	}
 	
+	/**
+	 * Gets the author for this commit.
+	 * @return the author
+	 */
 	@Input
 	@Optional
 	public PersonIdent getAuthor() {
 		return author;
 	}
 	
+	/**
+	 * Sets the author for this commit.
+	 * @param author the author
+	 */
 	public void setAuthor(PersonIdent author) {
 		this.author = author;
 	}
 	
+	/**
+	 * Configures the author for this commit.
+	 * A {@code PersonIdent} is passed to the closure.
+	 * @param config the configuration closure
+	 */
+	@SuppressWarnings("rawtypes") 
 	public void author(Closure config) {
 		if (author == null) {
 			this.author = new PersonIdent(getGit().getRepository());

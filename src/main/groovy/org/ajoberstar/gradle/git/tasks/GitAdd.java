@@ -22,13 +22,16 @@ import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.TaskAction;
 
 /**
- * 
- * 
+ * Task to add files to a Git repository's
+ * staging area.
  * @since 0.1.0
  */
 public class GitAdd extends GitSource {
 	private boolean ignoreUntracked = false;
 	
+	/**
+	 * Adds the selected files to the staging area.
+	 */
 	@TaskAction
 	void add() {
 		final AddCommand cmd = getGit().add();
@@ -51,11 +54,19 @@ public class GitAdd extends GitSource {
 		}
 	}
 	
+	/**
+	 * Gets whether untracked files should be ignored.
+	 * @return whether untracked files should be ignored
+	 */
 	@Input
 	public boolean isIgnoreUntracked() {
 		return ignoreUntracked;
 	}
 	
+	/**
+	 * Sets whether untracked files should be ignored.
+	 * @param ignoreUntracked whether untracked files should be ignored
+	 */
 	public void setIgnoreUntracked(boolean ignoreUntracked) {
 		this.ignoreUntracked = ignoreUntracked;
 	}

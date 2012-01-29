@@ -22,13 +22,25 @@ import org.gradle.api.file.CopySpec
 import org.gradle.util.ConfigureUtil
 
 /**
- * 
+ * Extension for gh-pages specific properties.
  * @since 0.1.0
  */
 class GhPagesPluginExtension {
+	/**
+	 * The distribution of files to put in gh-pages.
+	 */
 	final CopySpec distribution
+	
+	/**
+	 * The path to put the github repository in.
+	 */
 	Object destinationPath
 	
+	/**
+	 * Constructs the plugin extension.
+	 * @param project the project to create
+	 * the extension for
+	 */
 	GhPagesPluginExtension(Project project) {
 		this.distribution = project.copySpec {
 			from 'src/main/ghpages'

@@ -26,7 +26,7 @@ import org.gradle.api.tasks.Copy
 import org.gradle.api.tasks.TaskCollection
 
 /**
- * 
+ * Plugin to enable publishing to gh-pages branch of Github.
  * @since 0.1.0
  */
 class GhPagesPlugin implements Plugin<Project> {
@@ -38,6 +38,10 @@ class GhPagesPlugin implements Plugin<Project> {
 	static final String PUSH_TASK_NAME = 'pushGhPages'
 	static final String PUBLISH_TASK_NAME = 'publishGhPages'
 	
+	/**
+	 * Applies the plugin to the given project.
+	 * @param project the project
+	 */
 	void apply(Project project) {
 		project.plugins.apply(GithubPlugin)
 		GithubPluginExtension extension = project.extensions.getByType(GithubPluginExtension)
@@ -53,7 +57,12 @@ class GhPagesPlugin implements Plugin<Project> {
 			it.repoPath = { extension.ghpages.destinationPath }
 		}
 	}
-
+	
+	/**
+	 * Configures the tasks to publish to gh-pages.
+	 * @param project the project to configure
+	 * @param extension the plugin extension
+	 */
 	private void configureTasks(final Project project, final GithubPluginExtension extension) {		
 		GitClone clone = project.tasks.add(CLONE_TASK_NAME, GitClone)
 		clone.description = 'Clones the Github repo checking out the gh-pages branch'

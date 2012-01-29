@@ -19,7 +19,7 @@ import java.io.Serializable;
 import org.gradle.api.artifacts.repositories.PasswordCredentials;
 
 /**
- * 
+ * Basic implementation of {@link PasswordCredentials}.
  * @since 0.1.0
  */
 public class BasicPasswordCredentials implements PasswordCredentials, Serializable {
@@ -27,27 +27,47 @@ public class BasicPasswordCredentials implements PasswordCredentials, Serializab
 	private String username;
 	private String password;
 	
+	/**
+	 * Constructs credentials with {@code null} username and password.
+	 */
 	public BasicPasswordCredentials() {
 		this(null, null);
 	}
 	
+	/**
+	 * Constructs credentials with the given arguments.
+	 * @param username the username to set
+	 * @param password the password to set
+	 */
 	public BasicPasswordCredentials(String username, String password) {
 		this.username = username;
 		this.password = password;
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
 	public String getUsername() {
 		return username;
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
 	public void setUsername(String username) {
 		this.username = username;
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
 	public String getPassword() {
 		return password;
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
 	public void setPassword(String password) {
 		this.password = password;
 	}

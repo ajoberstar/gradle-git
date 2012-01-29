@@ -37,7 +37,7 @@ import org.gradle.api.tasks.TaskAction;
 import org.gradle.util.ConfigureUtil;
 
 /**
- * 
+ * Task to clone a Git repository. 
  * @since 0.1.0
  */
 public class GitClone extends DefaultTask implements AuthenticationSupported {
@@ -51,6 +51,9 @@ public class GitClone extends DefaultTask implements AuthenticationSupported {
 	private boolean cloneAllBranches = true;
 	private Object destinationPath = null;
 	
+	/**
+	 * Clones a Git repository as configured.
+	 */
 	@TaskAction
 	public void cloneRepo() {
 		CloneCommand cmd = Git.cloneRepository();
@@ -68,20 +71,37 @@ public class GitClone extends DefaultTask implements AuthenticationSupported {
 		//TODO add support for credentials
 	}
 
+	/**
+	 * Gets the credentials to be used when cloning the repo.
+	 * @return the credentials
+	 */
 	@Input
 	public PasswordCredentials getCredentials() {
 		return credentials;
 	}
 	
+	/**
+	 * Configured the credentials to be used when cloning the repo.
+	 * This will be passed a {@link PasswordCredentials} instance.
+	 * @param closure the configuration closure
+	 */
 	@SuppressWarnings("rawtypes")
 	public void credentials(Closure closure) {
 		ConfigureUtil.configure(closure, getCredentials());
 	}
 	
+	/**
+	 * Sets the credentials to be used when cloning the repo.
+	 * @param credentials the credentials to use
+	 */
 	public void setCredentials(PasswordCredentials credentials) {
 		this.credentials = credentials;
 	}
 	
+	/**
+	 * Gets the credentials provider to pass to the clone command.
+	 * @return the credentials provider
+	 */
 	private CredentialsProvider getCredentialsProvider() {
 		if (getCredentials() == null
 			|| ((getCredentials().getUsername() == null || getCredentials().getUsername().trim() == "")
@@ -91,60 +111,120 @@ public class GitClone extends DefaultTask implements AuthenticationSupported {
 		return new UsernamePasswordCredentialsProvider(getCredentials().getUsername(), getCredentials().getPassword());
 	}
 	
+	/**
+	 * Gets the URI of the repo to clone.
+	 * @return the uri
+	 */
 	@Input
 	public String getUri() {
 		return ObjectUtil.unpackString(uri);
 	}
 	
+	/**
+	 * Sets the URI of the repo to clone.
+	 * @param uri the uri
+	 */
 	public void setUri(Object uri) {
 		this.uri = uri;
 	}
 	
+	/**
+	 * Gets the name used to track the upstream repository.
+	 * Defaults to "origin" if not set.
+	 * @return the remote name
+	 */
 	@Input
 	public String getRemote() {
 		return remote == null ? "origin" : ObjectUtil.unpackString(remote);
 	}
 	
+	/**
+	 * Sets the name used to track the upstream repository.
+	 * @param remote the remote name
+	 */
 	public void setRemote(Object remote) {
 		this.remote = remote;
 	}
 	
+	/**
+	 * Gets whether the repository will be bare.
+	 * @return whether the repo will be bare
+	 */
 	@Input
 	public boolean getBare() {
 		return bare;
 	}
 	
+	/**
+	 * Sets whether the repository will be bare.
+	 * @param bare whether the repo will be bare
+	 */
 	public void setBare(boolean bare) {
 		this.bare = bare;
 	}
 	
+	/**
+	 * Gets whether or not to checkout the specified branch.
+	 * Defaults to {@code true}.
+	 * @return whether or not to checkout the branch
+	 */
 	@Input
 	public boolean getCheckout() {
 		return checkout;
 	}
 	
+	/**
+	 * Sets whether or not to checkout the specified branch.
+	 * @param checkout whether or not to checkout the branch
+	 */
 	public void setCheckout(boolean checkout) {
 		this.checkout = checkout;
 	}
 	
+	/**
+	 * Gets the branch to checkout if {@code checkout} is set
+	 * to {@code true}.  Defaults to "master".
+	 * @return the branch to checkout
+	 */
 	@Input
 	public String getBranch() {
 		return branch == null ? "master" : ObjectUtil.unpackString(branch);
 	}
 	
+	/**
+	 * Sets the branch to checkout if {@code checkout} is set
+	 * to {@code true}.  Defaults to "master".
+	 * @param branch the branch to checkout
+	 */
 	public void setBranch(Object branch) {
 		this.branch = branch;
 	}
 	
+	/**
+	 * Gets the destination directory the repository
+	 * will be cloned into.
+	 * @return the path to clone into
+	 */
 	@OutputDirectory
 	public File getDestinationDir() {
 		return getProject().file(destinationPath);
 	}
 	
+	/**
+	 * Sets the path the repository should be clone into.
+	 * Will be evaluated using {@link Project.file(Object)}.
+	 * @param destinationPath the path to clone into
+	 */
 	public void setDestinationPath(Object destinationPath) {
 		this.destinationPath = destinationPath;
 	}
 	
+	/**
+	 * Gets the branches to clone if {@code cloneAllBranches}
+	 * is set to {@code false}.  If not set, it will default
+	 * to {@code branch}.
+	 * @return the branches to clone
+	 */
 	@Input
 	public Collection<String> getBranchesToClone() {
 		if (branchesToClone == null) {
@@ -157,6 +237,11 @@ public class GitClone extends DefaultTask implements AuthenticationSupported {
 		return branches;
 	}
 	
+	/**
+	 * Adds branches to clone if {@code cloneAllBranches}
+	 * is set to {@code false}.
+	 * @param branches the branches to clone
+	 */
 	public void branchesToClone(Object... branches) {
 		if (branchesToClone == null) {
 			this.branchesToClone = new ArrayList<Object>();
@@ -164,17 +249,31 @@ public class GitClone extends DefaultTask implements AuthenticationSupported {
 		Collections.addAll(branchesToClone, branches);
 	}
 	
+	/**
+	 * Sets branches to clone if {@code cloneAllBranches}
+	 * is set to {@code false}.
+	 * @param branchesToClone the branches to clone
+	 */
 	@SuppressWarnings("unchecked")
 	public void setBranchesToClone(Collection<? extends Object> branchesToClone) {
 		this.branchesToClone = (Collection<Object>) branchesToClone;
 		setCloneAllBranches(false);
 	}
 	
+	/**
+	 * Gets whether all branches should be cloned.
+	 * @return whether all branches should be cloned
+	 */
 	@Input
 	public boolean getCloneAllBranches() {
 		return cloneAllBranches;
 	}
 	
+	/**
+	 * Sets whether all branches should be cloned.
+	 * @param cloneAllBranches whether all branches
+	 * should be cloned
+	 */
 	public void setCloneAllBranches(boolean cloneAllBranches) {
 		this.cloneAllBranches = cloneAllBranches;
 	}

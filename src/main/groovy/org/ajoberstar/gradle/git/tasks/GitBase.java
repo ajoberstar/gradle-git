@@ -22,31 +22,39 @@ import org.gradle.api.DefaultTask;
 import org.gradle.api.UncheckedIOException;
 
 /**
- * 
- * 
+ * Base task for all Git commands that
+ * are executed on an existing repository.
  * @since 0.1.0
  */
 public abstract class GitBase extends DefaultTask {
-	private Git git = null;
 	private Object repoPath = null;
 	
+	/**
+	 * Gets the directory of the repository.
+	 * @return the repo directory
+	 */
 	protected File getRepoDir() {
 		return getProject().file(repoPath);
 	}
 	
+	/**
+	 * Sets the path to the repository.  Will be
+	 * evaluated relative to the project directory
+	 * @param repoPath the path to the repository
+	 */
 	public void setRepoPath(Object repoPath) {
 		this.repoPath = repoPath;
 	}
 	
+	/**
+	 * Gets a Git instance for this task's repository.
+	 * @return a new Git instance
+	 */
 	protected Git getGit() {
 		try {
-			return git == null ? Git.open(getRepoDir()) : git;
+			return Git.open(getRepoDir());
 		} catch (IOException e) {
 			throw new UncheckedIOException(e);
 		}
-	}
-	
-	public void setGit(Git git) {
-		this.git = git;
 	}
 }

@@ -19,14 +19,25 @@ import java.util.concurrent.Callable;
 import groovy.lang.Closure;
 
 /**
- * 
+ * Utility class for general {@code Object} related operaitons.
  * @since 0.1.0
  */
 public class ObjectUtil {
+	/**
+	 * Cannot instantiate
+	 * @throws AssertionError always
+	 */
 	private ObjectUtil() {
 		throw new AssertionError("Cannot instantiate this class");
 	}
 	
+	/**
+	 * Unpacks the given object by recursively
+	 * calling the {@code call()} method if the
+	 * object is a {@code Closure} or {@code Callable}. 
+	 * @param obj the object to unpack
+	 * @return the unpacked value of the object
+	 */
 	@SuppressWarnings("rawtypes")
 	public static Object unpack(Object obj) {
 		Object value = obj;
@@ -46,6 +57,14 @@ public class ObjectUtil {
 		return value;
 	}
 	
+	/**
+	 * Unpacks the given object to its {@code String}
+	 * value.  Same behavior as the other {@code unpack}
+	 * method ending with a call to {@code toString()}.
+	 * @param obj the value to unpack
+	 * @return the unpacked string value
+	 * @see {@link #unpack(Object)}
+	 */
 	public static String unpackString(Object obj) {
 		Object value = unpack(obj);
 		return value == null ? null : value.toString();

@@ -18,13 +18,17 @@ import org.gradle.api.Plugin
 import org.gradle.api.Project
 
 /**
- * 
+ * Plugin for supporting Github.
  * @since 0.1.0
  */
 class GithubPlugin implements Plugin<Project> {
 	static final String USERNAME_PROP = 'github.credentials.username'
 	static final String PASSWORD_PROP = 'github.credentials.password'
 	
+	/**
+	 * Applies the plugin to the given project.
+	 * @param project the project
+	 */
 	void apply(Project project) {
 		project.plugins.apply(GitPlugin)
 		GithubPluginExtension extension = new GithubPluginExtension(project)
@@ -32,6 +36,11 @@ class GithubPlugin implements Plugin<Project> {
 		setDefaultCredentials(project, extension)
 	}
 	
+	/**
+	 * Sets the default credentials based on project properties.
+	 * @param project the project to get properties from
+	 * @param extension the extension to configure credentials for
+	 */
 	private void setDefaultCredentials(Project project, GithubPluginExtension extension) {
 		if (project.hasProperty(USERNAME_PROP)) {
 			extension.credentials.username = project[USERNAME_PROP]

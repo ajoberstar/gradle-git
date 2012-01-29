@@ -19,10 +19,14 @@ import org.gradle.api.Project;
 import org.gradle.api.plugins.BasePlugin;
 
 /**
- * 
+ * Plugin for Git support.
  * @since 0.1.0
  */
 public class GitPlugin implements Plugin<Project> {
+	/**
+	 * Applies the plugin to the given project.
+	 * @param project the project
+	 */
 	public void apply(Project project) {
 		project.getPlugins().apply(BasePlugin.class);
 		project.getExtensions().add("git", new GitPluginExtension(project));

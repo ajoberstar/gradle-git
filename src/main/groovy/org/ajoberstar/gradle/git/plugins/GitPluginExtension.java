@@ -19,19 +19,30 @@ import java.io.IOException;
 import org.eclipse.jgit.api.Git;
 import org.gradle.api.Project;
 import org.gradle.api.UncheckedIOException;
-import org.gradle.api.file.CopySpec;
 
 /**
- * 
+ * Extension for Git properties.
  * @since 0.1.0
  */
 public class GitPluginExtension {
 	private Project project;
 	
+	/**
+	 * Constructs the plugin extension.
+	 * @param project the project to create
+	 * the extension for
+	 */
 	public GitPluginExtension(Project project) {
 		this.project = project;
 	}
 	
+	/**
+	 * Opens a {@code Git} instance for the
+	 * repository path.
+	 * @param repositoryPath the path to the
+	 * repository
+	 * @return a new Git instance
+	 */
 	public Git open(Object repositoryPath) {
 		try {
 			return Git.open(project.file(repositoryPath));

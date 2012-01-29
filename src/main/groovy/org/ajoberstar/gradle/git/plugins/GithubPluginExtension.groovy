@@ -22,26 +22,48 @@ import org.gradle.api.file.CopySpec;
 import org.gradle.util.ConfigureUtil
 
 /**
- * 
+ * Extension for Github properties.
  * @since 0.1.0
  */
 class GithubPluginExtension implements AuthenticationSupported {
 	private final PasswordCredentials credentials = new BasicPasswordCredentials()
+	/**
+	 * Ghpages properties.
+	 */
 	final GhPagesPluginExtension ghpages
+	
+	/**
+	 * The URI of the Github repository.
+	 */
 	Object repoUri
 	
+	/**
+	 * Constructs the plugin extension.
+	 * @param project the project to create
+	 * the extension for
+	 */
 	GithubPluginExtension(Project project) {
 		this.ghpages = new GhPagesPluginExtension(project)
 	}
 	
+	/**
+	 * Gets the URI of the Github repository. 
+	 * @return the repo URI
+	 */
 	public String getRepoUri() {
 		return ObjectUtil.unpackString(repoUri)
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
 	public PasswordCredentials getCredentials() {
 		return credentials
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
 	public void credentials(Closure closure) {
 		ConfigureUtil.configure(closure, getCredentials())
 	}
