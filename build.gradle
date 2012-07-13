@@ -15,7 +15,7 @@ apply plugin: 'gh-pages'
 
 group = 'org.ajoberstar'
 description = 'Git plugins for Gradle'
-version = '0.1.1-SNAPSHOT'
+version = '0.2.0-SNAPSHOT'
 github.repoUri = 'https://ajoberstar@github.com/ajoberstar/gradle-git.git'
 
 repositories {
