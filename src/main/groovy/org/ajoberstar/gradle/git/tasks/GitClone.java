@@ -212,7 +212,7 @@ public class GitClone extends DefaultTask implements AuthenticationSupported {
 	
 	/**
 	 * Sets the path the repository should be clone into.
-	 * Will be evaluated using {@link Project.file(Object)}.
+	 * Will be evaluated using {@link org.gradle.api.Project#file(Object)}.
 	 * @param destinationPath the path to clone into
 	 */
 	public void setDestinationPath(Object destinationPath) {

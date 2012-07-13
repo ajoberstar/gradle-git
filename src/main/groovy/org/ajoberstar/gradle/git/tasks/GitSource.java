@@ -41,7 +41,7 @@ public abstract class GitSource extends GitBase implements PatternFilterable {
 	 */
 	@InputFiles
 	public FileTree getSource() {
-		FileTree src = getProject().fileTree(getRepoDir());
+		FileTree src = getProject().fileTree(getRepoDir(), null);
 		return src.matching(patternSet);
 	}
 	

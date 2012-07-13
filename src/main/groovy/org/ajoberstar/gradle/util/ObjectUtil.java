@@ -19,7 +19,7 @@ import java.util.concurrent.Callable;
 import groovy.lang.Closure;
 
 /**
- * Utility class for general {@code Object} related operaitons.
+ * Utility class for general {@code Object} related operations.
  * @since 0.1.0
  */
 public class ObjectUtil {
@@ -63,7 +63,7 @@ public class ObjectUtil {
 	 * method ending with a call to {@code toString()}.
 	 * @param obj the value to unpack
 	 * @return the unpacked string value
-	 * @see {@link #unpack(Object)}
+	 * @see ObjectUtil#unpack(Object)
 	 */
 	public static String unpackString(Object obj) {
 		Object value = unpack(obj);
