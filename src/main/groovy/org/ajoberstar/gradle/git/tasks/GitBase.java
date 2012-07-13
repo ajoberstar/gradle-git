@@ -27,7 +27,7 @@ import org.gradle.api.UncheckedIOException;
  * @since 0.1.0
  */
 public abstract class GitBase extends DefaultTask {
-	private Object repoPath = null;
+	private Object repoPath = getProject().getRootProject().getProjectDir();
 	
 	/**
 	 * Gets the directory of the repository.
