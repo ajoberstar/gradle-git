@@ -69,6 +69,11 @@ To publish your changes run:
 
 ## Release Notes
 
+**v0.1.1**
+
+* Added GitTag task contributed by [Urs Reupke](https://github.com/UrsKR).
+* The `repoPath` for all Git tasks is defaulted to the root project's directory.
+
 **v0.1.0**
 
 Initial release.
