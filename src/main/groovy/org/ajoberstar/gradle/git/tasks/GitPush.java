@@ -18,6 +18,7 @@ import groovy.lang.Closure;
 
 import org.ajoberstar.gradle.git.plugins.BasicPasswordCredentials;
 import org.ajoberstar.gradle.util.ObjectUtil;
+import org.ajoberstar.gradle.util.RemoteEvaluator;
 import org.eclipse.jgit.api.PushCommand;
 import org.eclipse.jgit.awtui.AwtCredentialsProvider;
 import org.eclipse.jgit.transport.CredentialsProvider;
@@ -113,7 +114,7 @@ public class GitPush extends GitBase implements AuthenticationSupported {
 	 */
 	@Input
 	public String getRemote() {
-		return remote == null ? "origin" : ObjectUtil.unpackString(remote);
+		return new RemoteEvaluator().evaluate(remote);
 	}
 	
 	/**

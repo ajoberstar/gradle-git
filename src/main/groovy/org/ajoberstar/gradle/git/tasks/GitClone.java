@@ -25,6 +25,7 @@ import java.util.HashSet;
 
 import org.ajoberstar.gradle.git.plugins.BasicPasswordCredentials;
 import org.ajoberstar.gradle.util.ObjectUtil;
+import org.ajoberstar.gradle.util.RemoteEvaluator;
 import org.eclipse.jgit.api.CloneCommand;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
@@ -153,8 +154,8 @@ public class GitClone extends DefaultTask implements AuthenticationSupported {
 	 */
 	@Input
 	public String getRemote() {
-		return remote == null ? "origin" : ObjectUtil.unpackString(remote);
-	}
+      return new RemoteEvaluator().evaluate(remote);
+    }
 	
 	/**
 	 * Sets the name used to track the upstream repository.
