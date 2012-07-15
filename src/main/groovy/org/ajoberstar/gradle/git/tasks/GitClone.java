@@ -23,7 +23,8 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 
-import org.ajoberstar.gradle.git.plugins.BasicPasswordCredentials;
+import org.ajoberstar.gradle.util.CredentialsEvaluator;
+import org.ajoberstar.gradle.util.ModifiableAuthenticationSupported;
 import org.ajoberstar.gradle.util.ObjectUtil;
 import org.ajoberstar.gradle.util.RemoteEvaluator;
 import org.eclipse.jgit.api.CloneCommand;
@@ -31,24 +32,20 @@ import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.api.errors.InvalidRemoteException;
 import org.eclipse.jgit.api.errors.TransportException;
-import org.eclipse.jgit.awtui.AwtCredentialsProvider;
 import org.eclipse.jgit.transport.CredentialsProvider;
-import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.GradleException;
-import org.gradle.api.artifacts.repositories.AuthenticationSupported;
 import org.gradle.api.artifacts.repositories.PasswordCredentials;
 import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.Optional;
 import org.gradle.api.tasks.OutputDirectory;
 import org.gradle.api.tasks.TaskAction;
-import org.gradle.util.ConfigureUtil;
 
 /**
  * Task to clone a Git repository. 
  * @since 0.1.0
  */
-public class GitClone extends DefaultTask implements AuthenticationSupported {
+public class GitClone extends DefaultTask implements ModifiableAuthenticationSupported {
 	private PasswordCredentials credentials = null;
 	private Object uri = null;
 	private Object remote = null;
@@ -104,11 +101,8 @@ public class GitClone extends DefaultTask implements AuthenticationSupported {
 	 */
 	@SuppressWarnings("rawtypes")
 	public void credentials(Closure closure) {
-		if (getCredentials() == null) {
-			setCredentials(new BasicPasswordCredentials());
-		}
-		ConfigureUtil.configure(closure, getCredentials());
-	}
+      new CredentialsEvaluator(this).evaluate(closure);
+    }
 	
 	/**
 	 * Sets the credentials to be used when cloning the repo.
@@ -123,12 +117,8 @@ public class GitClone extends DefaultTask implements AuthenticationSupported {
 	 * @return the credentials provider
 	 */
 	private CredentialsProvider getCredentialsProvider() {
-		PasswordCredentials creds = getCredentials();
-		if (creds != null && creds.getUsername() != null && creds.getPassword() != null) {
-			return new UsernamePasswordCredentialsProvider(creds.getUsername(), creds.getPassword());
-		}
-		return new AwtCredentialsProvider();
-	}
+        return new CredentialsEvaluator(this).getCredentialsProvider();
+    }
 	
 	/**
 	 * Gets the URI of the repo to clone.

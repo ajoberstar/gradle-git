@@ -16,26 +16,22 @@ package org.ajoberstar.gradle.git.tasks;
 
 import groovy.lang.Closure;
 
-import org.ajoberstar.gradle.git.plugins.BasicPasswordCredentials;
-import org.ajoberstar.gradle.util.ObjectUtil;
+import org.ajoberstar.gradle.util.CredentialsEvaluator;
+import org.ajoberstar.gradle.util.ModifiableAuthenticationSupported;
 import org.ajoberstar.gradle.util.RemoteEvaluator;
 import org.eclipse.jgit.api.PushCommand;
-import org.eclipse.jgit.awtui.AwtCredentialsProvider;
 import org.eclipse.jgit.transport.CredentialsProvider;
-import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
 import org.gradle.api.GradleException;
-import org.gradle.api.artifacts.repositories.AuthenticationSupported;
 import org.gradle.api.artifacts.repositories.PasswordCredentials;
 import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.Optional;
 import org.gradle.api.tasks.TaskAction;
-import org.gradle.util.ConfigureUtil;
 
 /**
  * Task to push changes to a remote repository.
  * @since 0.1.0
  */
-public class GitPush extends GitBase implements AuthenticationSupported {
+public class GitPush extends GitBase implements ModifiableAuthenticationSupported {
 	private PasswordCredentials credentials = null;
 	private Object remote = null;
 	private boolean pushTags = false;
@@ -82,10 +78,7 @@ public class GitPush extends GitBase implements AuthenticationSupported {
 	 */
 	@SuppressWarnings("rawtypes")
 	public void credentials(Closure closure) {
-		if (getCredentials() == null) {
-			setCredentials(new BasicPasswordCredentials());
-		}
-		ConfigureUtil.configure(closure, getCredentials());
+		new CredentialsEvaluator(this).evaluate(closure);
 	}
 	
 	/**
@@ -101,11 +94,7 @@ public class GitPush extends GitBase implements AuthenticationSupported {
 	 * @return the credentials provider
 	 */
 	private CredentialsProvider getCredentialsProvider() {
-		PasswordCredentials creds = getCredentials();
-		if (creds != null && creds.getUsername() != null && creds.getPassword() != null) {
-			return new UsernamePasswordCredentialsProvider(creds.getUsername(), creds.getPassword());
-		}
-		return new AwtCredentialsProvider();
+	     return new CredentialsEvaluator(this).getCredentialsProvider();
 	}
 	
 	/**
