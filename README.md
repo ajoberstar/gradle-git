@@ -2,12 +2,21 @@
 
 A set of plugins to support Git in the Gradle build tool.
 
-Credit goes to [Peter Ledbrook](https://github.com/pledbrook) for the initial idea.
+There are two primary use cases for these plugins:
+* Publishing to a Github Pages website.  The `github-pages` plugin adds support
+for publishing static files to the `gh-pages` branch of a Git repository.
+* General Git actions.  The `gradle-git` JAR provides numerous tasks
+for basic Git functions that can be performed as part of your build.
+
+For more information see the documentation in the next sections as well as
+the APIs.
 
 **API Documentation:**
 
 * [Javadoc](http://ajoberstar.org/gradle-git/docs/javadoc)
 * [Groovydoc](http://ajoberstar.org/gradle-git/docs/groovydoc)
+
+Credit goes to [Peter Ledbrook](https://github.com/pledbrook) for the initial idea.
 
 ---
 
@@ -17,73 +26,131 @@ Add the following line to your build to use the gradle-git plugins.
 
     buildscript {
       repositories { mavenCentral() }
-      dependencies { classpath 'org.ajoberstar:gradle-git:0.1.2' }
+      dependencies { classpath 'org.ajoberstar:gradle-git:0.2.0' }
     }
 
-## Git Tasks
+## Using Tasks
 
 If all you want to do is use a few of the tasks, there is no need to apply
-any of the plugins (they do need to be on the classpath as described above).
+any plugins (the JAR does need to be on the classpath as described above).
 You merely need to start using the tasks:
 
 ```groovy
-task tag(type: org.ajoberstar.gradle.git.tasks.GitTag) {
+import org.ajoberstar.gradle.git.tasks.*
+
+task tag(type: GitTag) {
 	tagName = version
 	message = "Release of ${version}"
 }
 ```
 
-By default tasks will act on the repository in the root project's directory.
+For details on the available methods/properties see the API docs listed above.
 
-## Git Plugin
+## Repository
 
-The `git` plugin can be applied as follows:
+By default all `GitBase` tasks (any task that acts on an existing local
+repository, i.e. everything except `GitClone`) will act on the repository
+stored in the root Gradle project's directory.
 
-    apply plugin: 'git'
+This can be overriden with the following:
 
-This only adds a `git` extension object.
+```groovy
+task add(type: GitAdd) {
+	repoPath = 'some/other/place/to/look'
+}
+```
 
-## Github Plugin
+## Authentication
 
-The `github` plugin also applies the `git` plugin.
+All authentication methods supported by JGit should be supported by these
+plugins.  However, the only ones that are tested are:
+* Username/Password
+* SSH (with or without a passphrase)
+
+On any task that supports/requires credentials, you will have two options for
+configuration:
+
+1. Use the `credentials` property/method to configure username/password creds.
+
+```groovy
+task push(type: GitPush) {
+  credentials {
+    username = 'something'
+    password = 'somethingSecret'
+  }
+}
+```
+
+It is unlikely that you would hardcode your password into the build file, so
+you should store these in another file, such as the user level Gradle properties
+(`~/.gradle/gradle.properties`).
+
+2. Rely on user input at runtime.
+
+If no username/password credentials are provided programmatically, you will be
+prompted for any necessary credentials at execution time.  This method has been
+tested with username/password auth as well as SSH w/ passphrase auth.
+
+## Github Pages Plugin
+
+
 
     apply plugin: 'github'
 
-This merely adds the `github` extension object.  Credentials for
-Github can be specified in the `gradle.properties` file.  As these are
-sensitive values, they should not be in the project's `gradle.properties`,
-but rather in the user's `~/.gradle/gradle.properties`.
-
-    github.credentials.username = username
-    github.credentials.password = password
+This merely adds the `github` extension object.  
 
 The Github repository can be specified using the extension.  This is only
 used when cloning the repository.
 
     github.repoUri = 'https://ajoberstar@github.com/ajoberstar/gradle-git.git'
 
-## Gh-Pages Plugin
+## Github Pages Plugin
 
-The `gh-pages` plugin also applies the `github` plugin.
+To apply the Github Pages plugin add the following line to your build:
 
-    apply plugin: 'gh-pages'
+    apply plugin: 'github-pages'
 
 This configures tasks needed to clone, add, commit, and push changes to the gh-pages branch
 of your Github repository.
 
-The files that will be published to gh-pages are in the `github.ghpages.distribution` CopySpec.
+### Configuring Files to Publish
+
+The files that will be published to gh-pages are in the `githubPages.pages` CopySpec.
 By default all files in `src/main/ghpages` will be included.
 
 The default location the repository will be cloned to is `build/ghpages`.  This can be configured
-with `github.ghpages.destinationPath`.
+with `githubPages.workingPath`.
 
 To publish your changes run:
 
-    ./gradlew publishGhPages
+```
+./gradlew publishGhPages
+```
+
+### Properties-Based Authentication
+
+Beyond what is mentioned above, the github-pages plugin also provides a file based way
+to authenticate.  If you are using username/password credentials and don't want to
+re-enter them during each build, you can specify the credentials in the
+`gradle.properties` file.  As these are sensitive values, they should not be in the
+project's `gradle.properties`, but rather in the user's `~/.gradle/gradle.properties`.
+
+```
+github.credentials.username = username
+github.credentials.password = password
+```
 
 ---
 
 ## Release Notes
+
+**v0.2.0**
+
+This release does contain breaking changes.
+
+* Consolidated plugins into `GithubPagesPlugin`.  The existing `GithubPlugin`
+and `GitPlugin` provided no useful functionality.
+* Centralized implementation for retrieving authentication.
 
 **v0.1.2**
 
@@ -97,3 +164,4 @@ To publish your changes run:
 **v0.1.0**
 
 Initial release.
+
