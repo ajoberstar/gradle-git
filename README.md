@@ -22,7 +22,7 @@ Credit goes to [Peter Ledbrook](https://github.com/pledbrook) for the initial id
 
 ## Adding the Plugins
 
-Add the following line to your build to use the gradle-git plugins.
+Add the following lines to your build to use the gradle-git plugins.
 
     buildscript {
       repositories { mavenCentral() }
@@ -31,9 +31,8 @@ Add the following line to your build to use the gradle-git plugins.
 
 ## Using Tasks
 
-If all you want to do is use a few of the tasks, there is no need to apply
-any plugins (the JAR does need to be on the classpath as described above).
-You merely need to start using the tasks:
+If all you want to do is use a few of the tasks, there aren't any plugins
+to apply.  You merely need to start using the tasks:
 
 ```groovy
 import org.ajoberstar.gradle.git.tasks.*
@@ -91,7 +90,7 @@ you should store these in another file, such as the user level Gradle properties
 
 If no username/password credentials are provided programmatically, you will be
 prompted for any necessary credentials at execution time.  This method has been
-tested with username/password auth as well as SSH w/ passphrase auth.
+tested with username/password auth, as well as SSH w/ passphrase auth.
 
 ## Github Pages Plugin
 
@@ -104,7 +103,9 @@ This merely adds the `github` extension object.
 The Github repository can be specified using the extension.  This is only
 used when cloning the repository.
 
-    github.repoUri = 'https://ajoberstar@github.com/ajoberstar/gradle-git.git'
+```
+githubPages.repoUri = 'https://ajoberstar@github.com/ajoberstar/gradle-git.git'
+```
 
 ## Github Pages Plugin
 
@@ -112,16 +113,15 @@ To apply the Github Pages plugin add the following line to your build:
 
     apply plugin: 'github-pages'
 
-This configures tasks needed to clone, add, commit, and push changes to the gh-pages branch
-of your Github repository.
+This configures tasks needed to clone, add, commit, and push changes to the
+gh-pages branch of your Github repository.
 
 ### Configuring Files to Publish
 
-The files that will be published to gh-pages are in the `githubPages.pages` CopySpec.
-By default all files in `src/main/ghpages` will be included.
-
-The default location the repository will be cloned to is `build/ghpages`.  This can be configured
-with `githubPages.workingPath`.
+The files that will be published to gh-pages are in the `githubPages.pages`
+CopySpec. By default all files in `src/main/ghpages` will be included. The
+default location the repository will be cloned to is `build/ghpages`. This
+can be configured with `githubPages.workingPath`.
 
 To publish your changes run:
 
@@ -131,11 +131,12 @@ To publish your changes run:
 
 ### Properties-Based Authentication
 
-Beyond what is mentioned above, the github-pages plugin also provides a file based way
-to authenticate.  If you are using username/password credentials and don't want to
-re-enter them during each build, you can specify the credentials in the
-`gradle.properties` file.  As these are sensitive values, they should not be in the
-project's `gradle.properties`, but rather in the user's `~/.gradle/gradle.properties`.
+Beyond what is mentioned above, the github-pages plugin also provides a
+file based way to authenticate.  If you are using username/password
+credentials and don't want to re-enter them during each build, you can
+specify the credentials in the `gradle.properties` file.  As these are
+sensitive values, they should not be in the project's `gradle.properties`,
+but rather in the user's `~/.gradle/gradle.properties`.
 
 ```
 github.credentials.username = username
