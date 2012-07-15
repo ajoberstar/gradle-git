@@ -16,7 +16,6 @@ package org.ajoberstar.gradle.git.plugins;
 
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
-import org.gradle.api.plugins.BasePlugin;
 
 /**
  * Plugin for Git support.
@@ -28,7 +27,6 @@ public class GitPlugin implements Plugin<Project> {
 	 * @param project the project
 	 */
 	public void apply(Project project) {
-		project.getPlugins().apply(BasePlugin.class);
 		project.getExtensions().add("git", new GitPluginExtension(project));
 	}
 }
