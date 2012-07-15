@@ -24,6 +24,7 @@ import org.gradle.api.GradleException;
 import org.gradle.api.artifacts.repositories.AuthenticationSupported;
 import org.gradle.api.artifacts.repositories.PasswordCredentials;
 import org.gradle.api.tasks.Input;
+import org.gradle.api.tasks.Optional;
 import org.gradle.api.tasks.TaskAction;
 import org.gradle.util.ConfigureUtil;
 
@@ -67,6 +68,7 @@ public class GitPush extends GitBase implements AuthenticationSupported {
 	 * @return the credentials
 	 */
 	@Input
+    @Optional
 	public PasswordCredentials getCredentials() {
 		return credentials;
 	}
