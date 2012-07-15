@@ -14,10 +14,11 @@
  */
 package org.ajoberstar.gradle.git.plugins
 
-import org.ajoberstar.gradle.git.auth.BasicAuthenticationSupport
-import org.ajoberstar.gradle.git.auth.ConfigurableAuthenticationSupported
+import org.ajoberstar.gradle.git.auth.BasicPasswordCredentials
 import org.ajoberstar.gradle.util.ObjectUtil
 import org.gradle.api.Project
+import org.gradle.api.artifacts.repositories.AuthenticationSupported
+import org.gradle.api.artifacts.repositories.PasswordCredentials
 import org.gradle.api.file.CopySpec
 import org.gradle.util.ConfigureUtil
 
@@ -25,9 +26,9 @@ import org.gradle.util.ConfigureUtil
  * Extension for gh-pages specific properties.
  * @since 0.1.0
  */
-class GithubPagesPluginExtension{
+class GithubPagesPluginExtension implements AuthenticationSupported {
 	private final Project project
-	@Delegate private final ConfigurableAuthenticationSupported authSupport = new BasicAuthenticationSupport()
+	PasswordCredentials credentials = new BasicPasswordCredentials()
 	
 	/**
 	 * The URI of the Github repository.
@@ -42,7 +43,7 @@ class GithubPagesPluginExtension{
 	/**
 	 * The path to put the github repository in.
 	 */
-	Object workingPath
+	Object workingPath = "${project.buildDir}/ghpages"
 	
 	/**
 	 * Constructs the plugin extension.
@@ -61,7 +62,7 @@ class GithubPagesPluginExtension{
 	 * will be used to clone the repository.
 	 * @return the repo URI
 	 */
-	public String getRepoUri() {
+	String getRepoUri() {
 		return ObjectUtil.unpackString(repoUri)
 	}
 	
@@ -69,8 +70,8 @@ class GithubPagesPluginExtension{
 	 * Gets the working directory that the repo will be places in.
 	 * @return the working directory
 	 */
-	public File getWorkingDir() {
-		return project.file(getWorkingPath() ?: "${project.buildDir}/ghpages")
+	File getWorkingDir() {
+		return project.file(getWorkingPath())
 	}
 	
 	/**
@@ -79,5 +80,15 @@ class GithubPagesPluginExtension{
 	 */
 	void pages(Closure closure) {
 		ConfigureUtil.configure(closure, pages)
+	}
+	
+	/**
+	 * Configured the credentials to be used when interacting with
+	 * the repo. This will be passed a {@link PasswordCredentials}
+	 * instance.
+	 * @param closure the configuration closure
+	 */
+	void credentials(Closure closure) {
+		ConfigureUtil.configure(closure, credentials)
 	}
 }

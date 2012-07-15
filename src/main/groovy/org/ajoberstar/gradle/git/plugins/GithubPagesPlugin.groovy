@@ -48,7 +48,8 @@ class GithubPagesPlugin implements Plugin<Project> {
 	 * @param project the project
 	 */
 	void apply(Project project) {
-		GithubPagesPluginExtension extension = project.extensions.add('githubPages', new GithubPagesPluginExtension(project))	
+		GithubPagesPluginExtension extension = new GithubPagesPluginExtension(project)
+		project.extensions.add('githubPages', extension)	
 		setDefaultCredentials(project, extension)
 		configureTasks(project, extension)
 		
@@ -71,12 +72,12 @@ class GithubPagesPlugin implements Plugin<Project> {
 	private void configureTasks(final Project project, final GithubPagesPluginExtension extension) {		
 		Delete clean = project.tasks.add(CLEAN_TASK_NAME, Delete)
 		clean.description = 'Cleans the working path of the repo.'
-		clean.delete(extension.workingPath)
+		clean.delete { extension.workingPath }
 		
 		GitClone clone = project.tasks.add(CLONE_TASK_NAME, GitClone)
 		clone.description = 'Clones the Github repo checking out the gh-pages branch'
 		clone.dependsOn clean
-		clone.credentials = extension.credentials
+		clone.conventionMapping.credentials = { extension.credentials }
 		clone.uri = { extension.repoUri }
 		clone.branch = 'gh-pages'
 		clone.destinationPath = { extension.workingPath }
@@ -99,7 +100,7 @@ class GithubPagesPlugin implements Plugin<Project> {
 		GitPush push = project.tasks.add(PUSH_TASK_NAME, GitPush)
 		push.description = 'Pushes all changes in the working gh-pages repo to Github'
 		push.dependsOn commit
-		push.credentials = extension.credentials
+		push.conventionMapping.credentials = { extension.credentials }
 		
 		Task publish = project.tasks.add(PUBLISH_TASK_NAME)
 		publish.description = 'Publishes all gh-pages changes to Github'

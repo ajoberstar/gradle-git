@@ -16,23 +16,24 @@ package org.ajoberstar.gradle.git.tasks;
 
 import groovy.lang.Closure;
 
-import org.ajoberstar.gradle.git.auth.BasicAuthenticationSupport;
-import org.ajoberstar.gradle.git.auth.ConfigurableAuthenticationSupported;
+import org.ajoberstar.gradle.git.auth.BasicPasswordCredentials;
 import org.ajoberstar.gradle.git.auth.JGitCredentialsProviderSupport;
 import org.ajoberstar.gradle.util.ObjectUtil;
 import org.eclipse.jgit.api.PushCommand;
 import org.gradle.api.GradleException;
+import org.gradle.api.artifacts.repositories.AuthenticationSupported;
 import org.gradle.api.artifacts.repositories.PasswordCredentials;
 import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.Optional;
 import org.gradle.api.tasks.TaskAction;
+import org.gradle.util.ConfigureUtil;
 
 /**
  * Task to push changes to a remote repository.
  * @since 0.1.0
  */
-public class GitPush extends GitBase implements ConfigurableAuthenticationSupported {
-	private ConfigurableAuthenticationSupported authSupport = new BasicAuthenticationSupport();
+public class GitPush extends GitBase implements AuthenticationSupported {
+	private PasswordCredentials credentials = new BasicPasswordCredentials();
 	private JGitCredentialsProviderSupport credsProviderSupport = new JGitCredentialsProviderSupport(this);
 	private Object remote = null;
 	private boolean pushTags = false;
@@ -69,7 +70,7 @@ public class GitPush extends GitBase implements ConfigurableAuthenticationSuppor
 	@Input
 	@Optional
 	public PasswordCredentials getCredentials() {
-		return authSupport.getCredentials();
+		return credentials;
 	}
 	
 	/**
@@ -79,7 +80,7 @@ public class GitPush extends GitBase implements ConfigurableAuthenticationSuppor
 	 */
 	@SuppressWarnings("rawtypes")
 	public void credentials(Closure closure) {
-		authSupport.credentials(closure);
+		ConfigureUtil.configure(closure, getCredentials());
 	}
 	
 	/**
@@ -87,7 +88,7 @@ public class GitPush extends GitBase implements ConfigurableAuthenticationSuppor
 	 * @param credentials the credentials
 	 */
 	public void setCredentials(PasswordCredentials credentials) {
-		authSupport.setCredentials(credentials);
+		this.credentials = credentials;
 	}
 	
 	/**

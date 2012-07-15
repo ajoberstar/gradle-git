@@ -23,8 +23,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 
-import org.ajoberstar.gradle.git.auth.BasicAuthenticationSupport;
-import org.ajoberstar.gradle.git.auth.ConfigurableAuthenticationSupported;
+import org.ajoberstar.gradle.git.auth.BasicPasswordCredentials;
 import org.ajoberstar.gradle.git.auth.JGitCredentialsProviderSupport;
 import org.ajoberstar.gradle.util.ObjectUtil;
 import org.eclipse.jgit.api.CloneCommand;
@@ -34,18 +33,20 @@ import org.eclipse.jgit.api.errors.InvalidRemoteException;
 import org.eclipse.jgit.api.errors.TransportException;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.GradleException;
+import org.gradle.api.artifacts.repositories.AuthenticationSupported;
 import org.gradle.api.artifacts.repositories.PasswordCredentials;
 import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.Optional;
 import org.gradle.api.tasks.OutputDirectory;
 import org.gradle.api.tasks.TaskAction;
+import org.gradle.util.ConfigureUtil;
 
 /**
  * Task to clone a Git repository. 
  * @since 0.1.0
  */
-public class GitClone extends DefaultTask implements ConfigurableAuthenticationSupported {
-	private ConfigurableAuthenticationSupported authSupport = new BasicAuthenticationSupport();
+public class GitClone extends DefaultTask implements AuthenticationSupported {
+	private PasswordCredentials credentials = new BasicPasswordCredentials();
 	private JGitCredentialsProviderSupport credsProviderSupport = new JGitCredentialsProviderSupport(this);
 	private Object uri = null;
 	private Object remote = null;
@@ -90,7 +91,7 @@ public class GitClone extends DefaultTask implements ConfigurableAuthenticationS
 	@Input
 	@Optional
 	public PasswordCredentials getCredentials() {
-		return authSupport.getCredentials();
+		return credentials;
 	}
 	
 	/**
@@ -100,15 +101,15 @@ public class GitClone extends DefaultTask implements ConfigurableAuthenticationS
 	 */
 	@SuppressWarnings("rawtypes")
 	public void credentials(Closure closure) {
-		authSupport.credentials(closure);
+		ConfigureUtil.configure(closure, getCredentials());
     }
 	
 	/**
-	 * Sets the credentials to be used when cloning the repo.
-	 * @param credentials the credentials to use
+	 * Sets the credentials to use when cloning the repo.
+	 * @param credentials the credentials
 	 */
 	public void setCredentials(PasswordCredentials credentials) {
-		authSupport.setCredentials(credentials);
+		this.credentials = credentials;
 	}
 	
 	/**

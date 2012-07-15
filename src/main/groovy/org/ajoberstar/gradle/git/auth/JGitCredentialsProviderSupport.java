@@ -35,8 +35,7 @@ public class JGitCredentialsProviderSupport {
 	 * Gets a credentials provider.  If populated credentials
 	 * are available, they will be used by the credentials
 	 * provider.  If not, the credentials provider will
-	 * prompt for any needed credentials.
-	 * @param creds the credentials to use 
+	 * prompt for any needed credentials. 
 	 * @return a credentials provider
 	 */
 	public CredentialsProvider getCredentialsProvider() {
