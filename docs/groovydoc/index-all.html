@@ -135,11 +135,7 @@ function windowTitle()
 
 <dl>
 
-<dt><a href="org/ajoberstar/gradle/git/plugins/GhPagesPlugin.html#apply(Project)" title="Method in GhPagesPlugin"><b>apply</b>(Project)</b></a> - Method in <a href="org/ajoberstar/gradle/git/plugins/GhPagesPlugin.html">GhPagesPlugin</a>
-</dt><dd>Applies the plugin to the given project.</dd>
-<dt><a href="org/ajoberstar/gradle/git/plugins/GithubPlugin.html#apply(Project)" title="Method in GithubPlugin"><b>apply</b>(Project)</b></a> - Method in <a href="org/ajoberstar/gradle/git/plugins/GithubPlugin.html">GithubPlugin</a>
-</dt><dd>Applies the plugin to the given project.</dd>
-<dt><a href="org/ajoberstar/gradle/git/plugins/GitPlugin.html#apply(Project)" title="Method in GitPlugin"><b>apply</b>(Project)</b></a> - Method in <a href="org/ajoberstar/gradle/git/plugins/GitPlugin.html">GitPlugin</a>
+<dt><a href="org/ajoberstar/gradle/git/plugins/GithubPagesPlugin.html#apply(Project)" title="Method in GithubPagesPlugin"><b>apply</b>(Project)</b></a> - Method in <a href="org/ajoberstar/gradle/git/plugins/GithubPagesPlugin.html">GithubPagesPlugin</a>
 </dt><dd>Applies the plugin to the given project.</dd>
 <dt><a href="org/ajoberstar/gradle/git/tasks/GitCommit.html#author(groovy.lang.Closure)" title="Method in GitCommit"><b>author</b>(Closure)</b></a> - Method in <a href="org/ajoberstar/gradle/git/tasks/GitCommit.html">GitCommit</a>
 </dt><dd>Configures the author for this commit.
@@ -154,9 +150,9 @@ function windowTitle()
 
 <dl>
 
-<dt><a href="org/ajoberstar/gradle/git/plugins/BasicPasswordCredentials.html" title="Class in org.ajoberstar.gradle.git.plugins"><b>BasicPasswordCredentials</b></a> - Class in <a href="./org/ajoberstar/gradle/git/plugins/package-summary.html">org.ajoberstar.gradle.git.plugins</a>
+<dt><a href="org/ajoberstar/gradle/git/auth/BasicPasswordCredentials.html" title="Class in org.ajoberstar.gradle.git.auth"><b>BasicPasswordCredentials</b></a> - Class in <a href="./org/ajoberstar/gradle/git/auth/package-summary.html">org.ajoberstar.gradle.git.auth</a>
 </dt><dd>Basic implementation of PasswordCredentials.</dd>
-<dt><a href="org/ajoberstar/gradle/git/plugins/BasicPasswordCredentials.html#BasicPasswordCredentials(java.lang.String, java.lang.String)" title="Constructor in BasicPasswordCredentials"><b>BasicPasswordCredentials</b>(String, String)</b></a> - Constructor in <a href="org/ajoberstar/gradle/git/plugins/BasicPasswordCredentials.html">BasicPasswordCredentials</a>
+<dt><a href="org/ajoberstar/gradle/git/auth/BasicPasswordCredentials.html#BasicPasswordCredentials(java.lang.String, java.lang.String)" title="Constructor in BasicPasswordCredentials"><b>BasicPasswordCredentials</b>(String, String)</b></a> - Constructor in <a href="org/ajoberstar/gradle/git/auth/BasicPasswordCredentials.html">BasicPasswordCredentials</a>
 </dt><dd>Constructs credentials with the given arguments.</dd>
 <dt><a href="org/ajoberstar/gradle/git/tasks/GitClone.html#branchesToClone(java.lang.Object)" title="Method in GitClone"><b>branchesToClone</b>(Object)</b></a> - Method in <a href="org/ajoberstar/gradle/git/tasks/GitClone.html">GitClone</a>
 </dt><dd>Adds branches to clone if <TT>cloneAllBranches</TT>
@@ -181,8 +177,9 @@ function windowTitle()
 <dt><a href="org/ajoberstar/gradle/git/tasks/GitClone.html#credentials(groovy.lang.Closure)" title="Method in GitClone"><b>credentials</b>(Closure)</b></a> - Method in <a href="org/ajoberstar/gradle/git/tasks/GitClone.html">GitClone</a>
 </dt><dd>Configured the credentials to be used when cloning the repo.
  </dd>
-<dt><a href="org/ajoberstar/gradle/git/plugins/GithubPluginExtension.html#credentials(groovy.lang.Closure)" title="Method in GithubPluginExtension"><b>credentials</b>(Closure)</b></a> - Method in <a href="org/ajoberstar/gradle/git/plugins/GithubPluginExtension.html">GithubPluginExtension</a>
-</dt><dd>{@inheritDoc}</dd>
+<dt><a href="org/ajoberstar/gradle/git/plugins/GithubPagesPluginExtension.html#credentials(groovy.lang.Closure)" title="Method in GithubPagesPluginExtension"><b>credentials</b>(Closure)</b></a> - Method in <a href="org/ajoberstar/gradle/git/plugins/GithubPagesPluginExtension.html">GithubPagesPluginExtension</a>
+</dt><dd>Configured the credentials to be used when interacting with
+ the repo. </dd>
 <dt><a href="org/ajoberstar/gradle/git/tasks/GitPush.html#credentials(groovy.lang.Closure)" title="Method in GitPush"><b>credentials</b>(Closure)</b></a> - Method in <a href="org/ajoberstar/gradle/git/tasks/GitPush.html">GitPush</a>
 </dt><dd>Configures the credentials to use when pushing changes.
  </dd>
@@ -196,8 +193,6 @@ function windowTitle()
 
 <dl>
 
-<dt><a href="org/ajoberstar/gradle/git/plugins/GhPagesPluginExtension.html#distribution(groovy.lang.Closure)" title="Method in GhPagesPluginExtension"><b>distribution</b>(Closure)</b></a> - Method in <a href="org/ajoberstar/gradle/git/plugins/GhPagesPluginExtension.html">GhPagesPluginExtension</a>
-</dt><dd>Configures the gh-pages distribution.</dd>
 </dl>
 
     
@@ -252,10 +247,10 @@ function windowTitle()
 </dt><dd>Gets the committer to for this commit.</dd>
 <dt><a href="org/ajoberstar/gradle/git/tasks/GitClone.html#getCredentials()" title="Method in GitClone"><b>getCredentials</b>()</b></a> - Method in <a href="org/ajoberstar/gradle/git/tasks/GitClone.html">GitClone</a>
 </dt><dd>Gets the credentials to be used when cloning the repo.</dd>
-<dt><a href="org/ajoberstar/gradle/git/plugins/GithubPluginExtension.html#getCredentials()" title="Method in GithubPluginExtension"><b>getCredentials</b>()</b></a> - Method in <a href="org/ajoberstar/gradle/git/plugins/GithubPluginExtension.html">GithubPluginExtension</a>
-</dt><dd>{@inheritDoc}</dd>
 <dt><a href="org/ajoberstar/gradle/git/tasks/GitPush.html#getCredentials()" title="Method in GitPush"><b>getCredentials</b>()</b></a> - Method in <a href="org/ajoberstar/gradle/git/tasks/GitPush.html">GitPush</a>
 </dt><dd>Gets the credentials to use when pushing changes.</dd>
+<dt><a href="org/ajoberstar/gradle/git/auth/JGitCredentialsProviderSupport.html#getCredentialsProvider()" title="Method in JGitCredentialsProviderSupport"><b>getCredentialsProvider</b>()</b></a> - Method in <a href="org/ajoberstar/gradle/git/auth/JGitCredentialsProviderSupport.html">JGitCredentialsProviderSupport</a>
+</dt><dd>Gets a credentials provider.  </dd>
 <dt><a href="org/ajoberstar/gradle/git/tasks/GitClone.html#getDestinationDir()" title="Method in GitClone"><b>getDestinationDir</b>()</b></a> - Method in <a href="org/ajoberstar/gradle/git/tasks/GitClone.html">GitClone</a>
 </dt><dd>Gets the destination directory the repository
  will be cloned into.</dd>
@@ -272,7 +267,7 @@ function windowTitle()
 </dt><dd>Gets the commit message to use.</dd>
 <dt><a href="org/ajoberstar/gradle/git/tasks/GitTag.html#getMessage()" title="Method in GitTag"><b>getMessage</b>()</b></a> - Method in <a href="org/ajoberstar/gradle/git/tasks/GitTag.html">GitTag</a>
 </dt><dd>Gets the tag message to use.</dd>
-<dt><a href="org/ajoberstar/gradle/git/plugins/BasicPasswordCredentials.html#getPassword()" title="Method in BasicPasswordCredentials"><b>getPassword</b>()</b></a> - Method in <a href="org/ajoberstar/gradle/git/plugins/BasicPasswordCredentials.html">BasicPasswordCredentials</a>
+<dt><a href="org/ajoberstar/gradle/git/auth/BasicPasswordCredentials.html#getPassword()" title="Method in BasicPasswordCredentials"><b>getPassword</b>()</b></a> - Method in <a href="org/ajoberstar/gradle/git/auth/BasicPasswordCredentials.html">BasicPasswordCredentials</a>
 </dt><dd>{@inheritDoc}</dd>
 <dt><a href="org/ajoberstar/gradle/git/tasks/GitClone.html#getRemote()" title="Method in GitClone"><b>getRemote</b>()</b></a> - Method in <a href="org/ajoberstar/gradle/git/tasks/GitClone.html">GitClone</a>
 </dt><dd>Gets the name used to track the upstream repository.
@@ -281,8 +276,8 @@ function windowTitle()
 </dt><dd>Gets the remote to push to. </dd>
 <dt><a href="org/ajoberstar/gradle/git/tasks/GitBase.html#getRepoDir()" title="Method in GitBase"><b>getRepoDir</b>()</b></a> - Method in <a href="org/ajoberstar/gradle/git/tasks/GitBase.html">GitBase</a>
 </dt><dd>Gets the directory of the repository.</dd>
-<dt><a href="org/ajoberstar/gradle/git/plugins/GithubPluginExtension.html#getRepoUri()" title="Method in GithubPluginExtension"><b>getRepoUri</b>()</b></a> - Method in <a href="org/ajoberstar/gradle/git/plugins/GithubPluginExtension.html">GithubPluginExtension</a>
-</dt><dd>Gets the URI of the Github repository.</dd>
+<dt><a href="org/ajoberstar/gradle/git/plugins/GithubPagesPluginExtension.html#getRepoUri()" title="Method in GithubPagesPluginExtension"><b>getRepoUri</b>()</b></a> - Method in <a href="org/ajoberstar/gradle/git/plugins/GithubPagesPluginExtension.html">GithubPagesPluginExtension</a>
+</dt><dd>Gets the URI of the Github repository.  </dd>
 <dt><a href="org/ajoberstar/gradle/git/tasks/GitTag.html#getSign()" title="Method in GitTag"><b>getSign</b>()</b></a> - Method in <a href="org/ajoberstar/gradle/git/tasks/GitTag.html">GitTag</a>
 </dt><dd>Gets whether or not the tag will be signed with
  the tagger's default key.</dd>
@@ -295,14 +290,10 @@ function windowTitle()
 </dt><dd>Gets the tag name to use.</dd>
 <dt><a href="org/ajoberstar/gradle/git/tasks/GitClone.html#getUri()" title="Method in GitClone"><b>getUri</b>()</b></a> - Method in <a href="org/ajoberstar/gradle/git/tasks/GitClone.html">GitClone</a>
 </dt><dd>Gets the URI of the repo to clone.</dd>
-<dt><a href="org/ajoberstar/gradle/git/plugins/BasicPasswordCredentials.html#getUsername()" title="Method in BasicPasswordCredentials"><b>getUsername</b>()</b></a> - Method in <a href="org/ajoberstar/gradle/git/plugins/BasicPasswordCredentials.html">BasicPasswordCredentials</a>
+<dt><a href="org/ajoberstar/gradle/git/auth/BasicPasswordCredentials.html#getUsername()" title="Method in BasicPasswordCredentials"><b>getUsername</b>()</b></a> - Method in <a href="org/ajoberstar/gradle/git/auth/BasicPasswordCredentials.html">BasicPasswordCredentials</a>
 </dt><dd>{@inheritDoc}</dd>
-<dt><a href="org/ajoberstar/gradle/git/plugins/GhPagesPlugin.html" title="Class in org.ajoberstar.gradle.git.plugins"><b>GhPagesPlugin</b></a> - Class in <a href="./org/ajoberstar/gradle/git/plugins/package-summary.html">org.ajoberstar.gradle.git.plugins</a>
-</dt><dd>Plugin to enable publishing to gh-pages branch of Github.</dd>
-<dt><a href="org/ajoberstar/gradle/git/plugins/GhPagesPluginExtension.html" title="Class in org.ajoberstar.gradle.git.plugins"><b>GhPagesPluginExtension</b></a> - Class in <a href="./org/ajoberstar/gradle/git/plugins/package-summary.html">org.ajoberstar.gradle.git.plugins</a>
-</dt><dd>Extension for gh-pages specific properties.</dd>
-<dt><a href="org/ajoberstar/gradle/git/plugins/GhPagesPluginExtension.html#GhPagesPluginExtension(Project)" title="Constructor in GhPagesPluginExtension"><b>GhPagesPluginExtension</b>(Project)</b></a> - Constructor in <a href="org/ajoberstar/gradle/git/plugins/GhPagesPluginExtension.html">GhPagesPluginExtension</a>
-</dt><dd>Constructs the plugin extension.</dd>
+<dt><a href="org/ajoberstar/gradle/git/plugins/GithubPagesPluginExtension.html#getWorkingDir()" title="Method in GithubPagesPluginExtension"><b>getWorkingDir</b>()</b></a> - Method in <a href="org/ajoberstar/gradle/git/plugins/GithubPagesPluginExtension.html">GithubPagesPluginExtension</a>
+</dt><dd>Gets the working directory that the repo will be places in.</dd>
 <dt><a href="org/ajoberstar/gradle/git/tasks/GitAdd.html" title="Class in org.ajoberstar.gradle.git.tasks"><b>GitAdd</b></a> - Class in <a href="./org/ajoberstar/gradle/git/tasks/package-summary.html">org.ajoberstar.gradle.git.tasks</a>
 </dt><dd>Task to add files to a Git repository's
  staging area.</dd>
@@ -313,17 +304,11 @@ function windowTitle()
 </dt><dd>Task to clone a Git repository.</dd>
 <dt><a href="org/ajoberstar/gradle/git/tasks/GitCommit.html" title="Class in org.ajoberstar.gradle.git.tasks"><b>GitCommit</b></a> - Class in <a href="./org/ajoberstar/gradle/git/tasks/package-summary.html">org.ajoberstar.gradle.git.tasks</a>
 </dt><dd>Task to commit changes to a Git repository.</dd>
-<dt><a href="org/ajoberstar/gradle/git/plugins/GithubPlugin.html" title="Class in org.ajoberstar.gradle.git.plugins"><b>GithubPlugin</b></a> - Class in <a href="./org/ajoberstar/gradle/git/plugins/package-summary.html">org.ajoberstar.gradle.git.plugins</a>
-</dt><dd>Plugin for supporting Github.</dd>
-<dt><a href="org/ajoberstar/gradle/git/plugins/GithubPluginExtension.html" title="Class in org.ajoberstar.gradle.git.plugins"><b>GithubPluginExtension</b></a> - Class in <a href="./org/ajoberstar/gradle/git/plugins/package-summary.html">org.ajoberstar.gradle.git.plugins</a>
-</dt><dd>Extension for Github properties.</dd>
-<dt><a href="org/ajoberstar/gradle/git/plugins/GithubPluginExtension.html#GithubPluginExtension(Project)" title="Constructor in GithubPluginExtension"><b>GithubPluginExtension</b>(Project)</b></a> - Constructor in <a href="org/ajoberstar/gradle/git/plugins/GithubPluginExtension.html">GithubPluginExtension</a>
-</dt><dd>Constructs the plugin extension.</dd>
-<dt><a href="org/ajoberstar/gradle/git/plugins/GitPlugin.html" title="Class in org.ajoberstar.gradle.git.plugins"><b>GitPlugin</b></a> - Class in <a href="./org/ajoberstar/gradle/git/plugins/package-summary.html">org.ajoberstar.gradle.git.plugins</a>
-</dt><dd>Plugin for Git support.</dd>
-<dt><a href="org/ajoberstar/gradle/git/plugins/GitPluginExtension.html" title="Class in org.ajoberstar.gradle.git.plugins"><b>GitPluginExtension</b></a> - Class in <a href="./org/ajoberstar/gradle/git/plugins/package-summary.html">org.ajoberstar.gradle.git.plugins</a>
-</dt><dd>Extension for Git properties.</dd>
-<dt><a href="org/ajoberstar/gradle/git/plugins/GitPluginExtension.html#GitPluginExtension(Project)" title="Constructor in GitPluginExtension"><b>GitPluginExtension</b>(Project)</b></a> - Constructor in <a href="org/ajoberstar/gradle/git/plugins/GitPluginExtension.html">GitPluginExtension</a>
+<dt><a href="org/ajoberstar/gradle/git/plugins/GithubPagesPlugin.html" title="Class in org.ajoberstar.gradle.git.plugins"><b>GithubPagesPlugin</b></a> - Class in <a href="./org/ajoberstar/gradle/git/plugins/package-summary.html">org.ajoberstar.gradle.git.plugins</a>
+</dt><dd>Plugin to enable publishing to gh-pages branch of Github.</dd>
+<dt><a href="org/ajoberstar/gradle/git/plugins/GithubPagesPluginExtension.html" title="Class in org.ajoberstar.gradle.git.plugins"><b>GithubPagesPluginExtension</b></a> - Class in <a href="./org/ajoberstar/gradle/git/plugins/package-summary.html">org.ajoberstar.gradle.git.plugins</a>
+</dt><dd>Extension for gh-pages specific properties.</dd>
+<dt><a href="org/ajoberstar/gradle/git/plugins/GithubPagesPluginExtension.html#GithubPagesPluginExtension(Project)" title="Constructor in GithubPagesPluginExtension"><b>GithubPagesPluginExtension</b>(Project)</b></a> - Constructor in <a href="org/ajoberstar/gradle/git/plugins/GithubPagesPluginExtension.html">GithubPagesPluginExtension</a>
 </dt><dd>Constructs the plugin extension.</dd>
 <dt><a href="org/ajoberstar/gradle/git/tasks/GitPush.html" title="Class in org.ajoberstar.gradle.git.tasks"><b>GitPush</b></a> - Class in <a href="./org/ajoberstar/gradle/git/tasks/package-summary.html">org.ajoberstar.gradle.git.tasks</a>
 </dt><dd>Task to push changes to a remote repository.</dd>
@@ -372,6 +357,10 @@ function windowTitle()
 
 <dl>
 
+<dt><a href="org/ajoberstar/gradle/git/auth/JGitCredentialsProviderSupport.html" title="Class in org.ajoberstar.gradle.git.auth"><b>JGitCredentialsProviderSupport</b></a> - Class in <a href="./org/ajoberstar/gradle/git/auth/package-summary.html">org.ajoberstar.gradle.git.auth</a>
+</dt><dd>Provides support for creating a <TT>JGitCredentialsProvider</TT>.</dd>
+<dt><a href="org/ajoberstar/gradle/git/auth/JGitCredentialsProviderSupport.html#JGitCredentialsProviderSupport(AuthenticationSupported)" title="Constructor in JGitCredentialsProviderSupport"><b>JGitCredentialsProviderSupport</b>(AuthenticationSupported)</b></a> - Constructor in <a href="org/ajoberstar/gradle/git/auth/JGitCredentialsProviderSupport.html">JGitCredentialsProviderSupport</a>
+</dt><dd></dd>
 </dl>
 
     
@@ -424,9 +413,6 @@ function windowTitle()
 
 <dt><a href="org/ajoberstar/gradle/util/ObjectUtil.html" title="Class in org.ajoberstar.gradle.util"><b>ObjectUtil</b></a> - Class in <a href="./org/ajoberstar/gradle/util/package-summary.html">org.ajoberstar.gradle.util</a>
 </dt><dd>Utility class for general <TT>Object</TT> related operations.</dd>
-<dt><a href="org/ajoberstar/gradle/git/plugins/GitPluginExtension.html#open(java.lang.Object)" title="Method in GitPluginExtension"><b>open</b>(Object)</b></a> - Method in <a href="org/ajoberstar/gradle/git/plugins/GitPluginExtension.html">GitPluginExtension</a>
-</dt><dd>Opens a <TT>Git</TT> instance for the
- repository path.</dd>
 </dl>
 
     
@@ -437,6 +423,8 @@ function windowTitle()
 
 <dl>
 
+<dt><a href="org/ajoberstar/gradle/git/plugins/GithubPagesPluginExtension.html#pages(groovy.lang.Closure)" title="Method in GithubPagesPluginExtension"><b>pages</b>(Closure)</b></a> - Method in <a href="org/ajoberstar/gradle/git/plugins/GithubPagesPluginExtension.html">GithubPagesPluginExtension</a>
+</dt><dd>Configures the gh-pages copy spec.</dd>
 <dt><a href="org/ajoberstar/gradle/git/tasks/GitPush.html#push()" title="Method in GitPush"><b>push</b>()</b></a> - Method in <a href="org/ajoberstar/gradle/git/tasks/GitPush.html">GitPush</a>
 </dt><dd>Pushes changes to a remote repository.</dd>
 </dl>
@@ -489,7 +477,7 @@ function windowTitle()
 <dt><a href="org/ajoberstar/gradle/git/tasks/GitCommit.html#setCommitter(PersonIdent)" title="Method in GitCommit"><b>setCommitter</b>(PersonIdent)</b></a> - Method in <a href="org/ajoberstar/gradle/git/tasks/GitCommit.html">GitCommit</a>
 </dt><dd>Sets the committer for this commit.</dd>
 <dt><a href="org/ajoberstar/gradle/git/tasks/GitClone.html#setCredentials(PasswordCredentials)" title="Method in GitClone"><b>setCredentials</b>(PasswordCredentials)</b></a> - Method in <a href="org/ajoberstar/gradle/git/tasks/GitClone.html">GitClone</a>
-</dt><dd>Sets the credentials to be used when cloning the repo.</dd>
+</dt><dd>Sets the credentials to use when cloning the repo.</dd>
 <dt><a href="org/ajoberstar/gradle/git/tasks/GitPush.html#setCredentials(PasswordCredentials)" title="Method in GitPush"><b>setCredentials</b>(PasswordCredentials)</b></a> - Method in <a href="org/ajoberstar/gradle/git/tasks/GitPush.html">GitPush</a>
 </dt><dd>Sets the credentials to use when pushing changes.</dd>
 <dt><a href="org/ajoberstar/gradle/git/tasks/GitClone.html#setDestinationPath(java.lang.Object)" title="Method in GitClone"><b>setDestinationPath</b>(Object)</b></a> - Method in <a href="org/ajoberstar/gradle/git/tasks/GitClone.html">GitClone</a>
@@ -510,7 +498,7 @@ function windowTitle()
 </dt><dd>Sets the commit message to use.</dd>
 <dt><a href="org/ajoberstar/gradle/git/tasks/GitTag.html#setMessage(java.lang.Object)" title="Method in GitTag"><b>setMessage</b>(Object)</b></a> - Method in <a href="org/ajoberstar/gradle/git/tasks/GitTag.html">GitTag</a>
 </dt><dd>Sets the tag message to use.</dd>
-<dt><a href="org/ajoberstar/gradle/git/plugins/BasicPasswordCredentials.html#setPassword(java.lang.String)" title="Method in BasicPasswordCredentials"><b>setPassword</b>(String)</b></a> - Method in <a href="org/ajoberstar/gradle/git/plugins/BasicPasswordCredentials.html">BasicPasswordCredentials</a>
+<dt><a href="org/ajoberstar/gradle/git/auth/BasicPasswordCredentials.html#setPassword(java.lang.String)" title="Method in BasicPasswordCredentials"><b>setPassword</b>(String)</b></a> - Method in <a href="org/ajoberstar/gradle/git/auth/BasicPasswordCredentials.html">BasicPasswordCredentials</a>
 </dt><dd>{@inheritDoc}</dd>
 <dt><a href="org/ajoberstar/gradle/git/tasks/GitPush.html#setPushAll(boolean)" title="Method in GitPush"><b>setPushAll</b>(boolean)</b></a> - Method in <a href="org/ajoberstar/gradle/git/tasks/GitPush.html">GitPush</a>
 </dt><dd>Sets whether to push all branches.</dd>
@@ -531,7 +519,7 @@ function windowTitle()
 </dt><dd>Sets the tag name to use.</dd>
 <dt><a href="org/ajoberstar/gradle/git/tasks/GitClone.html#setUri(java.lang.Object)" title="Method in GitClone"><b>setUri</b>(Object)</b></a> - Method in <a href="org/ajoberstar/gradle/git/tasks/GitClone.html">GitClone</a>
 </dt><dd>Sets the URI of the repo to clone.</dd>
-<dt><a href="org/ajoberstar/gradle/git/plugins/BasicPasswordCredentials.html#setUsername(java.lang.String)" title="Method in BasicPasswordCredentials"><b>setUsername</b>(String)</b></a> - Method in <a href="org/ajoberstar/gradle/git/plugins/BasicPasswordCredentials.html">BasicPasswordCredentials</a>
+<dt><a href="org/ajoberstar/gradle/git/auth/BasicPasswordCredentials.html#setUsername(java.lang.String)" title="Method in BasicPasswordCredentials"><b>setUsername</b>(String)</b></a> - Method in <a href="org/ajoberstar/gradle/git/auth/BasicPasswordCredentials.html">BasicPasswordCredentials</a>
 </dt><dd>{@inheritDoc}</dd>
 </dl>
 

@@ -1,3 +1,4 @@
+org.ajoberstar.gradle.git.auth
 org.ajoberstar.gradle.git.plugins
 org.ajoberstar.gradle.git.tasks
 org.ajoberstar.gradle.util
