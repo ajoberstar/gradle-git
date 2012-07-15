@@ -23,16 +23,15 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 
-import org.ajoberstar.gradle.util.CredentialsEvaluator;
-import org.ajoberstar.gradle.util.ModifiableAuthenticationSupported;
+import org.ajoberstar.gradle.git.auth.BasicAuthenticationSupport;
+import org.ajoberstar.gradle.git.auth.ConfigurableAuthenticationSupported;
+import org.ajoberstar.gradle.git.auth.JGitCredentialsProviderSupport;
 import org.ajoberstar.gradle.util.ObjectUtil;
-import org.ajoberstar.gradle.util.RemoteEvaluator;
 import org.eclipse.jgit.api.CloneCommand;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.api.errors.InvalidRemoteException;
 import org.eclipse.jgit.api.errors.TransportException;
-import org.eclipse.jgit.transport.CredentialsProvider;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.GradleException;
 import org.gradle.api.artifacts.repositories.PasswordCredentials;
@@ -45,8 +44,9 @@ import org.gradle.api.tasks.TaskAction;
  * Task to clone a Git repository. 
  * @since 0.1.0
  */
-public class GitClone extends DefaultTask implements ModifiableAuthenticationSupported {
-	private PasswordCredentials credentials = null;
+public class GitClone extends DefaultTask implements ConfigurableAuthenticationSupported {
+	private ConfigurableAuthenticationSupported authSupport = new BasicAuthenticationSupport();
+	private JGitCredentialsProviderSupport credsProviderSupport = new JGitCredentialsProviderSupport(this);
 	private Object uri = null;
 	private Object remote = null;
 	private boolean bare = false;
@@ -62,7 +62,7 @@ public class GitClone extends DefaultTask implements ModifiableAuthenticationSup
 	@TaskAction
 	public void cloneRepo() {
 		CloneCommand cmd = Git.cloneRepository();
-		cmd.setCredentialsProvider(getCredentialsProvider());
+		cmd.setCredentialsProvider(credsProviderSupport.getCredentialsProvider());
 		cmd.setURI(getUri().toString());
 		cmd.setRemote(getRemote());
 		cmd.setBare(getBare());
@@ -81,7 +81,6 @@ public class GitClone extends DefaultTask implements ModifiableAuthenticationSup
 			throw new GradleException("Problem with clone.", e);
 		}
 		//TODO add progress monitor to log progress to Gradle status bar
-		//TODO add support for credentials
 	}
 
 	/**
@@ -91,7 +90,7 @@ public class GitClone extends DefaultTask implements ModifiableAuthenticationSup
 	@Input
 	@Optional
 	public PasswordCredentials getCredentials() {
-		return credentials;
+		return authSupport.getCredentials();
 	}
 	
 	/**
@@ -101,7 +100,7 @@ public class GitClone extends DefaultTask implements ModifiableAuthenticationSup
 	 */
 	@SuppressWarnings("rawtypes")
 	public void credentials(Closure closure) {
-      new CredentialsEvaluator(this).evaluate(closure);
+		authSupport.credentials(closure);
     }
 	
 	/**
@@ -109,16 +108,8 @@ public class GitClone extends DefaultTask implements ModifiableAuthenticationSup
 	 * @param credentials the credentials to use
 	 */
 	public void setCredentials(PasswordCredentials credentials) {
-		this.credentials = credentials;
+		authSupport.setCredentials(credentials);
 	}
-	
-	/**
-	 * Gets the credentials provider to pass to the clone command.
-	 * @return the credentials provider
-	 */
-	private CredentialsProvider getCredentialsProvider() {
-        return new CredentialsEvaluator(this).getCredentialsProvider();
-    }
 	
 	/**
 	 * Gets the URI of the repo to clone.
@@ -144,7 +135,7 @@ public class GitClone extends DefaultTask implements ModifiableAuthenticationSup
 	 */
 	@Input
 	public String getRemote() {
-      return new RemoteEvaluator().evaluate(remote);
+		return remote == null ? "origin" : ObjectUtil.unpackString(remote);
     }
 	
 	/**

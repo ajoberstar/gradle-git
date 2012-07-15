@@ -16,11 +16,11 @@ package org.ajoberstar.gradle.git.tasks;
 
 import groovy.lang.Closure;
 
-import org.ajoberstar.gradle.util.CredentialsEvaluator;
-import org.ajoberstar.gradle.util.ModifiableAuthenticationSupported;
-import org.ajoberstar.gradle.util.RemoteEvaluator;
+import org.ajoberstar.gradle.git.auth.BasicAuthenticationSupport;
+import org.ajoberstar.gradle.git.auth.ConfigurableAuthenticationSupported;
+import org.ajoberstar.gradle.git.auth.JGitCredentialsProviderSupport;
+import org.ajoberstar.gradle.util.ObjectUtil;
 import org.eclipse.jgit.api.PushCommand;
-import org.eclipse.jgit.transport.CredentialsProvider;
 import org.gradle.api.GradleException;
 import org.gradle.api.artifacts.repositories.PasswordCredentials;
 import org.gradle.api.tasks.Input;
@@ -31,8 +31,9 @@ import org.gradle.api.tasks.TaskAction;
  * Task to push changes to a remote repository.
  * @since 0.1.0
  */
-public class GitPush extends GitBase implements ModifiableAuthenticationSupported {
-	private PasswordCredentials credentials = null;
+public class GitPush extends GitBase implements ConfigurableAuthenticationSupported {
+	private ConfigurableAuthenticationSupported authSupport = new BasicAuthenticationSupport();
+	private JGitCredentialsProviderSupport credsProviderSupport = new JGitCredentialsProviderSupport(this);
 	private Object remote = null;
 	private boolean pushTags = false;
 	private boolean pushAll = false;
@@ -44,7 +45,7 @@ public class GitPush extends GitBase implements ModifiableAuthenticationSupporte
 	@TaskAction
 	public void push() {
 		PushCommand cmd = getGit().push();
-		cmd.setCredentialsProvider(getCredentialsProvider());
+		cmd.setCredentialsProvider(credsProviderSupport.getCredentialsProvider());
 		cmd.setRemote(getRemote());
 		if (isPushTags()) {
 			cmd.setPushTags();
@@ -68,7 +69,7 @@ public class GitPush extends GitBase implements ModifiableAuthenticationSupporte
 	@Input
 	@Optional
 	public PasswordCredentials getCredentials() {
-		return credentials;
+		return authSupport.getCredentials();
 	}
 	
 	/**
@@ -78,7 +79,7 @@ public class GitPush extends GitBase implements ModifiableAuthenticationSupporte
 	 */
 	@SuppressWarnings("rawtypes")
 	public void credentials(Closure closure) {
-		new CredentialsEvaluator(this).evaluate(closure);
+		authSupport.credentials(closure);
 	}
 	
 	/**
@@ -86,15 +87,7 @@ public class GitPush extends GitBase implements ModifiableAuthenticationSupporte
 	 * @param credentials the credentials
 	 */
 	public void setCredentials(PasswordCredentials credentials) {
-		this.credentials = credentials;
-	}
-	
-	/**
-	 * Gets the credentials provider to pass to the clone command.
-	 * @return the credentials provider
-	 */
-	private CredentialsProvider getCredentialsProvider() {
-	     return new CredentialsEvaluator(this).getCredentialsProvider();
+		authSupport.setCredentials(credentials);
 	}
 	
 	/**
@@ -103,7 +96,7 @@ public class GitPush extends GitBase implements ModifiableAuthenticationSupporte
 	 */
 	@Input
 	public String getRemote() {
-		return new RemoteEvaluator().evaluate(remote);
+		return remote == null ? "origin" : ObjectUtil.unpackString(remote);
 	}
 	
 	/**

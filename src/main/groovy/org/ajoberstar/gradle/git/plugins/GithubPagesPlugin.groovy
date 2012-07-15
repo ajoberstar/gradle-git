@@ -23,14 +23,19 @@ import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.Task
 import org.gradle.api.tasks.Copy
+import org.gradle.api.tasks.Delete
 import org.gradle.api.tasks.TaskCollection
 
 /**
  * Plugin to enable publishing to gh-pages branch of Github.
  * @since 0.1.0
  */
-class GhPagesPlugin implements Plugin<Project> {
-	static final String GROUP_NAME = 'ghpages'
+class GithubPagesPlugin implements Plugin<Project> {
+	static final String USERNAME_PROP = 'github.credentials.username'
+	static final String PASSWORD_PROP = 'github.credentials.password'
+	
+	static final String TASK_GROUP_NAME = 'ghpages'
+	static final String CLEAN_TASK_NAME = 'cleanGhPages'
 	static final String CLONE_TASK_NAME = 'cloneGhPages'
 	static final String PROCESS_TASK_NAME = 'processGhPages'
 	static final String ADD_TASK_NAME = 'addGhPages'
@@ -43,18 +48,18 @@ class GhPagesPlugin implements Plugin<Project> {
 	 * @param project the project
 	 */
 	void apply(Project project) {
-		project.plugins.apply(GithubPlugin)
-		GithubPluginExtension extension = project.extensions.getByType(GithubPluginExtension)
+		GithubPagesPluginExtension extension = project.extensions.add('githubPages', new GithubPagesPluginExtension(project))	
+		setDefaultCredentials(project, extension)
 		configureTasks(project, extension)
 		
 		TaskCollection tasks = project.tasks.matching { it.name.endsWith('GhPages') }
 		
 		tasks.all {
-			it.group = GROUP_NAME
+			it.group = TASK_GROUP_NAME
 		}
 		
 		tasks.withType(GitBase) {
-			it.repoPath = { extension.ghpages.destinationPath }
+			it.repoPath = { extension.workingPath }
 		}
 	}
 	
@@ -63,19 +68,24 @@ class GhPagesPlugin implements Plugin<Project> {
 	 * @param project the project to configure
 	 * @param extension the plugin extension
 	 */
-	private void configureTasks(final Project project, final GithubPluginExtension extension) {		
+	private void configureTasks(final Project project, final GithubPagesPluginExtension extension) {		
+		Delete clean = project.tasks.add(CLEAN_TASK_NAME, Delete)
+		clean.description = 'Cleans the working path of the repo.'
+		clean.delete(extension.workingPath)
+		
 		GitClone clone = project.tasks.add(CLONE_TASK_NAME, GitClone)
 		clone.description = 'Clones the Github repo checking out the gh-pages branch'
+		clone.dependsOn clean
 		clone.credentials = extension.credentials
 		clone.uri = { extension.repoUri }
 		clone.branch = 'gh-pages'
-		clone.destinationPath = { extension.ghpages.destinationPath }
+		clone.destinationPath = { extension.workingPath }
 		
 		Copy process = project.tasks.add(PROCESS_TASK_NAME, Copy)
 		process.description = 'Processes the gh-pages files, copying them to the working repo'
 		process.dependsOn clone
-		process.with extension.ghpages.distribution
-		process.into { extension.ghpages.destinationPath }
+		process.with extension.pages
+		process.into { extension.workingPath }
 		
 		GitAdd add = project.tasks.add(ADD_TASK_NAME, GitAdd)
 		add.description = 'Adds all changes to the working gh-pages repo'
@@ -94,5 +104,19 @@ class GhPagesPlugin implements Plugin<Project> {
 		Task publish = project.tasks.add(PUBLISH_TASK_NAME)
 		publish.description = 'Publishes all gh-pages changes to Github'
 		publish.dependsOn push
+	}
+	
+	/**
+	 * Sets the default credentials based on project properties.
+	 * @param project the project to get properties from
+	 * @param extension the extension to configure credentials for
+	 */
+	private void setDefaultCredentials(Project project, GithubPagesPluginExtension extension) {
+		if (project.hasProperty(USERNAME_PROP)) {
+			extension.credentials.username = project[USERNAME_PROP]
+		}
+		if (project.hasProperty(PASSWORD_PROP)) {
+			extension.credentials.password = project[PASSWORD_PROP]
+		}
 	}
 }

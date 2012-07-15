@@ -14,10 +14,10 @@
  */
 package org.ajoberstar.gradle.git.plugins
 
+import org.ajoberstar.gradle.git.auth.BasicAuthenticationSupport
+import org.ajoberstar.gradle.git.auth.ConfigurableAuthenticationSupported
 import org.ajoberstar.gradle.util.ObjectUtil
 import org.gradle.api.Project
-import org.gradle.api.artifacts.repositories.AuthenticationSupported
-import org.gradle.api.artifacts.repositories.PasswordCredentials
 import org.gradle.api.file.CopySpec
 import org.gradle.util.ConfigureUtil
 
@@ -25,34 +25,59 @@ import org.gradle.util.ConfigureUtil
  * Extension for gh-pages specific properties.
  * @since 0.1.0
  */
-class GhPagesPluginExtension {
+class GithubPagesPluginExtension{
+	private final Project project
+	@Delegate private final ConfigurableAuthenticationSupported authSupport = new BasicAuthenticationSupport()
+	
+	/**
+	 * The URI of the Github repository.
+	 */
+	Object repoUri
+	
 	/**
 	 * The distribution of files to put in gh-pages.
 	 */
-	final CopySpec distribution
+	final CopySpec pages
 	
 	/**
 	 * The path to put the github repository in.
 	 */
-	Object destinationPath
+	Object workingPath
 	
 	/**
 	 * Constructs the plugin extension.
 	 * @param project the project to create
 	 * the extension for
 	 */
-	GhPagesPluginExtension(Project project) {
-		this.distribution = project.copySpec {
+	GithubPagesPluginExtension(Project project) {
+		this.project = project;
+		this.pages = project.copySpec {
 			from 'src/main/ghpages'
 		}
-		this.destinationPath = "${project.buildDir}/ghpages"
 	}
 	
 	/**
-	 * Configures the gh-pages distribution.
-	 * @param closure the configuraiton closure
+	 * Gets the URI of the Github repository.  This
+	 * will be used to clone the repository.
+	 * @return the repo URI
 	 */
-	void distribution(Closure closure) {
-		ConfigureUtil.configure(closure, distribution)
+	public String getRepoUri() {
+		return ObjectUtil.unpackString(repoUri)
+	}
+	
+	/**
+	 * Gets the working directory that the repo will be places in.
+	 * @return the working directory
+	 */
+	public File getWorkingDir() {
+		return project.file(getWorkingPath() ?: "${project.buildDir}/ghpages")
+	}
+	
+	/**
+	 * Configures the gh-pages copy spec.
+	 * @param closure the configuration closure
+	 */
+	void pages(Closure closure) {
+		ConfigureUtil.configure(closure, pages)
 	}
 }
