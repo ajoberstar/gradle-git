@@ -70,7 +70,9 @@ plugins.  However, the only ones that are tested are:
 On any task that supports/requires credentials, you will have two options for
 configuration:
 
-1. Use the `credentials` property/method to configure username/password creds.
+### Programmatic Username/Password
+
+Use the `credentials` property/method to configure username/password creds
 
 ```groovy
 task push(type: GitPush) {
@@ -85,7 +87,7 @@ It is unlikely that you would hardcode your password into the build file, so
 you should store these in another file, such as the user level Gradle properties
 (`~/.gradle/gradle.properties`).
 
-2. Rely on user input at runtime.
+### Prompt for Credentials
 
 If no username/password credentials are provided programmatically, you will be
 prompted for any necessary credentials at execution time.  This method has been
