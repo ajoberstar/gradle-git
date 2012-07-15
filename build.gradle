@@ -3,7 +3,7 @@ buildscript {
 		mavenCentral()
 		maven { url 'https://oss.sonatype.org/content/groups/public/' }
 	}
-	dependencies { classpath 'org.ajoberstar:gradle-git:0.1.1' }
+	dependencies { classpath 'org.ajoberstar:gradle-git:0.2.0-SNAPSHOT' }
 }
 
 apply plugin: 'groovy'
@@ -11,12 +11,11 @@ apply plugin: 'eclipse'
 apply plugin: 'idea'
 apply plugin: 'maven'
 apply plugin: 'signing'
-apply plugin: 'gh-pages'
+apply plugin: 'github-pages'
 
 group = 'org.ajoberstar'
 description = 'Git plugins for Gradle'
-version = '0.1.2'
-github.repoUri = 'git@github.com:ajoberstar/gradle-git.git'
+version = '0.2.0'
 
 repositories {
 	mavenCentral()
@@ -29,12 +28,15 @@ dependencies {
 	compile 'org.eclipse.jgit:org.eclipse.jgit.ui:2.0.0.201206130900-r'
 }
 
-github.ghpages.distribution {
-	from(javadoc.outputs.files) {
-		into 'docs/javadoc'
-	}
-	from(groovydoc.outputs.files) {
-		into 'docs/groovydoc'
+githubPages {
+	repoUri = 'git@github.com:ajoberstar/gradle-git.git'
+	pages {
+		from(javadoc.outputs.files) {
+			into 'docs/javadoc'
+		}
+		from(groovydoc.outputs.files) {
+			into 'docs/groovydoc'
+		}
 	}
 }
 
