@@ -15,7 +15,9 @@
 package org.ajoberstar.gradle.git.tasks;
 
 import org.eclipse.jgit.api.AddCommand;
+import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.api.errors.NoFilepatternException;
+import org.gradle.api.GradleException;
 import org.gradle.api.file.FileVisitDetails;
 import org.gradle.api.file.FileVisitor;
 import org.gradle.api.tasks.Input;
@@ -51,6 +53,8 @@ public class GitAdd extends GitSource {
 			cmd.call();
 		} catch (NoFilepatternException e) {
 			getLogger().info("No files included in the add command for task {}", getName());
+		} catch (GitAPIException e) {
+			throw new GradleException("Problem adding files to staging area.", e);
 		}
 	}
 	

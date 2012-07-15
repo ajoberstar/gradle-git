@@ -19,6 +19,7 @@ import groovy.lang.Closure;
 import org.ajoberstar.gradle.util.ObjectUtil;
 import org.eclipse.jgit.api.TagCommand;
 import org.eclipse.jgit.api.errors.ConcurrentRefUpdateException;
+import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.api.errors.InvalidTagNameException;
 import org.eclipse.jgit.api.errors.NoHeadException;
 import org.eclipse.jgit.lib.PersonIdent;
@@ -61,6 +62,8 @@ public class GitTag extends GitBase {
 			throw new GradleException("Invalid tag name: " + getTagName(), e);
 		} catch (NoHeadException e) {
 			throw new GradleException("Cannot tag without a HEAD revision.", e);
+		} catch (GitAPIException e) {
+			throw new GradleException("Problem with tag.", e);
 		}
 	}
 

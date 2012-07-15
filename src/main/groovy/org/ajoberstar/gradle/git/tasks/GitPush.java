@@ -16,8 +16,10 @@ package org.ajoberstar.gradle.git.tasks;
 
 import groovy.lang.Closure;
 
+import org.ajoberstar.gradle.git.plugins.BasicPasswordCredentials;
 import org.ajoberstar.gradle.util.ObjectUtil;
 import org.eclipse.jgit.api.PushCommand;
+import org.eclipse.jgit.awtui.AwtCredentialsProvider;
 import org.eclipse.jgit.transport.CredentialsProvider;
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
 import org.gradle.api.GradleException;
@@ -60,7 +62,6 @@ public class GitPush extends GitBase implements AuthenticationSupported {
 			throw new GradleException("Problem pushing to repository.", e);
 		}
 		//TODO add progress monitor to go to Gradle status bar
-		//TODO add support for credentials
 	}
 	
 	/**
@@ -68,7 +69,7 @@ public class GitPush extends GitBase implements AuthenticationSupported {
 	 * @return the credentials
 	 */
 	@Input
-    @Optional
+	@Optional
 	public PasswordCredentials getCredentials() {
 		return credentials;
 	}
@@ -80,6 +81,9 @@ public class GitPush extends GitBase implements AuthenticationSupported {
 	 */
 	@SuppressWarnings("rawtypes")
 	public void credentials(Closure closure) {
+		if (getCredentials() == null) {
+			setCredentials(new BasicPasswordCredentials());
+		}
 		ConfigureUtil.configure(closure, getCredentials());
 	}
 	
@@ -96,12 +100,11 @@ public class GitPush extends GitBase implements AuthenticationSupported {
 	 * @return the credentials provider
 	 */
 	private CredentialsProvider getCredentialsProvider() {
-		if (getCredentials() == null
-			|| ((getCredentials().getUsername() == null || getCredentials().getUsername().trim() == "")
-			&& (getCredentials().getPassword() == null || getCredentials().getPassword().trim() == ""))) {
-			return null;
+		PasswordCredentials creds = getCredentials();
+		if (creds != null && creds.getUsername() != null && creds.getPassword() != null) {
+			return new UsernamePasswordCredentialsProvider(creds.getUsername(), creds.getPassword());
 		}
-		return new UsernamePasswordCredentialsProvider(getCredentials().getUsername(), getCredentials().getPassword());
+		return new AwtCredentialsProvider();
 	}
 	
 	/**

@@ -15,8 +15,8 @@ apply plugin: 'gh-pages'
 
 group = 'org.ajoberstar'
 description = 'Git plugins for Gradle'
-version = '0.2.0-SNAPSHOT'
-github.repoUri = 'https://ajoberstar@github.com/ajoberstar/gradle-git.git'
+version = '0.1.2-SNAPSHOT'
+github.repoUri = 'git@github.com:ajoberstar/gradle-git.git'
 
 repositories {
 	mavenCentral()
@@ -25,7 +25,8 @@ repositories {
 dependencies {
 	groovy localGroovy()
 	compile gradleApi()
-	compile 'org.eclipse.jgit:org.eclipse.jgit:1.2.0.201112221803-r'
+	compile 'org.eclipse.jgit:org.eclipse.jgit:2.0.0.201206130900-r'
+	compile 'org.eclipse.jgit:org.eclipse.jgit.ui:2.0.0.201206130900-r'
 }
 
 github.ghpages.distribution {
@@ -72,7 +73,7 @@ uploadArchives {
 			authentication(userName:sonatypeUserName, password:sonatypePassword)
 		}
 		
-		beforeDeployment { signPom it }
+		beforeDeployment { signing.signPom it }
 
 		pom.project {
 			name project.name

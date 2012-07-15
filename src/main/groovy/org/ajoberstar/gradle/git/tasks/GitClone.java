@@ -23,12 +23,18 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 
+import org.ajoberstar.gradle.git.plugins.BasicPasswordCredentials;
 import org.ajoberstar.gradle.util.ObjectUtil;
 import org.eclipse.jgit.api.CloneCommand;
 import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.api.errors.GitAPIException;
+import org.eclipse.jgit.api.errors.InvalidRemoteException;
+import org.eclipse.jgit.api.errors.TransportException;
+import org.eclipse.jgit.awtui.AwtCredentialsProvider;
 import org.eclipse.jgit.transport.CredentialsProvider;
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
 import org.gradle.api.DefaultTask;
+import org.gradle.api.GradleException;
 import org.gradle.api.artifacts.repositories.AuthenticationSupported;
 import org.gradle.api.artifacts.repositories.PasswordCredentials;
 import org.gradle.api.tasks.Input;
@@ -67,7 +73,15 @@ public class GitClone extends DefaultTask implements AuthenticationSupported {
 		cmd.setBranchesToClone(getBranchesToClone());
 		cmd.setCloneAllBranches(getCloneAllBranches());
 		cmd.setDirectory(getDestinationDir());
-		cmd.call();
+		try {
+			cmd.call();
+		} catch (InvalidRemoteException e) {
+			throw new GradleException("Invalid remote specified: " + getRemote(), e);
+		} catch (TransportException e) {
+			throw new GradleException("Problem with transport.", e);
+		} catch (GitAPIException e) {
+			throw new GradleException("Problem with clone.", e);
+		}
 		//TODO add progress monitor to log progress to Gradle status bar
 		//TODO add support for credentials
 	}
@@ -77,7 +91,7 @@ public class GitClone extends DefaultTask implements AuthenticationSupported {
 	 * @return the credentials
 	 */
 	@Input
-    @Optional
+	@Optional
 	public PasswordCredentials getCredentials() {
 		return credentials;
 	}
@@ -89,6 +103,9 @@ public class GitClone extends DefaultTask implements AuthenticationSupported {
 	 */
 	@SuppressWarnings("rawtypes")
 	public void credentials(Closure closure) {
+		if (getCredentials() == null) {
+			setCredentials(new BasicPasswordCredentials());
+		}
 		ConfigureUtil.configure(closure, getCredentials());
 	}
 	
@@ -105,12 +122,11 @@ public class GitClone extends DefaultTask implements AuthenticationSupported {
 	 * @return the credentials provider
 	 */
 	private CredentialsProvider getCredentialsProvider() {
-		if (getCredentials() == null
-			|| ((getCredentials().getUsername() == null || getCredentials().getUsername().trim() == "")
-			&& (getCredentials().getPassword() == null || getCredentials().getPassword().trim() == ""))) {
-			return null;
+		PasswordCredentials creds = getCredentials();
+		if (creds != null && creds.getUsername() != null && creds.getPassword() != null) {
+			return new UsernamePasswordCredentialsProvider(creds.getUsername(), creds.getPassword());
 		}
-		return new UsernamePasswordCredentialsProvider(getCredentials().getUsername(), getCredentials().getPassword());
+		return new AwtCredentialsProvider();
 	}
 	
 	/**
