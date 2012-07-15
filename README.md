@@ -20,6 +20,20 @@ Add the following line to your build to use the gradle-git plugins.
       dependencies { classpath 'org.ajoberstar:gradle-git:0.1.0' }
     }
 
+## Git Tasks
+
+If all you want to do is use a few of the tasks, there is no need to apply
+any of the plugins.  You merely need to start using the tasks:
+
+```groovy
+task tag(type: org.ajoberstar.gradle.git.tasks.GitTag) {
+	tagName = version
+	message = "Release of ${version}"
+}
+```
+
+By default tasks will act on the repository in the root project's directory.
+
 ## Git Plugin
 
 The `git` plugin can be applied as follows:
@@ -35,16 +49,17 @@ The `github` plugin also applies the `git` plugin.
     apply plugin: 'github'
 
 This merely adds the `github` extension object.  Credentials for
-Github can be specified in the `gradle.properties` file.
+Github can be specified in the `gradle.properties` file.  As these are
+sensitive values, they should not be in the project's `gradle.properties`,
+but rather in the user's `~/.gradle/gradle.properties`.
 
     github.credentials.username = username
     github.credentials.password = password
 
-The Github repository can be specified using the extension:
+The Github repository can be specified using the extension.  This is only
+used when cloning the repository.
 
     github.repoUri = 'https://ajoberstar@github.com/ajoberstar/gradle-git.git'
-
-SSH connections are currently not supported.
 
 ## Gh-Pages Plugin
 
@@ -68,6 +83,10 @@ To publish your changes run:
 ---
 
 ## Release Notes
+
+**v0.1.2**
+
+* Added support for SSH connections with the help of [Urs](https://github.com/UrsKR)
 
 **v0.1.1**
 
