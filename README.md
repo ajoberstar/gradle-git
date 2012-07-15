@@ -17,13 +17,14 @@ Add the following line to your build to use the gradle-git plugins.
 
     buildscript {
       repositories { mavenCentral() }
-      dependencies { classpath 'org.ajoberstar:gradle-git:0.1.0' }
+      dependencies { classpath 'org.ajoberstar:gradle-git:0.1.2' }
     }
 
 ## Git Tasks
 
 If all you want to do is use a few of the tasks, there is no need to apply
-any of the plugins.  You merely need to start using the tasks:
+any of the plugins (they do need to be on the classpath as described above).
+You merely need to start using the tasks:
 
 ```groovy
 task tag(type: org.ajoberstar.gradle.git.tasks.GitTag) {
