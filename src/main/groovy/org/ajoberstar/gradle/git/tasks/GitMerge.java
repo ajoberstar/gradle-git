@@ -42,117 +42,108 @@ public class GitMerge extends GitBase {
 	 */
 	@TaskAction
 	public void merge() {
-	    MergeCommand cmd = getGit().merge();
-	    cmd.include(findRef());
-	    cmd.setStrategy(getMergeStrategy());
+		MergeCommand cmd = getGit().merge();
+		cmd.include(findRef());
+		cmd.setStrategy(getMergeStrategy());
 		try {
-		    cmd.call();
+			cmd.call();
 		} catch (CheckoutConflictException e) {
-            throw new GradleException("The working tree changes conflict with the specified commit.", e);
+			throw new GradleException("The working tree changes conflict with the specified commit.", e);
 		} catch (GitAPIException e) {
-		    throw new GradleException("Problem with merge.", e);
+			throw new GradleException("Problem with merge.", e);
 		}		
 		//TODO add progress monitor to log progress to Gradle status bar
 	}
 
 	/**
-     * Gets the ref that will be merges with the current branch.
-     * @return the ref which will be merged with the current branch
-     */
-    @Input
-    public String getRef() {
-        if( ref == null ) {
-            return null;
-        } else {
-            return ObjectUtil.unpackString(ref);
-        }
-    }
-    
-    /**
-     * Sets the ref that will be merged with the current branch.
-     * @param ref the ref that will be merged
-     */
-    public void setRef(Object ref) {
-        this.ref = ref;
-    }
-    
-    /**
-     * Gets the merge strategy.
-     * @return the merge strategy; either {@code resolve}, {@code ours}, 
-     *         {@code theirs} or {@code simple_two_way_in_core}
-     */
-    @Input
-    @Optional
-    public Object getStrategy() {
-        return strategy;
-    }
-
-    /**
-     * Sets the merge strategy
-     * @param  mode the merge strategy. Must be
-     *          one of the following values: <ul>
-     *          <li>{@code resolve} 
-     *          <li>{@code ours} 
-     *          <li>{@code theirs} 
-     *          <li>{@code simple_two_way_in_core}
-     *          </ul>
-     */
-    public void setStrategy(Object mode) {
-        this.strategy = mode;
-    }
+	 * Gets the ref that will be merges with the current branch.
+	 * @return the ref which will be merged with the current branch
+	 */
+	@Input
+	public String getRef() {
+		if( ref == null ) {
+			return null;
+		} else {
+			return ObjectUtil.unpackString(ref);
+		}
+	}
 	
-    /**
-     * Attempts to get a valid {@link MergeStrategy} out of the user
-     * configuration
-     * 
-     * @return the merge strategy corresponding to the user input 
-     */
-    private MergeStrategy getMergeStrategy() {
-        Object modeConfig = getStrategy();
-        
-        if( modeConfig == null ) {
-            return MergeStrategy.RESOLVE;
-        }
-        
-        if( modeConfig instanceof String ) {
-            String ms = ((String) modeConfig).toUpperCase();
-            try {
-                return MergeStrategy.get(ms);
-            } catch (Exception e) {
-                throw new GradleException("No valid merge strategy could be " +
-                		"identified from the specified input: " + ms, e);
-            }
-            
-        } else {
-            throw new GradleException("No valid merge strategy could be identified.");
-        }
-    }
-    
-    /**
-     * Attempts to find a valid commit from the ref the user passed
-     * to the task configuration.
-     * 
-     * @return the ID of the commit corresponding to the user-specified ref
-     */
-    private ObjectId findRef() {
-        String ref = getRef();
-        
-        if( ref == null ) {
-            throw new GradleException("Invalid ref specified");
-        }
-        
-        final ObjectId commitId;
-        try {
-            commitId = getGit().getRepository().resolve(ref + "^{commit}");
-            if (commitId == null) {
-                throw new GradleException("No valid commit could be identified " +
-                		"from the specified ref: " + ref);
-            }
-        } catch (IOException e) {
-            throw new GradleException("Unable to identify a commit " +
-                    "from the specified ref: " + ref, e);
-        }
-        
-        return commitId;
-    }
+	/**
+	 * Sets the ref that will be merged with the current branch.
+	 * @param ref the ref that will be merged
+	 */
+	public void setRef(Object ref) {
+		this.ref = ref;
+	}
+	
+	/**
+	 * Gets the merge strategy.
+	 * @return the merge strategy; either {@code resolve}, {@code ours}, 
+	 *         {@code theirs} or {@code simple_two_way_in_core}
+	 */
+	@Input
+	@Optional
+	public Object getStrategy() {
+		return strategy;
+	}
+
+	/**
+	 * Sets the merge strategy
+	 * @param  mode the merge strategy. Must be
+	 *         one of the following values: <ul>
+	 *         <li>{@code resolve} 
+	 *         <li>{@code ours} 
+	 *         <li>{@code theirs} 
+	 *         <li>{@code simple_two_way_in_core}
+	 *         </ul>
+	 */
+	public void setStrategy(Object mode) {
+		this.strategy = mode;
+	}
+	
+	/**
+	 * Attempts to get a valid {@link MergeStrategy} out of the user
+	 * configuration
+	 * 
+	 * @return the merge strategy corresponding to the user input 
+	 */
+	private MergeStrategy getMergeStrategy() {
+		String modeConfig = ObjectUtil.unpackString(getStrategy());
+		if( modeConfig == null ) {
+			return MergeStrategy.RESOLVE;
+		} else {
+			try {
+				return MergeStrategy.get(modeConfig.toUpperCase());
+			} catch (Exception e) {
+				throw new GradleException("No valid merge strategy could be " +
+					"identified from the specified input: " + modeConfig, e);
+			}
+		}
+	}
+	
+	/**
+	 * Attempts to find a valid commit from the ref the user passed
+	 * to the task configuration.
+	 * 
+	 * @return the ID of the commit corresponding to the user-specified ref
+	 */
+	private ObjectId findRef() {
+		String ref = getRef();
+		
+		if( ref == null ) {
+			throw new GradleException("Invalid ref specified");
+		}
+		
+		try {
+			final ObjectId commitId = getGit().getRepository().resolve(ref + "^{commit}");
+			if (commitId == null) {
+				throw new GradleException("No valid commit could be identified " +
+					"from the specified ref: " + ref);
+			}
+			return commitId;
+		} catch (IOException e) {
+			throw new GradleException("Unable to identify a commit " +
+				"from the specified ref: " + ref, e);
+		}
+	}
 }

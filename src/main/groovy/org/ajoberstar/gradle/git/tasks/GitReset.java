@@ -45,144 +45,137 @@ public class GitReset extends GitBase {
 	 */
 	@TaskAction
 	public void reset() {
-	    ResetCommand cmd = getGit().reset();
-	    cmd.setRef(getRef());
-	    cmd.setMode(getResetType());
-	    
-	    List<String> pathsToReset = getPaths();
-	    for (String path : pathsToReset) {
-            cmd.addPath(path);
-        }
-	    
+		ResetCommand cmd = getGit().reset();
+		cmd.setRef(getRef());
+		cmd.setMode(getResetType());
+		
+		List<String> pathsToReset = getPaths();
+		for (String path : pathsToReset) {
+			cmd.addPath(path);
+		}
+		
 		try {
-		    cmd.call();
+			cmd.call();
 		} catch (CheckoutConflictException e) {
 			throw new GradleException("The working tree changes conflict with the specified commit.", e);
 		} catch (GitAPIException e) {
-		    throw new GradleException("Problem with reset.", e);
+			throw new GradleException("Problem with reset.", e);
 		}		
 		//TODO add progress monitor to log progress to Gradle status bar
 	}
 
 	/**
-     * Gets the ref to reset. If not set, it will default 
-     * to {@code HEAD}.
-     * @return the branch to fetch
-     */
-    @Input
-    public String getRef() {
-        return ref == null ? "HEAD" : ObjectUtil.unpackString(ref);
-    }
-    
-    /**
-     * Sets the ref to reset. Defaults to {@code HEAD}.
-     * @param ref the ref to reset
-     */
-    public void setRef(Object ref) {
-        this.ref = ref;
-    }
-    
-    /**
-     * Gets the paths to reset.
-     * @return the paths to reset
-     */
-    @Input
-    public List<String> getPaths() {
-        if (paths == null) {
-            return Collections.emptyList();
-        }
-        List<String> resetPaths = new ArrayList<String>();
-        for (Object path : paths) {
-            resetPaths.add(ObjectUtil.unpackString(path));
-        }
-        return resetPaths;
-    }
-    
-    /**
-     * Adds paths to be reset.
-     * 
-     * @param resetPaths the paths to be reset
-     */
-    public void paths(Object... resetPaths) {
-        if (paths == null) {
-            this.paths = new ArrayList<Object>();
-        }
-        Collections.addAll(paths, resetPaths);
-    }
-    
-    /**
-     * Sets the paths for the reset command.
-     * 
-     * <p>As per Git's {@code reset} command manual, no path should be added 
-     * if the {@code mode} property has been set.</p>
-     * @param resetPaths the paths to be reset
-     */
-    @SuppressWarnings("unchecked")
-    public void setPaths(List<? extends Object> resetPaths) {
-        this.paths = (List<Object>) resetPaths;
-    }
-    
-    
-    /**
-     * Gets the reset mode.
-     * @return the reset mode; either {@code soft}, {@code mixed}, 
-     *         {@code hard}, {@code merge} or {@code keep}
-     */
-    @Input
-    @Optional
-    public Object getMode() {
-        return mode;
-    }
-
-    /**
-     * Sets the reset mode
-     * 
-     * @param  mode the reset mode specification. Must be
-     *          one of the following values: <ul>
-     *          <li>{@code soft}, for soft reset, 
-     *          <li>{@code mixed}, for mixed reset 
-     *          <li>{@code hard}, for hard reset 
-     *          <li>{@code merge}, for merge reset
-     *          <li>{@code keep}, for keep reset
-     *          </ul>
-     */
-    public void setMode(Object mode) {
-        this.mode = mode;
-    }
+	 * Gets the ref to reset. If not set, it will default 
+	 * to {@code HEAD}.
+	 * @return the branch to fetch
+	 */
+	@Input
+	public String getRef() {
+		return ref == null ? "HEAD" : ObjectUtil.unpackString(ref);
+	}
 	
-    /**
-     * Attempts to get a valid {@link ResetType} out of the user
-     * configuration.
-     * 
-     * <p>This will throw a {@link GradleException} if no mode is
-     * specified and no paths have been set for reset, since the
-     * reset command cannot continue.</p>
-     * 
-     * @return the ResetType corresponding to the user input 
-     */
-    private ResetType getResetType() {
-        Object modeConfig = getMode();
-        
-        if( modeConfig == null ) {
-            if( paths == null || paths.size() == 0 ) {
-                throw new GradleException("No reset mode and no file path " +
-                		"has been specified. One of the them is needed to " +
-                		"complete the reset");
-            }
-            return null;
-        }
-        
-        if( modeConfig instanceof String ) {
-            String rt = ((String) modeConfig).toUpperCase();
-            try {
-                return ResetType.valueOf(rt);
-            } catch (Exception e) {
-                throw new GradleException("No valid reset mode could be " +
-                		"identified from the specified input: " + rt, e);
-            }
-            
-        } else {
-            throw new GradleException("No valid reset mode could be identified");
-        }
-    }
+	/**
+	 * Sets the ref to reset. Defaults to {@code HEAD}.
+	 * @param ref the ref to reset
+	 */
+	public void setRef(Object ref) {
+		this.ref = ref;
+	}
+	
+	/**
+	 * Gets the paths to reset.
+	 * @return the paths to reset
+	 */
+	@Input
+	public List<String> getPaths() {
+		if (paths == null) {
+			return Collections.emptyList();
+		}
+		List<String> resetPaths = new ArrayList<String>();
+		for (Object path : paths) {
+			resetPaths.add(ObjectUtil.unpackString(path));
+		}
+		return resetPaths;
+	}
+	
+	/**
+	 * Adds paths to be reset.
+	 * 
+	 * @param resetPaths the paths to be reset
+	 */
+	public void paths(Object... resetPaths) {
+		if (paths == null) {
+			this.paths = new ArrayList<Object>();
+		}
+		Collections.addAll(paths, resetPaths);
+	}
+	
+	/**
+	 * Sets the paths for the reset command.
+	 * 
+	 * <p>As per Git's {@code reset} command manual, no path should be added 
+	 * if the {@code mode} property has been set.</p>
+	 * @param resetPaths the paths to be reset
+	 */
+	@SuppressWarnings("unchecked")
+	public void setPaths(List<? extends Object> resetPaths) {
+		this.paths = (List<Object>) resetPaths;
+	}
+	
+	
+	/**
+	 * Gets the reset mode.
+	 * @return the reset mode; either {@code soft}, {@code mixed}, 
+	 *         {@code hard}, {@code merge} or {@code keep}
+	 */
+	@Input
+	@Optional
+	public Object getMode() {
+		return mode;
+	}
+
+	/**
+	 * Sets the reset mode
+	 * 
+	 * @param  mode the reset mode specification. Must be
+	 *          one of the following values: <ul>
+	 *          <li>{@code soft}, for soft reset, 
+	 *          <li>{@code mixed}, for mixed reset 
+	 *          <li>{@code hard}, for hard reset 
+	 *          <li>{@code merge}, for merge reset
+	 *          <li>{@code keep}, for keep reset
+	 *          </ul>
+	 */
+	public void setMode(Object mode) {
+		this.mode = mode;
+	}
+	
+	/**
+	 * Attempts to get a valid {@link ResetType} out of the user
+	 * configuration.
+	 * 
+	 * <p>This will throw a {@link GradleException} if no mode is
+	 * specified and no paths have been set for reset, since the
+	 * reset command cannot continue.</p>
+	 * 
+	 * @return the ResetType corresponding to the user input 
+	 */
+	private ResetType getResetType() {
+		String modeConfig = ObjectUtil.unpackString(getMode());
+		if( modeConfig == null ) {
+			if( paths == null || paths.size() == 0 ) {
+				throw new GradleException("No reset mode and no file path " +
+					"has been specified. One of the them is needed to " +
+					"complete the reset");
+			}
+			return null;
+		} else {
+			try {
+				return ResetType.valueOf(modeConfig.toUpperCase());
+			} catch (Exception e) {
+				throw new GradleException("No valid reset mode could be " +
+						"identified from the specified input: " + modeConfig, e);
+			}
+		}
+	}
 }

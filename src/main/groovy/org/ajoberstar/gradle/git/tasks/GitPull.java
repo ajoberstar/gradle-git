@@ -36,58 +36,56 @@ import org.gradle.util.ConfigureUtil;
  * @author Alex Lixandru
  */
 public class GitPull extends GitBase implements AuthenticationSupported {
-    private PasswordCredentials credentials = new BasicPasswordCredentials();
-    private JGitCredentialsProviderSupport credsProviderSupport = new JGitCredentialsProviderSupport(this);
-    
-    /**
-     * Pulls changes from a remote Git repository and merges them into the 
-     * current branch.
-     */
-    @TaskAction
-    public void pullRepo() {
-        PullCommand cmd = getGit().pull();
-        cmd.setCredentialsProvider(credsProviderSupport.getCredentialsProvider());
-        try {
-            cmd.call();
-        } catch (InvalidRemoteException e) {
-            throw new GradleException("Invalid remote repository.", e);
-        } catch (TransportException e) {
-            throw new GradleException("Problem with transport.", e);
-        } catch (WrongRepositoryStateException e) {
-            throw new GradleException("Invalid repository state.", e);
-        } catch (GitAPIException e) {
-            throw new GradleException("Problem with pull.", e);
-        }		
-        //TODO add progress monitor to log progress to Gradle status bar
-    }
-    
-    /**
-     * Gets the credentials to be used when pulling from the repo.
-     * @return the credentials
-     */
-    @Input
-    @Optional
-    public PasswordCredentials getCredentials() {
-        return credentials;
-    }
-    
-    /**
-     * Configured the credentials to be used when pulling from the repo.
-     * This will be passed a {@link PasswordCredentials} instance.
-     * @param closure the configuration closure
-     */
-    @SuppressWarnings("rawtypes")
-    public void credentials(Closure closure) {
-        ConfigureUtil.configure(closure, getCredentials());
-    }
-    
-    /**
-     * Sets the credentials to use when pulling from the repo.
-     * @param credentials the credentials
-     */
-    public void setCredentials(PasswordCredentials credentials) {
-        this.credentials = credentials;
-    }
-    
-    
+	private PasswordCredentials credentials = new BasicPasswordCredentials();
+	private JGitCredentialsProviderSupport credsProviderSupport = new JGitCredentialsProviderSupport(this);
+	
+	/**
+	 * Pulls changes from a remote Git repository and merges them into the 
+	 * current branch.
+	 */
+	@TaskAction
+	public void pullRepo() {
+		PullCommand cmd = getGit().pull();
+		cmd.setCredentialsProvider(credsProviderSupport.getCredentialsProvider());
+		try {
+			cmd.call();
+		} catch (InvalidRemoteException e) {
+			throw new GradleException("Invalid remote repository.", e);
+		} catch (TransportException e) {
+			throw new GradleException("Problem with transport.", e);
+		} catch (WrongRepositoryStateException e) {
+			throw new GradleException("Invalid repository state.", e);
+		} catch (GitAPIException e) {
+			throw new GradleException("Problem with pull.", e);
+		}
+		//TODO add progress monitor to log progress to Gradle status bar
+	}
+	
+	/**
+	 * Gets the credentials to be used when pulling from the repo.
+	 * @return the credentials
+	 */
+	@Input
+	@Optional
+	public PasswordCredentials getCredentials() {
+		return credentials;
+	}
+	
+	/**
+	 * Configured the credentials to be used when pulling from the repo.
+	 * This will be passed a {@link PasswordCredentials} instance.
+	 * @param closure the configuration closure
+	 */
+	@SuppressWarnings("rawtypes")
+	public void credentials(Closure closure) {
+		ConfigureUtil.configure(closure, getCredentials());
+	}
+	
+	/**
+	 * Sets the credentials to use when pulling from the repo.
+	 * @param credentials the credentials
+	 */
+	public void setCredentials(PasswordCredentials credentials) {
+		this.credentials = credentials;
+	}
 }

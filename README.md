@@ -26,7 +26,7 @@ Add the following lines to your build to use the gradle-git plugins.
 
     buildscript {
       repositories { mavenCentral() }
-      dependencies { classpath 'org.ajoberstar:gradle-git:0.2.0' }
+      dependencies { classpath 'org.ajoberstar:gradle-git:0.2.1' }
     }
 
 ## Using Tasks
@@ -157,6 +157,11 @@ github.credentials.password = password
 
 ## Release Notes
 
+**v0.2.1**
+
+* Added `GitFetch`, `GitMerge`, `GitPull`, and `GitReset` tasks contributed
+by [Alex Lixandru](https://github.com/alixandru).
+
 **v0.2.0**
 
 This release does contain breaking changes.
@@ -171,7 +176,7 @@ and `GitPlugin` provided no useful functionality.
 
 **v0.1.1**
 
-* Added GitTag task contributed by [Urs Reupke](https://github.com/UrsKR).
+* Added `GitTag` task contributed by [Urs Reupke](https://github.com/UrsKR).
 * The `repoPath` for all Git tasks is defaulted to the root project's directory.
 
 **v0.1.0**
