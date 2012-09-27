@@ -94,21 +94,6 @@ tested with username/password auth, as well as SSH w/ passphrase auth.
 
 ## Github Pages Plugin
 
-
-
-    apply plugin: 'github'
-
-This merely adds the `github` extension object.  
-
-The Github repository can be specified using the extension.  This is only
-used when cloning the repository.
-
-```
-githubPages.repoUri = 'https://ajoberstar@github.com/ajoberstar/gradle-git.git'
-```
-
-## Github Pages Plugin
-
 To apply the Github Pages plugin add the following line to your build:
 
     apply plugin: 'github-pages'
@@ -116,12 +101,37 @@ To apply the Github Pages plugin add the following line to your build:
 This configures tasks needed to clone, add, commit, and push changes to the
 gh-pages branch of your Github repository.
 
+### Configuring Repository To Push To
+
+The repository that the pages will be pushed to is configured via the
+`githubPages` extension:
+
+```
+githubPages {
+  repoUri = 'git@github.com:ajoberstar/gradle-git.git'
+}
+```
+
 ### Configuring Files to Publish
 
 The files that will be published to gh-pages are in the `githubPages.pages`
 CopySpec. By default all files in `src/main/ghpages` will be included. The
 default location the repository will be cloned to is `build/ghpages`. This
 can be configured with `githubPages.workingPath`.
+
+```
+githubPages {
+  pages {
+    from(javadoc.outputs.files) {
+      into 'docs/javadoc'
+    }
+    from(groovydoc.outputs.files) {
+      into 'docs/groovydoc'
+    }
+  }
+  workingPath = 'build/somewhere/else'
+}
+```
 
 To publish your changes run:
 
