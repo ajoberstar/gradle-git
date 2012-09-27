@@ -3,7 +3,7 @@ buildscript {
 		mavenCentral()
 		maven { url 'https://oss.sonatype.org/content/groups/public/' }
 	}
-	dependencies { classpath 'org.ajoberstar:gradle-git:0.2.0-SNAPSHOT' }
+	dependencies { classpath 'org.ajoberstar:gradle-git:0.2.0' }
 }
 
 apply plugin: 'groovy'
