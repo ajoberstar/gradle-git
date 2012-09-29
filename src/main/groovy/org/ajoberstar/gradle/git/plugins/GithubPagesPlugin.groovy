@@ -19,6 +19,8 @@ import org.ajoberstar.gradle.git.tasks.GitBase
 import org.ajoberstar.gradle.git.tasks.GitClone
 import org.ajoberstar.gradle.git.tasks.GitCommit
 import org.ajoberstar.gradle.git.tasks.GitPush
+import org.eclipse.jgit.api.Git
+import org.gradle.api.GradleException
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.Task
@@ -81,6 +83,12 @@ class GithubPagesPlugin implements Plugin<Project> {
 		clone.uri = { extension.repoUri }
 		clone.branch = 'gh-pages'
 		clone.destinationPath = { extension.workingPath }
+		clone.doLast {
+			String currentBranch = Git.open(clone.destinationDir).repository.branch 
+			if (currentBranch != clone.branch) {
+				throw new GradleException("Intended to checkout ${clone.branch}, but currently on ${currentBranch}.  You may need to create ${clone.branch}.")
+			}
+		}
 		
 		Copy process = project.tasks.add(PROCESS_TASK_NAME, Copy)
 		process.description = 'Processes the gh-pages files, copying them to the working repo'

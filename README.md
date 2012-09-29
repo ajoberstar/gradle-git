@@ -26,7 +26,7 @@ Add the following lines to your build to use the gradle-git plugins.
 
     buildscript {
       repositories { mavenCentral() }
-      dependencies { classpath 'org.ajoberstar:gradle-git:0.2.1' }
+      dependencies { classpath 'org.ajoberstar:gradle-git:0.2.2' }
     }
 
 ## Using Tasks
@@ -156,6 +156,11 @@ github.credentials.password = password
 ---
 
 ## Release Notes
+
+**v0.2.2**
+
+* Fix: If `cloneGhPages` does not checkout the `gh-pages` branch, most likely because it doesn't
+exist, the task will fail.
 
 **v0.2.1**
 
