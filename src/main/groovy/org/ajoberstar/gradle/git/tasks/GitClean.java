@@ -36,6 +36,9 @@ public class GitClean extends GitBase {
 	
 	/**
 	 * Reset the changes as configured.
+	 * If {@code paths} is set, only the specified
+	 * paths will be cleaned.  Otherwise all paths
+	 * will be.
 	 */
 	@TaskAction
 	public void reset() {
@@ -69,8 +72,6 @@ public class GitClean extends GitBase {
 	
 	/**
 	 * Adds paths to be cleaned. 
-	 * If paths are set, only these paths are affected by the cleaning.
-	 * 
 	 * @param cleanPaths the paths to be cleaned
 	 */
 	public void paths(Object... cleanPaths) {
@@ -79,16 +80,25 @@ public class GitClean extends GitBase {
 		}
 		Collections.addAll(paths, cleanPaths);
 	}
+
+	/**
+	 * Adds paths to be cleaned.
+	 * @param cleanPaths the paths to be cleaned
+	 */
+	public void paths(Iterable<? extends Object> cleanPaths) {
+		if (paths == null) {
+			this.paths = new HashSet<Object>();
+		}
+		for (Object path : cleanPaths) {
+			this.paths.add(path);
+		}
+	}
 	
 	/**
 	 * Sets the paths for the clean command.
-	 * If paths are set, only these paths are affected by the cleaning.
-	 * 
 	 * @param cleanPaths the paths to be cleaned
 	 */
-	@SuppressWarnings("unchecked")
-	public void setPaths(Set<? extends Object> cleanPaths) {
-		this.paths = (Set<Object>) cleanPaths;
+	public void setPaths(Set<Object> cleanPaths) {
+		this.paths = cleanPaths;
 	}
-	
 }
