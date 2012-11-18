@@ -26,7 +26,7 @@ Add the following lines to your build to use the gradle-git plugins.
 
     buildscript {
       repositories { mavenCentral() }
-      dependencies { classpath 'org.ajoberstar:gradle-git:0.2.2' }
+      dependencies { classpath 'org.ajoberstar:gradle-git:0.2.3' }
     }
 
 ## Using Tasks
@@ -156,6 +156,13 @@ github.credentials.password = password
 ---
 
 ## Release Notes
+
+**v0.2.3**
+
+* Added `GitClean` and `GitLog` tasks contributed by [Alex Lixandru](https://github.com/alixandru)
+
+NOTE: The `GitLog` tag only supports commit hashes (abbreviated or full).  Tag names do not work
+right now.
 
 **v0.2.2**
 
