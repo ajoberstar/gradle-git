@@ -5,4 +5,8 @@ build
 .classpath
 bin
 *~
+*.iml
+*.iws
+*.ipr
+.idea
 
