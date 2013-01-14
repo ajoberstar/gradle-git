@@ -117,7 +117,7 @@ public class GitBranchCreateTest extends Specification {
     def 'when create branch wish existing name w/ `force` then OK'() {
         given:
         git.branchCreate().setName("branch1").call()
-        ; project.tasks.add(name: 'branchCreate', type: GitBranchCreate) {
+        project.tasks.add(name: 'branchCreate', type: GitBranchCreate) {
             branchName = 'branch1'
             force = true
         }
