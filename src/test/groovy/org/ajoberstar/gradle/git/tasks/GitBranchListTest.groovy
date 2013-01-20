@@ -41,18 +41,28 @@ public class GitBranchListTest extends Specification {
         when:
         project.branchList.execute()
         then:
-        project.branchList.branches == ['refs/heads/master']
+        project.branchList.branches*.refName == ['refs/heads/master']
     }
 
-    def 'when showAll then list local and remote branches'() {
+    def 'when branch type ALL then list local and remote branches'() {
         given:
         project.tasks.add(name: 'branchList', type: GitBranchList) {
-            showAll = true
+            branchType = GitBranchList.BranchType.ALL
         }
         when:
         project.branchList.execute()
         then:
-        project.branchList.branches == ['refs/heads/master', 'refs/remotes/remote1']
+        project.branchList.branches*.refName == ['refs/heads/master', 'refs/remotes/remote1']
     }
 
+    def 'when branch type REMOTE then list remote branches'() {
+        given:
+        project.tasks.add(name: 'branchList', type: GitBranchList) {
+            branchType = GitBranchList.BranchType.REMOTE
+        }
+        when:
+        project.branchList.execute()
+        then:
+        project.branchList.branches*.refName == ['refs/remotes/remote1']
+    }
 }

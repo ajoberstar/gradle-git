@@ -1,4 +1,4 @@
-/* Copyright 2012 the original author or authors.
+/* Copyright 2012-2013 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,15 +14,22 @@
  */
 package org.ajoberstar.gradle.git.util
 
+import groovy.util.logging.Slf4j
+import org.ajoberstar.gradle.git.api.Branch
 import org.ajoberstar.gradle.git.api.Commit
 import org.ajoberstar.gradle.git.api.Person
+import org.eclipse.jgit.errors.MissingObjectException
 import org.eclipse.jgit.lib.PersonIdent
 import org.eclipse.jgit.lib.ObjectId
+import org.eclipse.jgit.lib.Ref
+import org.eclipse.jgit.lib.Repository
 import org.eclipse.jgit.revwalk.RevCommit
+import org.eclipse.jgit.revwalk.RevWalk
 
 /**
  * Utility methods for Git objects.
  */
+ @Slf4j
 class GitUtil {
 	private GitUtil() {
 		throw new AssertionError('This class cannot be instantiated.')
@@ -53,5 +60,25 @@ class GitUtil {
 			cache[rev] = commit
 			return commit
 		}
+	}
+
+	/**
+	 * Converts a reference name to a Branch.
+	 * @param refName reference name of branch
+	 * @return the branch
+	 * @since 0.3.0
+	 */
+	static Branch refToBranch(Repository repo, Ref ref) {
+		String refName = ref.name
+		RevWalk walk = new RevWalk(repo)
+		Commit commit
+		try {
+			RevCommit rev = walk.parseCommit(ref.objectId)
+			commit = revCommitToCommit(rev)
+		} catch (MissingObjectException e) {
+			log.debug("Could not find commit for ref: $refName", e)
+		}
+		String shortName = Repository.shortenRefName(refName)
+		return new Branch(shortName, refName, commit)
 	}
 }
