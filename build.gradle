@@ -3,7 +3,7 @@ buildscript {
 		mavenCentral()
 		maven { url 'https://oss.sonatype.org/content/groups/public/' }
 	}
-	dependencies { classpath 'org.ajoberstar:gradle-git:0.2.2' }
+	dependencies { classpath 'org.ajoberstar:gradle-git:0.2.3' }
 }
 
 apply plugin: 'groovy'
@@ -15,7 +15,7 @@ apply plugin: 'github-pages'
 
 group = 'org.ajoberstar'
 description = 'Git plugins for Gradle'
-version = '0.2.3'
+version = '0.3.0-SNAPSHOT'
 
 repositories {
 	mavenCentral()
