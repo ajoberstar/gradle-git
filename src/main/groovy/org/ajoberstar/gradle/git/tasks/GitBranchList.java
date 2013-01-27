@@ -14,6 +14,7 @@
  */
 package org.ajoberstar.gradle.git.tasks;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.ArrayList;
 import org.eclipse.jgit.api.ListBranchCommand;
@@ -33,11 +34,12 @@ public class GitBranchList extends GitBase {
     public static enum BranchType {
         LOCAL,
         REMOTE,
-        ALL;
+        ALL
     }
 
     private BranchType type = BranchType.LOCAL;
     private List<Branch> branches;
+    private Branch workingBranch;
 
     /**
      * Execute command to list branches.
@@ -65,14 +67,18 @@ public class GitBranchList extends GitBase {
             for (Ref ref : cmd.call()) {
                 branches.add(GitUtil.refToBranch(repo, ref));
             }
+            workingBranch = GitUtil.gitNameToBranch(repo, repo.getFullBranch());
+        } catch (IOException e) {
+          throw new GradleException("Problem listing branches", e);
         } catch (GitAPIException e) {
             throw new GradleException("Problem listing branches", e);
         }
+
     }
 
     /**
      * Gets the mode used to retrieve branches.
-     * @return 
+     * @return
      */
     public BranchType getBranchType() {
         return type;
@@ -96,4 +102,11 @@ public class GitBranchList extends GitBase {
         }
         return branches;
     }
+
+  public Branch getWorkingBranch() {
+    if (workingBranch == null) {
+      throw new IllegalStateException("Task has not executed yet.");
+    }
+    return workingBranch;
+  }
 }

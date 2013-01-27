@@ -26,14 +26,14 @@ import org.gradle.api.tasks.TaskAction;
  * Creates a new branch in a Git repository.
  * @since 0.3.0
  */
-public class GitBranch extends GitBase {
+public class GitBranchCreate extends GitBase {
     /**
      * Tracking mode for branches.
      */
     public static enum Mode {
         NO_TRACK,
         TRACK,
-        SET_UPSTREAM;
+        SET_UPSTREAM
     }
 
     private String branchName;
