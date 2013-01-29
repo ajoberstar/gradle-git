@@ -8,7 +8,7 @@ import org.gradle.api.Project
 import org.gradle.testfixtures.ProjectBuilder
 import spock.lang.Specification
 
-public class GitBranchTest extends Specification {
+public class GitBranchCreateTest extends Specification {
     def testDir = new File("build/tmp/test/gradle-git")
     Project project
     Git git
@@ -31,7 +31,7 @@ public class GitBranchTest extends Specification {
 
     def 'should wrap git errors with GradleException'() {
         given:
-        project.tasks.add(name: 'branchCreate', type: GitBranch)
+        project.tasks.add(name: 'branchCreate', type: GitBranchCreate)
         when:
         project.branchCreate.execute()
         then:
@@ -40,7 +40,7 @@ public class GitBranchTest extends Specification {
 
     def 'should create branch with passed name'() {
         given:
-        project.tasks.add(name: 'branchCreate', type: GitBranch) {
+        project.tasks.add(name: 'branchCreate', type: GitBranchCreate) {
             branchName = 'branch1'
         }
         when:
@@ -53,9 +53,9 @@ public class GitBranchTest extends Specification {
 
     def 'when create tracking branch `master` should be used by default'() {
         given:
-        project.tasks.add(name: 'branchCreate', type: GitBranch) {
+        project.tasks.add(name: 'branchCreate', type: GitBranchCreate) {
             branchName = 'branch1'
-            mode = GitBranch.Mode.TRACK
+            mode = GitBranchCreate.Mode.TRACK
         }
         when:
         project.branchCreate.execute()
@@ -68,10 +68,10 @@ public class GitBranchTest extends Specification {
     def 'when start point given then create tracking branch from it'() {
         given:
         git.branchCreate().setName("startBranch").call()
-        project.tasks.add(name: 'branchCreate', type: GitBranch) {
+        project.tasks.add(name: 'branchCreate', type: GitBranchCreate) {
             branchName = 'branch1'
             startPoint = 'startBranch'
-            mode = GitBranch.Mode.TRACK
+            mode = GitBranchCreate.Mode.TRACK
         }
         when:
         project.branchCreate.execute()
@@ -82,9 +82,9 @@ public class GitBranchTest extends Specification {
 
     def 'when configured then create non tracking branch'() {
         given:
-        project.tasks.add(name: 'branchCreate', type: GitBranch) {
+        project.tasks.add(name: 'branchCreate', type: GitBranchCreate) {
             branchName = 'branch1'
-            mode = GitBranch.Mode.NO_TRACK
+            mode = GitBranchCreate.Mode.NO_TRACK
         }
         when:
         project.branchCreate.execute()
@@ -95,7 +95,7 @@ public class GitBranchTest extends Specification {
     def 'when create branch tha already exist w/o `force` then exception'() {
         given:
         git.branchCreate().setName("branch1").call()
-        project.tasks.add(name: 'branchCreate', type: GitBranch) {
+        project.tasks.add(name: 'branchCreate', type: GitBranchCreate) {
             branchName = 'branch1'
         }
         when:
@@ -107,7 +107,7 @@ public class GitBranchTest extends Specification {
     def 'when create branch wish existing name w/o `force` then exception'() {
         given:
         git.branchCreate().setName("branch1").call()
-        project.tasks.add(name: 'branchCreate', type: GitBranch) {
+        project.tasks.add(name: 'branchCreate', type: GitBranchCreate) {
             branchName = 'branch1'
         }
         when:
@@ -119,7 +119,7 @@ public class GitBranchTest extends Specification {
     def 'when create branch wish existing name w/ `force` then OK'() {
         given:
         git.branchCreate().setName("branch1").call()
-        project.tasks.add(name: 'branchCreate', type: GitBranch) {
+        project.tasks.add(name: 'branchCreate', type: GitBranchCreate) {
             branchName = 'branch1'
             force = true
         }
