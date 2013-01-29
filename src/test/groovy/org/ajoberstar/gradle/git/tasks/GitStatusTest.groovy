@@ -30,7 +30,7 @@ class GitStatusTest extends Specification {
         when:
         project.gitStatus.execute()
         then:
-        project.gitStatus.untracked == ['new.txt'] as Set
+        project.gitStatus.untracked.files == project.files('new.txt').files
     }
 
     def 'should detect modified files'() {
@@ -39,7 +39,7 @@ class GitStatusTest extends Specification {
         when:
         project.gitStatus.execute()
         then:
-        project.gitStatus.modified == ['existing.txt'] as Set
+        project.gitStatus.modified.files == project.files('existing.txt').files
     }
 
     def 'should detect changed files'() {
@@ -49,7 +49,7 @@ class GitStatusTest extends Specification {
         when:
         project.gitStatus.execute()
         then:
-        project.gitStatus.changed == ['existing.txt'] as Set
+        project.gitStatus.changed.files == project.files('existing.txt').files
     }
 
     def 'should detect added files'() {
@@ -59,7 +59,7 @@ class GitStatusTest extends Specification {
         when:
         project.gitStatus.execute()
         then:
-        project.gitStatus.added == ['new.txt'] as Set
+        project.gitStatus.added.files == project.files('new.txt').files
     }
 
     def 'should detect missing files'() {
@@ -68,7 +68,7 @@ class GitStatusTest extends Specification {
         when:
         project.gitStatus.execute()
         then:
-        project.gitStatus.missing == ['existing.txt'] as Set
+        project.gitStatus.missing.files == project.files('existing.txt').files
     }
 
 }
