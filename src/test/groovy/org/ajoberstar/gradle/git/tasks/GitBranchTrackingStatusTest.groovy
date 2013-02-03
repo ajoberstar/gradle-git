@@ -11,7 +11,7 @@ import static org.eclipse.jgit.lib.Constants.DEFAULT_REMOTE_NAME
 class GitBranchTrackingStatusTest extends Specification {
     Project project
 
-    static def testDir = new File("build/tmp/test/gradle-git")
+    static def testDir = new File("build/tmp/test/gradle-git/branchTrackingStatus")
 
     @Shared File localRepo
     @Shared File remoteRepo
