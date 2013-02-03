@@ -7,7 +7,7 @@ import spock.lang.Specification;
 
 class GitStatusTest extends Specification {
 
-    def testDir = new File("build/tmp/test/gradle-git")
+    def testDir = new File("build/tmp/test/gradle-git/status")
     Project project
     Git git
 
