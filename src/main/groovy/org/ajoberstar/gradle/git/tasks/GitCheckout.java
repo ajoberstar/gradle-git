@@ -23,23 +23,21 @@ import org.gradle.api.tasks.TaskAction;
 
 /**
  * Task to checkout files and refs
- *
+ * @author Evgeny Shepelyuk
  * @since 0.3.0
  */
-@SuppressWarnings("JavaDoc")
 public class GitCheckout extends GitSource {
+    private String startPoint;
 
-    public String startPoint;
+    private String branchName = Constants.MASTER;
 
-    public String name = Constants.MASTER;
-
-    public boolean createBranch = false;
+    private boolean createBranch = false;
 
     @TaskAction
     void checkout() {
         final CheckoutCommand cmd = getGit().checkout();
         cmd.setStartPoint(startPoint);
-        cmd.setName(name);
+        cmd.setName(branchName);
         cmd.setCreateBranch(createBranch);
 
         if (!patternSet.getExcludes().isEmpty() || !patternSet.getIncludes().isEmpty()) {
@@ -62,26 +60,47 @@ public class GitCheckout extends GitSource {
     }
 
     /**
-     * Set starting point for Git checkout
-     *
-     * @param startPoint
+     * Gets the start point for the new branch being created.
+     * @return the name of the commit to start at
+     */
+    public String getStartPoint() {
+        return startPoint;
+    }
+
+    /**
+     * Set starting point for the new branch being created.
+     * @param startPoint the name of the commit to start at
      */
     public void setStartPoint(String startPoint) {
         this.startPoint = startPoint;
     }
 
     /**
-     * Specify the name of the branch or commit to check out, or the new branch name.
-     *
-     * @param name
+     * Gets the branch or commit name to check out.
+     * @return name of branch or commit
      */
-    public void setName(String name) {
-        this.name = name;
+    public String getBranchName() {
+        return branchName;
+    }
+
+    /**
+     * Specify the name of the branch or commit to check out, or the new branch name.
+     * @param branchName
+     */
+    public void setBranchName(String branchName) {
+        this.branchName = branchName;
+    }
+
+    /**
+     * Gets whether the branch being checked out should be created.
+     * @return whether to create the branch
+     */
+    public boolean getCreateBranch() {
+        return createBranch;
     }
 
     /**
      * Specify whether to create a new branch.
-     *
      * @param createBranch
      */
     public void setCreateBranch(boolean createBranch) {

@@ -49,7 +49,7 @@ class GitCheckoutTest extends Specification {
 
     def 'when name is set then checkout particular branch'() {
         given: 'working branch master'
-        project.gitCheckout.name = 'branch'
+        project.gitCheckout.branchName = 'branch'
         when:
         project.gitCheckout.execute()
         then:
@@ -58,7 +58,7 @@ class GitCheckoutTest extends Specification {
 
     def 'when checkout missing branch then exception'() {
         given: 'working branch master'
-        project.gitCheckout.name = 'missing'
+        project.gitCheckout.branchName = 'missing'
         when:
         project.gitCheckout.execute()
         then:
@@ -68,7 +68,7 @@ class GitCheckoutTest extends Specification {
     def 'when checkout missing branch with createBranch flag then new branch created'() {
         given:
         project.gitCheckout {
-            name = 'missing'
+            branchName = 'missing'
             createBranch = true
         }
         when:
