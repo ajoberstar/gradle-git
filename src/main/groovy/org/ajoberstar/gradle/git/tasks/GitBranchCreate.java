@@ -25,127 +25,128 @@ import org.gradle.api.tasks.TaskAction;
 /**
  * Creates a new branch in a Git repository.
  * @since 0.3.0
+ * @author Evgeny Shepelyuk
  */
 public class GitBranchCreate extends GitBase {
-    /**
-     * Tracking mode for branches.
-     */
-    public static enum Mode {
-        NO_TRACK,
-        TRACK,
-        SET_UPSTREAM
-    }
+	/**
+	 * Tracking mode for branches.
+	 */
+	public static enum Mode {
+		NO_TRACK,
+		TRACK,
+		SET_UPSTREAM
+	}
 
-    private String branchName;
-    private String startPoint = "master";
-    private Mode mode;
-    private boolean force = false;
+	private String branchName;
+	private String startPoint = "master";
+	private Mode mode;
+	private boolean force = false;
 
-    /**
-     * Execute the creation or update of the branch.
-     */
-    @TaskAction
-    void branchCreate() {
-        CreateBranchCommand cmd = getGit().branchCreate();
-        cmd.setName(getBranchName());
-        cmd.setStartPoint(getStartPoint());
-        cmd.setForce(getForce());
+	/**
+	 * Execute the creation or update of the branch.
+	 */
+	@TaskAction
+	void branchCreate() {
+		CreateBranchCommand cmd = getGit().branchCreate();
+		cmd.setName(getBranchName());
+		cmd.setStartPoint(getStartPoint());
+		cmd.setForce(getForce());
 
-        if (getMode() != null) {
-            switch(getMode()) {
-                case NO_TRACK:
-                    cmd.setUpstreamMode(CreateBranchCommand.SetupUpstreamMode.NOTRACK);
-                    break;
-                case TRACK:
-                    cmd.setUpstreamMode(CreateBranchCommand.SetupUpstreamMode.TRACK);
-                    break;
-                case SET_UPSTREAM:
-                    cmd.setUpstreamMode(CreateBranchCommand.SetupUpstreamMode.SET_UPSTREAM);
-                    break;
-                default:
-                    throw new AssertionError("Illegal mode: " + getMode());
-            }
-        }
+		if (getMode() != null) {
+			switch(getMode()) {
+				case NO_TRACK:
+					cmd.setUpstreamMode(CreateBranchCommand.SetupUpstreamMode.NOTRACK);
+					break;
+				case TRACK:
+					cmd.setUpstreamMode(CreateBranchCommand.SetupUpstreamMode.TRACK);
+					break;
+				case SET_UPSTREAM:
+					cmd.setUpstreamMode(CreateBranchCommand.SetupUpstreamMode.SET_UPSTREAM);
+					break;
+				default:
+					throw new AssertionError("Illegal mode: " + getMode());
+			}
+		}
 
-        try {
-            cmd.call();
-        } catch (InvalidRefNameException e) {
-            throw new GradleException("Invalid branch name: " + getName(), e);
-        } catch (RefNotFoundException e) {
-            throw new GradleException("Can't find start point: " + getStartPoint(), e);
-        } catch (RefAlreadyExistsException e) {
-            throw new GradleException("Branch " + getName() + " already exists. Use force=true to modify.", e);
-        } catch (GitAPIException e) {
-            throw new GradleException("Problem creating or updating branch " + getName(), e);
-        }
-    }
+		try {
+			cmd.call();
+		} catch (InvalidRefNameException e) {
+			throw new GradleException("Invalid branch name: " + getName(), e);
+		} catch (RefNotFoundException e) {
+			throw new GradleException("Can't find start point: " + getStartPoint(), e);
+		} catch (RefAlreadyExistsException e) {
+			throw new GradleException("Branch " + getName() + " already exists. Use force=true to modify.", e);
+		} catch (GitAPIException e) {
+			throw new GradleException("Problem creating or updating branch " + getName(), e);
+		}
+	}
 
-    /**
-     * Gets the name of the branch to create or update.
-     * @return branchName of the branch
-     */
-    public String getBranchName() {
-        return branchName;
-    }
+	/**
+	 * Gets the name of the branch to create or update.
+	 * @return branchName of the branch
+	 */
+	public String getBranchName() {
+		return branchName;
+	}
 
-    /**
-     * Sets the name of the branch to create or update.
-     * @param branchName the name of the branch
-     */
-    public void setBranchName(String branchName) {
-        this.branchName = branchName;
-    }
+	/**
+	 * Sets the name of the branch to create or update.
+	 * @param branchName the name of the branch
+	 */
+	public void setBranchName(String branchName) {
+		this.branchName = branchName;
+	}
 
-    /**
-     * Gets the starting point of the branch.
-     * @return the starting point of the branch
-     */
-    public String getStartPoint() {
-        return startPoint;
-    }
+	/**
+	 * Gets the starting point of the branch.
+	 * @return the starting point of the branch
+	 */
+	public String getStartPoint() {
+		return startPoint;
+	}
 
-    /**
-     * Sets the starting point of the branch.
-     * @param startPoint the start point of the branch
-     */
-    public void setStartPoint(String startPoint) {
-        this.startPoint = startPoint;
-    }
+	/**
+	 * Sets the starting point of the branch.
+	 * @param startPoint the start point of the branch
+	 */
+	public void setStartPoint(String startPoint) {
+		this.startPoint = startPoint;
+	}
 
-    /**
-     * Gets the tracking mode of the branch.
-     * @return the tracking mode
-     */
-    public Mode getMode() {
-        return mode;
-    }
+	/**
+	 * Gets the tracking mode of the branch.
+	 * @return the tracking mode
+	 */
+	public Mode getMode() {
+		return mode;
+	}
 
-    /**
-     * Sets the tracking mode of the branch.
-     * @param mode the tracking mode
-     */
-    public void setMode(Mode mode) {
-        this.mode = mode;
-    }
+	/**
+	 * Sets the tracking mode of the branch.
+	 * @param mode the tracking mode
+	 */
+	public void setMode(Mode mode) {
+		this.mode = mode;
+	}
 
-    /**
-     * Gets whether an existing branch will be modified
-     * by this task.
-     * @return whether to force changes to existing
-     * branches
-     */
-    public boolean getForce() {
-        return force;
-    }
+	/**
+	 * Gets whether an existing branch will be modified
+	 * by this task.
+	 * @return whether to force changes to existing
+	 * branches
+	 */
+	public boolean getForce() {
+		return force;
+	}
 
-    /**
-     * Sets whether an existing branch will be modified
-     * by this task.
-     * @param force {@code true} if existing branches
-     * will be updated, {@code false} if the task should
-     * fail if the branch exists
-     */
-    public void setForce(boolean force) {
-        this.force = force;
-    }
+	/**
+	 * Sets whether an existing branch will be modified
+	 * by this task.
+	 * @param force {@code true} if existing branches
+	 * will be updated, {@code false} if the task should
+	 * fail if the branch exists
+	 */
+	public void setForce(boolean force) {
+		this.force = force;
+	}
 }
