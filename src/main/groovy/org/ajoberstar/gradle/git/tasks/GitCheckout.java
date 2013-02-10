@@ -15,6 +15,7 @@
 package org.ajoberstar.gradle.git.tasks;
 
 import org.eclipse.jgit.api.CheckoutCommand;
+import org.eclipse.jgit.lib.Constants;
 import org.gradle.api.GradleException;
 import org.gradle.api.file.FileVisitDetails;
 import org.gradle.api.file.FileVisitor;
@@ -25,24 +26,33 @@ import org.gradle.api.tasks.TaskAction;
  *
  * @since 0.3.0
  */
+@SuppressWarnings("JavaDoc")
 public class GitCheckout extends GitSource {
 
-  public String startingPoint;
+  public String startPoint;
+
+  public String name = Constants.MASTER;
+
+  public boolean createBranch = false;
 
   @TaskAction
   void checkout() {
     final CheckoutCommand cmd = getGit().checkout();
-    cmd.setStartPoint(startingPoint);
+    cmd.setStartPoint(startPoint);
+    cmd.setName(name);
+    cmd.setCreateBranch(createBranch);
 
-    getSource().visit(new FileVisitor() {
-      public void visitDir(FileVisitDetails arg0) {
-        visitFile(arg0);
-      }
+    if (!patternSet.getExcludes().isEmpty() || !patternSet.getIncludes().isEmpty()) {
+      getSource().visit(new FileVisitor() {
+        public void visitDir(FileVisitDetails arg0) {
+          visitFile(arg0);
+        }
 
-      public void visitFile(FileVisitDetails arg0) {
-        cmd.addPath(arg0.getPath());
-      }
-    });
+        public void visitFile(FileVisitDetails arg0) {
+          cmd.addPath(arg0.getPath());
+        }
+      });
+    }
 
     try {
       cmd.call();
@@ -54,9 +64,27 @@ public class GitCheckout extends GitSource {
   /**
    * Set starting point for Git checkout
    *
-   * @param startingPoint
+   * @param startPoint
    */
-  public void setStartingPoint(String startingPoint) {
-    this.startingPoint = startingPoint;
+  public void setStartPoint(String startPoint) {
+    this.startPoint = startPoint;
+  }
+
+  /**
+   * Specify the name of the branch or commit to check out, or the new branch name.
+   *
+   * @param name
+   */
+  public void setName(String name) {
+    this.name = name;
+  }
+
+  /**
+   * Specify whether to create a new branch.
+   *
+   * @param createBranch
+   */
+  public void setCreateBranch(boolean createBranch) {
+    this.createBranch = createBranch;
   }
 }
