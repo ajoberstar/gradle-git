@@ -33,6 +33,7 @@ dependencies {
 githubPages {
 	repoUri = 'git@github.com:ajoberstar/gradle-git.git'
 	pages {
+		from 'src/gh-pages'
 		from(javadoc.outputs.files) {
 			into 'docs/javadoc'
 		}
