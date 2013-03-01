@@ -18,67 +18,96 @@ import groovy.util.logging.Slf4j
 import org.ajoberstar.gradle.git.api.Branch
 import org.ajoberstar.gradle.git.api.Commit
 import org.ajoberstar.gradle.git.api.Person
+import org.ajoberstar.gradle.git.api.TrackingStatus
 import org.eclipse.jgit.errors.MissingObjectException
-import org.eclipse.jgit.lib.PersonIdent
-import org.eclipse.jgit.lib.ObjectId
-import org.eclipse.jgit.lib.Ref
-import org.eclipse.jgit.lib.Repository
+import org.eclipse.jgit.lib.*
 import org.eclipse.jgit.revwalk.RevCommit
 import org.eclipse.jgit.revwalk.RevWalk
 
 /**
  * Utility methods for Git objects.
  */
- @Slf4j
+@Slf4j
 class GitUtil {
-	private GitUtil() {
-		throw new AssertionError('This class cannot be instantiated.')
-	}
+    private GitUtil() {
+        throw new AssertionError('This class cannot be instantiated.')
+    }
 
-	private static Map<RevCommit, Commit> cache = [:]
+    private static Map<RevCommit, Commit> cache = [:]
 
-	/**
-	 * Converts a JGit RevCommit to a Commit.
-	 * @param rev the JGit commit to convert
-	 * @return a org.ajoberstar Commit
-	 */
-	static Commit revCommitToCommit(RevCommit rev) {
-		if (cache.containsKey(rev)) {
-			return cache[rev]
-		} else {
-			Map props = [:]
-			props.id = ObjectId.toString(rev.id)
-			props.abbreviatedId = props.id[0..6]
-			PersonIdent committer = rev.committerIdent
-			props.committer = new Person(committer.name, committer.emailAddress)
-			PersonIdent author = rev.authorIdent
-			props.author = new Person(author.name, author.emailAddress)
-			props.time = rev.commitTime
-			props.fullMessage = rev.fullMessage
-			props.shortMessage = rev.shortMessage
-			Commit commit = new Commit(props)
-			cache[rev] = commit
-			return commit
-		}
-	}
+    /**
+     * Converts a JGit RevCommit to a Commit.
+     * @param rev the JGit commit to convert
+     * @return a org.ajoberstar Commit
+     */
+    static Commit revCommitToCommit(RevCommit rev) {
+        if (cache.containsKey(rev)) {
+            return cache[rev]
+        } else {
+            Map props = [:]
+            props.id = ObjectId.toString(rev.id)
+            props.abbreviatedId = props.id[0..6]
+            PersonIdent committer = rev.committerIdent
+            props.committer = new Person(committer.name, committer.emailAddress)
+            PersonIdent author = rev.authorIdent
+            props.author = new Person(author.name, author.emailAddress)
+            props.time = rev.commitTime
+            props.fullMessage = rev.fullMessage
+            props.shortMessage = rev.shortMessage
+            Commit commit = new Commit(props)
+            cache[rev] = commit
+            return commit
+        }
+    }
 
-	/**
-	 * Converts a reference name to a Branch.
-	 * @param refName reference name of branch
-	 * @return the branch
-	 * @since 0.3.0
-	 */
-	static Branch refToBranch(Repository repo, Ref ref) {
-		String refName = ref.name
-		RevWalk walk = new RevWalk(repo)
-		Commit commit
-		try {
-			RevCommit rev = walk.parseCommit(ref.objectId)
-			commit = revCommitToCommit(rev)
-		} catch (MissingObjectException e) {
-			log.debug("Could not find commit for ref: $refName", e)
-		}
-		String shortName = Repository.shortenRefName(refName)
-		return new Branch(shortName, refName, commit)
-	}
+    /**
+     * Converts JGit's {@link Ref} to {@link org.ajoberstar.gradle.git.api.Branch} object
+     * @return the branch
+     * @since 0.3.0
+     */
+    static Branch refToBranch(Repository repo, Ref ref) {
+        String refName = ref.name
+        RevWalk walk = new RevWalk(repo)
+        Commit commit
+        try {
+            RevCommit rev = walk.parseCommit(ref.objectId)
+            commit = revCommitToCommit(rev)
+        } catch (MissingObjectException e) {
+            log.debug("Could not find commit for ref: $refName", e)
+        }
+        String shortName = Repository.shortenRefName(refName)
+        return new Branch(shortName, refName, commit)
+    }
+
+     /**
+      * Build {@link Branch} object from git name
+      * @return the branch
+      * @since 0.3.0
+      */
+     static Branch gitNameToBranch(Repository repo, String gitName) {
+         Ref ref = repo.getRef(gitName)
+         if (ref) return refToBranch(repo, ref)
+
+         def commit
+         try {
+             RevCommit rev = new RevWalk(repo).parseCommit(repo.resolve(gitName))
+             commit = revCommitToCommit(rev)
+         } catch (MissingObjectException e) {
+             log.debug("Could not find commit for ref: $gitName", e)
+         }
+
+         return new Branch(name: null, refName: null, commit: commit)
+     }
+
+    /**
+     * Converts a JGit {@link BranchTrackingStatus} to {@link TrackingStatus}.
+     * @return the tracking status of the branch
+     * @since 0.3.0
+     */
+    static TrackingStatus trackingStatusFromGit(Repository repo, BranchTrackingStatus status) {
+        if (null != status) {
+            return new TrackingStatus(remoteBranch: gitNameToBranch(repo, status.remoteTrackingBranch), aheadCount: status.aheadCount, behindCount: status.behindCount)
+        }
+        return new TrackingStatus(remoteBranch: null, aheadCount: -1, behindCount: -1)
+    }
 }

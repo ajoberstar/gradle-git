@@ -9,7 +9,7 @@ for publishing static files to the `gh-pages` branch of a Git repository.
 for basic Git functions that can be performed as part of your build.
 
 For more information see the documentation in the next sections as well as
-the APIs.
+the full list of tasks and plugins.
 
 **API Documentation:**
 
@@ -26,7 +26,7 @@ Add the following lines to your build to use the gradle-git plugins.
 
     buildscript {
       repositories { mavenCentral() }
-      dependencies { classpath 'org.ajoberstar:gradle-git:0.2.3' }
+      dependencies { classpath 'org.ajoberstar:gradle-git:0.3.0' }
     }
 
 ## Using Tasks
@@ -156,6 +156,11 @@ github.credentials.password = password
 ---
 
 ## Release Notes
+
+**v0.3.0**
+
+* Added `GitBranchCreate`, `GitBranchList`, `GitBranchTrackingStatus`, `GitCheckout`, `GitStatus`
+tasks courtesy of [Evgeny Shepelyuk](https://github.com/eshepelyuk).
 
 **v0.2.3**
 

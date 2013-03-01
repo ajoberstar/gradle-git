@@ -15,7 +15,7 @@ apply plugin: 'github-pages'
 
 group = 'org.ajoberstar'
 description = 'Git plugins for Gradle'
-version = '0.3.0-SNAPSHOT'
+version = '0.3.0'
 
 repositories {
 	mavenCentral()
@@ -33,6 +33,7 @@ dependencies {
 githubPages {
 	repoUri = 'git@github.com:ajoberstar/gradle-git.git'
 	pages {
+		from 'src/gh-pages'
 		from(javadoc.outputs.files) {
 			into 'docs/javadoc'
 		}
