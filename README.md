@@ -157,6 +157,10 @@ github.credentials.password = password
 
 ## Release Notes
 
+**v0.4.0**
+
+* Minor update to `GitCommit` to allow include/exclude rules for the files to commit, courtesy of [Evgeny Shepelyuk](https://github.com/eshepelyuk).
+
 **v0.3.0**
 
 * Added `GitBranchCreate`, `GitBranchList`, `GitBranchTrackingStatus`, `GitCheckout`, `GitStatus`
