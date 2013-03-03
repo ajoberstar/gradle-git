@@ -16,6 +16,7 @@ apply plugin: 'idea'
 apply plugin: 'maven'
 apply plugin: 'signing'
 apply plugin: 'license'
+apply plugin: 'jacoco'
 apply plugin: 'github-pages'
 
 group = 'org.ajoberstar'
