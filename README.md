@@ -26,7 +26,7 @@ Add the following lines to your build to use the gradle-git plugins.
 
     buildscript {
       repositories { mavenCentral() }
-      dependencies { classpath 'org.ajoberstar:gradle-git:0.3.0' }
+      dependencies { classpath 'org.ajoberstar:gradle-git:0.4.0' }
     }
 
 ## Using Tasks
