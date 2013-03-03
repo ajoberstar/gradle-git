@@ -3,7 +3,11 @@ buildscript {
 		mavenCentral()
 		maven { url 'https://oss.sonatype.org/content/groups/public/' }
 	}
-	dependencies { classpath 'org.ajoberstar:gradle-git:0.2.3' }
+	dependencies {
+		classpath 'org.ajoberstar:gradle-git:0.3.0'
+		classpath 'org.ajoberstar:gradle-jacoco:0.2.0'
+		classpath 'nl.javadude.gradle.plugins:license-gradle-plugin:0.5.0'
+	}
 }
 
 apply plugin: 'groovy'
@@ -11,11 +15,12 @@ apply plugin: 'eclipse'
 apply plugin: 'idea'
 apply plugin: 'maven'
 apply plugin: 'signing'
+apply plugin: 'license'
 apply plugin: 'github-pages'
 
 group = 'org.ajoberstar'
 description = 'Git plugins for Gradle'
-version = '0.3.0'
+version = '0.4.0-SNAPSHOT'
 
 repositories {
 	mavenCentral()
@@ -26,21 +31,8 @@ dependencies {
 	compile gradleApi()
 	compile 'org.eclipse.jgit:org.eclipse.jgit:2.2.0.201212191850-r'
 	compile 'org.eclipse.jgit:org.eclipse.jgit.ui:2.2.0.201212191850-r'
-    testCompile( 'org.spockframework:spock-core:0.7-groovy-1.8' ) { exclude group: 'org.codehaus.groovy' }
-    testCompile 'junit:junit:4.10'
-}
-
-githubPages {
-	repoUri = 'git@github.com:ajoberstar/gradle-git.git'
-	pages {
-		from 'src/gh-pages'
-		from(javadoc.outputs.files) {
-			into 'docs/javadoc'
-		}
-		from(groovydoc.outputs.files) {
-			into 'docs/groovydoc'
-		}
-	}
+	testCompile 'junit:junit:4.10'
+	testCompile('org.spockframework:spock-core:0.7-groovy-1.8') { exclude group: 'org.codehaus.groovy' }
 }
 
 task sourcesJar(type:Jar) {
@@ -102,6 +94,31 @@ uploadArchives {
 				developerConnection 'git@github.com:ajoberstar/gradle-git.git'
 				url 'http://github.com/ajoberstar/gradle-git'
 			}
+		}
+	}
+}
+
+license {
+	header file('config/HEADER')
+	strictCheck = true
+	useDefaultMappings = false
+	mapping 'groovy', 'SLASHSTAR_STYLE'
+	mapping 'java', 'SLASHSTAR_STYLE'
+}
+
+tasks.withType(nl.javadude.gradle.plugins.license.License) {
+	exclude '**/*.properties'
+}
+
+githubPages {
+	repoUri = 'git@github.com:ajoberstar/gradle-git.git'
+	pages {
+		from 'src/gh-pages'
+		from(javadoc.outputs.files) {
+			into 'docs/javadoc'
+		}
+		from(groovydoc.outputs.files) {
+			into 'docs/groovydoc'
 		}
 	}
 }
