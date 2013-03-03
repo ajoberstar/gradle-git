@@ -23,6 +23,8 @@ group = 'org.ajoberstar'
 description = 'Git plugins for Gradle'
 version = '0.4.0'
 
+sourceCompatibility = '1.5'
+
 repositories {
 	mavenCentral()
 }
