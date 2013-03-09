@@ -23,6 +23,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.concurrent.Callable;
 
 import org.ajoberstar.gradle.git.auth.BasicPasswordCredentials;
 import org.ajoberstar.gradle.git.auth.JGitCredentialsProviderSupport;
@@ -47,13 +48,16 @@ import org.gradle.util.ConfigureUtil;
  * @since 0.1.0
  */
 public class GitClone extends DefaultTask implements AuthenticationSupported {
+	private static final String BRANCH_ROOT = "refs/heads/";
+	private static final String TAG_ROOT = "refs/tags/";
+
 	private PasswordCredentials credentials = new BasicPasswordCredentials();
 	private JGitCredentialsProviderSupport credsProviderSupport = new JGitCredentialsProviderSupport(this);
 	private Object uri = null;
 	private Object remote = null;
 	private boolean bare = false;
 	private boolean checkout = true;
-	private Object branch = null;
+	private Object ref = null;
 	private Collection<Object> branchesToClone = null;
 	private boolean cloneAllBranches = true;
 	private Object destinationPath = null;
@@ -69,7 +73,7 @@ public class GitClone extends DefaultTask implements AuthenticationSupported {
 		cmd.setRemote(getRemote());
 		cmd.setBare(getBare());
 		cmd.setNoCheckout(!getCheckout());
-		cmd.setBranch("refs/heads/" + getBranch());
+		cmd.setBranch(getRef());
 		cmd.setBranchesToClone(getBranchesToClone());
 		cmd.setCloneAllBranches(getCloneAllBranches());
 		cmd.setDirectory(getDestinationDir());
@@ -182,25 +186,75 @@ public class GitClone extends DefaultTask implements AuthenticationSupported {
 	public void setCheckout(boolean checkout) {
 		this.checkout = checkout;
 	}
-	
+
 	/**
-	 * Gets the branch to checkout if {@code checkout} is set
-	 * to {@code true}.  Defaults to "master".
-	 * @return the branch to checkout
+	 * Gets the ref to checkout if {@code checkout} is set
+	 * to {@code true}. Defaults to "refs/heads/master".
+	 * @return the ref to checkout
 	 */
 	@Input
+	public String getRef() {
+		return ref == null ? BRANCH_ROOT + "master" : ObjectUtil.unpackString(ref);
+	}
+
+	/**
+	 * Sets the ref to checkout if {@code checkout} is set
+	 * to {@code true}.
+	 * @param ref the ref to checkout
+	 */
+	public void setRef(Object ref) {
+		this.ref = ref;
+	}
+	
+	/**
+	 * Gets the simple name of the branch to checkout if {@code checkout} is set
+	 * to {@code true}.
+	 * @return the branch to checkout or {@code null} if {@code ref} is not a branch
+	 * @see #getRef()
+	 */
 	public String getBranch() {
-		return branch == null ? "master" : ObjectUtil.unpackString(branch);
+		String ref = getRef();
+		return ref.startsWith(BRANCH_ROOT) ? ref.substring(BRANCH_ROOT.length()) : null;
 	}
 	
 	/**
 	 * Sets the branch to checkout if {@code checkout} is set
-	 * to {@code true}.  Defaults to "master".
+	 * to {@code true}.
 	 * @param branch the branch to checkout
+	 * @see #setRef(Object)
 	 */
-	public void setBranch(Object branch) {
-		this.branch = branch;
+	public void setBranch(final Object branch) {
+		this.ref = new Callable<String>() {
+			public String call() {
+				return BRANCH_ROOT + ObjectUtil.unpackString(branch);
+			}
+		};
 	}
+
+	/**
+	 * Gets the simple name of the tag to checkout if {@code checkout} is set
+	 * to {@code true}.
+	 * @return the tag to checkout or {@code null} if {@code ref} is not a tag
+	 * @see #getRef()
+	 */
+	public String getTag() {
+		String ref = getRef();
+		return ref.startsWith(TAG_ROOT) ? ref.substring(TAG_ROOT.length()) : null;
+	}
+	
+	/**
+	 * Sets the tag to checkout if {@code checkout} is set
+	 * to {@code true}. This will set the {@code ref}.
+	 * @param tag the tag to checkout
+	 * @see #setRef(Object)
+	 */
+	public void setTag(final Object tag) {
+		this.ref = new Callable<String>() {
+			public String call() {
+				return TAG_ROOT + ObjectUtil.unpackString(tag);
+			}
+		};
+	}	
 	
 	/**
 	 * Gets the destination directory the repository
