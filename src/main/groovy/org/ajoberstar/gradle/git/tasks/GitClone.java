@@ -191,6 +191,7 @@ public class GitClone extends DefaultTask implements AuthenticationSupported {
 	 * Gets the ref to checkout if {@code checkout} is set
 	 * to {@code true}. Defaults to "refs/heads/master".
 	 * @return the ref to checkout
+	 * @since 0.5.0
 	 */
 	@Input
 	public String getRef() {
@@ -201,6 +202,7 @@ public class GitClone extends DefaultTask implements AuthenticationSupported {
 	 * Sets the ref to checkout if {@code checkout} is set
 	 * to {@code true}.
 	 * @param ref the ref to checkout
+	 * @since 0.5.0
 	 */
 	public void setRef(Object ref) {
 		this.ref = ref;
@@ -236,6 +238,7 @@ public class GitClone extends DefaultTask implements AuthenticationSupported {
 	 * to {@code true}.
 	 * @return the tag to checkout or {@code null} if {@code ref} is not a tag
 	 * @see #getRef()
+	 * @since 0.5.0
 	 */
 	public String getTag() {
 		String ref = getRef();
@@ -247,6 +250,7 @@ public class GitClone extends DefaultTask implements AuthenticationSupported {
 	 * to {@code true}. This will set the {@code ref}.
 	 * @param tag the tag to checkout
 	 * @see #setRef(Object)
+	 * @since 0.5.0
 	 */
 	public void setTag(final Object tag) {
 		this.ref = new Callable<String>() {

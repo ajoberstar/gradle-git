@@ -157,6 +157,11 @@ github.credentials.password = password
 
 ## Release Notes
 
+**v0.5.0**
+
+* Added support for checking out tags on `GitClone`.
+* Fixed a bug with `GitAdd` that prevented  adding individual files from a subdirectory of the repository.
+
 **v0.4.0**
 
 * Minor update to `GitCommit` to allow include/exclude rules for the files to commit, courtesy of [Evgeny Shepelyuk](https://github.com/eshepelyuk).
