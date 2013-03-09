@@ -42,7 +42,7 @@ public class GitAdd extends GitSource {
 		
 		getSource().visit(new FileVisitor() {
 			public void visitDir(FileVisitDetails arg0) {
-				visitFile(arg0);
+				// visitFile(arg0);
 			}
 
 			public void visitFile(FileVisitDetails arg0) {
