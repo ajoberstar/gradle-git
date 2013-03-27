@@ -1,0 +1,7 @@
+description = 'Groovy layer over JGit.'
+version = '0.1.0-SNAPSHOT'
+
+dependencies {
+	compile 'org.eclipse.jgit:org.eclipse.jgit:2.2.0.201212191850-r'
+	compile 'org.eclipse.jgit:org.eclipse.jgit.ui:2.2.0.201212191850-r'
+}

@@ -1,0 +1,15 @@
+apply plugin: 'license'
+
+license {
+	header file('config/HEADER')
+	strictCheck = true
+	useDefaultMappings = false
+	mapping 'groovy', 'SLASHSTAR_STYLE'
+	mapping 'java', 'SLASHSTAR_STYLE'
+}
+
+tasks.all { task ->
+	if (task.class.name == 'nl.javadude.gradle.plugins.license.License') {
+		exclude '**/*.properties'
+	}
+}

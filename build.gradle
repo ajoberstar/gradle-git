@@ -10,107 +10,37 @@ buildscript {
 	}
 }
 
-apply plugin: 'groovy'
-apply plugin: 'eclipse'
-apply plugin: 'idea'
-apply plugin: 'maven'
-apply plugin: 'signing'
-apply plugin: 'license'
-apply plugin: 'jacoco'
-apply plugin: 'github-pages'
+allprojects {
+	apply plugin: 'groovy'
+	apply plugin: 'eclipse'
+	apply plugin: 'idea'
+	apply plugin: 'jacoco'
+	apply from: rootProject.file('config/publishing.gradle')
+	apply from: rootProject.file('config/license.gradle')
 
-group = 'org.ajoberstar'
-description = 'Git plugins for Gradle'
-version = '0.6.0-SNAPSHOT'
+	group = 'org.ajoberstar'
 
-sourceCompatibility = '1.5'
+	sourceCompatibility = '1.5'
 
-repositories {
-	mavenCentral()
-}
+	repositories { mavenCentral() }
 
-dependencies {
-	groovy localGroovy()
-	compile gradleApi()
-	compile 'org.eclipse.jgit:org.eclipse.jgit:2.2.0.201212191850-r'
-	compile 'org.eclipse.jgit:org.eclipse.jgit.ui:2.2.0.201212191850-r'
-	testCompile 'junit:junit:4.10'
-	testCompile('org.spockframework:spock-core:0.7-groovy-1.8') { exclude group: 'org.codehaus.groovy' }
-}
-
-task sourcesJar(type:Jar) {
-	classifier = 'sources'
-	from sourceSets.main.allSource
-}
-
-task javadocJar(type:Jar) {
-	classifier = 'javadoc'
-	from javadoc.outputs.files
-}
-
-task groovydocJar(type:Jar) {
-	classifier = 'groovydoc'
-	from groovydoc.outputs.files
-}
-
-artifacts {
-	archives sourcesJar
-	archives javadocJar
-	archives groovydocJar
-}
-
-signing {
-	sign configurations.archives
-}
-
-uploadArchives {
-	repositories.mavenDeployer {
-		name = 'Sonatype OSS'
-		repository(url:'https://oss.sonatype.org/service/local/staging/deploy/maven2') {
-			authentication(userName:sonatypeUserName, password:sonatypePassword)
-		}
-		snapshotRepository(url:'https://oss.sonatype.org/content/repositories/snapshots') {
-			authentication(userName:sonatypeUserName, password:sonatypePassword)
-		}
-		
-		beforeDeployment { signing.signPom it }
-
-		pom.project {
-			name project.name
-			description project.description
-			url 'http://github.com/ajoberstar/gradle-git'
-			licenses {
-				license {
-					name 'The Apache Software License, Version 2.0'
-					url 'http://www.apache.org/licenses/LICENSE-2.0'
-				}
-			}
-			developers {
-				developer {
-					id 'ajoberstar'
-					name 'Andrew Oberstar'
-					email 'andrew@ajoberstar.org'
-				}
-			}
-			scm {
-				connection 'git://github.com/ajoberstar/gradle-git.git'
-				developerConnection 'git@github.com:ajoberstar/gradle-git.git'
-				url 'http://github.com/ajoberstar/gradle-git'
-			}
-		}
+	dependencies {
+		groovy localGroovy()
+		testCompile 'junit:junit:4.10'
+		testCompile('org.spockframework:spock-core:0.7-groovy-1.8') { exclude group: 'org.codehaus.groovy' }
 	}
 }
 
-license {
-	header file('config/HEADER')
-	strictCheck = true
-	useDefaultMappings = false
-	mapping 'groovy', 'SLASHSTAR_STYLE'
-	mapping 'java', 'SLASHSTAR_STYLE'
-}
+apply plugin: 'github-pages'
 
-tasks.withType(nl.javadude.gradle.plugins.license.License) {
-	exclude '**/*.properties'
+description = 'Git plugins for Gradle'
+version = '0.6.0-SNAPSHOT'
+
+dependencies {
+	compile gradleApi()
+	compile project(':grgit')
+	compile 'org.eclipse.jgit:org.eclipse.jgit:2.2.0.201212191850-r'
+	compile 'org.eclipse.jgit:org.eclipse.jgit.ui:2.2.0.201212191850-r'
 }
 
 githubPages {
