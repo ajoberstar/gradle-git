@@ -13,20 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.ajoberstar.grgit.service
+package org.ajoberstar.grgit
 
-import org.ajoberstar.grgit.Tag
+class Status {
 
-class TagService {
-	void add(Map parms) {
-
-	}
-
-	void remove(Map parms) {
-
-	}
-
-	Set<Tag> list(Map parms) {
-		
-	}
 }
