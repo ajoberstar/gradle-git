@@ -104,7 +104,7 @@ class GithubPagesPlugin implements Plugin<Project> {
 		GitCommit commit = project.tasks.add(COMMIT_TASK_NAME, GitCommit)
 		commit.description = 'Commits all changes to the working gh-pages repo'
 		commit.dependsOn add
-		commit.message = 'Publish of github pages from Gradle'
+		commit.message = { extension.commitMessage }
 		
 		GitPush push = project.tasks.add(PUSH_TASK_NAME, GitPush)
 		push.description = 'Pushes all changes in the working gh-pages repo to Github'

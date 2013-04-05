@@ -45,6 +45,11 @@ class GithubPagesPluginExtension implements AuthenticationSupported {
 	 * The path to put the github repository in.
 	 */
 	Object workingPath = "${project.buildDir}/ghpages"
+    
+    /**
+     * The message for the git commit command
+     */
+    String commitMessage = "Publish of github pages from Gradle"
 	
 	/**
 	 * Constructs the plugin extension.
