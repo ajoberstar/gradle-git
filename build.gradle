@@ -21,7 +21,7 @@ apply plugin: 'github-pages'
 
 group = 'org.ajoberstar'
 description = 'Git plugins for Gradle'
-version = '0.6.0-SNAPSHOT'
+version = '0.6.0'
 
 sourceCompatibility = '1.5'
 

@@ -65,6 +65,7 @@ All authentication methods supported by JGit should be supported by these
 plugins.  However, the only ones that are tested are:
 * Username/Password
 * SSH (with or without a passphrase)
+  * sshagent and Pageant are also supported
 
 On any task that supports/requires credentials, you will have two options for
 configuration:
@@ -156,6 +157,9 @@ github.credentials.password = password
 ---
 
 ## Release Notes
+
+**v0.6.0**
+* Added support for jsch-agent-proxy. This allows use of sshagent and Pageant to provide ssh credentials.
 
 **v0.5.0**
 
