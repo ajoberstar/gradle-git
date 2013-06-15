@@ -18,7 +18,7 @@ package org.ajoberstar.gradle.git.tasks;
 import groovy.lang.Closure;
 
 import org.ajoberstar.gradle.git.auth.BasicPasswordCredentials;
-import org.ajoberstar.gradle.git.auth.JGitCredentialsProviderSupport;
+import org.ajoberstar.gradle.git.auth.TransportAuthUtil;
 import org.eclipse.jgit.api.PullCommand;
 import org.eclipse.jgit.api.errors.*;
 import org.gradle.api.GradleException;
@@ -38,7 +38,6 @@ import org.gradle.util.ConfigureUtil;
  */
 public class GitPull extends GitBase implements AuthenticationSupported {
 	private PasswordCredentials credentials = new BasicPasswordCredentials();
-	private JGitCredentialsProviderSupport credsProviderSupport = new JGitCredentialsProviderSupport(this);
 	
 	/**
 	 * Pulls changes from a remote Git repository and merges them into the 
@@ -47,7 +46,7 @@ public class GitPull extends GitBase implements AuthenticationSupported {
 	@TaskAction
 	public void pullRepo() {
 		PullCommand cmd = getGit().pull();
-		cmd.setCredentialsProvider(credsProviderSupport.getCredentialsProvider());
+		TransportAuthUtil.configure(cmd, this);
 		try {
 			cmd.call();
 		} catch (InvalidRemoteException e) {

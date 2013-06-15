@@ -23,7 +23,7 @@ import java.util.Collections;
 import java.util.List;
 
 import org.ajoberstar.gradle.git.auth.BasicPasswordCredentials;
-import org.ajoberstar.gradle.git.auth.JGitCredentialsProviderSupport;
+import org.ajoberstar.gradle.git.auth.TransportAuthUtil;
 import org.ajoberstar.gradle.util.ObjectUtil;
 import org.eclipse.jgit.api.FetchCommand;
 import org.eclipse.jgit.api.errors.GitAPIException;
@@ -48,7 +48,6 @@ import org.gradle.util.ConfigureUtil;
  */
 public class GitFetch extends GitBase implements AuthenticationSupported {
 	private PasswordCredentials credentials = new BasicPasswordCredentials();
-	private JGitCredentialsProviderSupport credsProviderSupport = new JGitCredentialsProviderSupport(this);
 	
 	private boolean dryRun = false;
 	private boolean thin = true;
@@ -64,7 +63,7 @@ public class GitFetch extends GitBase implements AuthenticationSupported {
 	@TaskAction
 	public void fetch() {
 		FetchCommand cmd = getGit().fetch();
-		cmd.setCredentialsProvider(credsProviderSupport.getCredentialsProvider());
+		TransportAuthUtil.configure(cmd, this);
 		cmd.setTagOpt(getTagOpt());
 		cmd.setCheckFetchedObjects(getCheckFetchedObjects());
 		cmd.setDryRun(getDryRun());

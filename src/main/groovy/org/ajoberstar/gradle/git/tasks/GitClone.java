@@ -26,7 +26,7 @@ import java.util.HashSet;
 import java.util.concurrent.Callable;
 
 import org.ajoberstar.gradle.git.auth.BasicPasswordCredentials;
-import org.ajoberstar.gradle.git.auth.JGitCredentialsProviderSupport;
+import org.ajoberstar.gradle.git.auth.TransportAuthUtil;
 import org.ajoberstar.gradle.util.ObjectUtil;
 import org.eclipse.jgit.api.CloneCommand;
 import org.eclipse.jgit.api.Git;
@@ -52,7 +52,6 @@ public class GitClone extends DefaultTask implements AuthenticationSupported {
 	private static final String TAG_ROOT = "refs/tags/";
 
 	private PasswordCredentials credentials = new BasicPasswordCredentials();
-	private JGitCredentialsProviderSupport credsProviderSupport = new JGitCredentialsProviderSupport(this);
 	private Object uri = null;
 	private Object remote = null;
 	private boolean bare = false;
@@ -68,7 +67,7 @@ public class GitClone extends DefaultTask implements AuthenticationSupported {
 	@TaskAction
 	public void cloneRepo() {
 		CloneCommand cmd = Git.cloneRepository();
-		cmd.setCredentialsProvider(credsProviderSupport.getCredentialsProvider());
+		TransportAuthUtil.configure(cmd, this);
 		cmd.setURI(getUri().toString());
 		cmd.setRemote(getRemote());
 		cmd.setBare(getBare());

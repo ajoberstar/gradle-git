@@ -18,7 +18,7 @@ package org.ajoberstar.gradle.git.tasks;
 import groovy.lang.Closure;
 
 import org.ajoberstar.gradle.git.auth.BasicPasswordCredentials;
-import org.ajoberstar.gradle.git.auth.JGitCredentialsProviderSupport;
+import org.ajoberstar.gradle.git.auth.TransportAuthUtil;
 import org.ajoberstar.gradle.util.ObjectUtil;
 import org.eclipse.jgit.api.PushCommand;
 import org.gradle.api.GradleException;
@@ -35,7 +35,6 @@ import org.gradle.util.ConfigureUtil;
  */
 public class GitPush extends GitBase implements AuthenticationSupported {
 	private PasswordCredentials credentials = new BasicPasswordCredentials();
-	private JGitCredentialsProviderSupport credsProviderSupport = new JGitCredentialsProviderSupport(this);
 	private Object remote = null;
 	private boolean pushTags = false;
 	private boolean pushAll = false;
@@ -47,7 +46,7 @@ public class GitPush extends GitBase implements AuthenticationSupported {
 	@TaskAction
 	public void push() {
 		PushCommand cmd = getGit().push();
-		cmd.setCredentialsProvider(credsProviderSupport.getCredentialsProvider());
+		TransportAuthUtil.configure(cmd, this);
 		cmd.setRemote(getRemote());
 		if (isPushTags()) {
 			cmd.setPushTags();
