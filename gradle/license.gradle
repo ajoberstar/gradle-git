@@ -1,7 +1,7 @@
 apply plugin: 'license'
 
 license {
-	header rootProject.file('config/HEADER')
+	header rootProject.file('gradle/HEADER')
 	strictCheck = true
 	useDefaultMappings = false
 	mapping 'groovy', 'SLASHSTAR_STYLE'

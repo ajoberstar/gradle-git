@@ -15,8 +15,8 @@ allprojects {
 	apply plugin: 'eclipse'
 	apply plugin: 'idea'
 	apply plugin: 'jacoco'
-	apply from: rootProject.file('config/publishing.gradle')
-	apply from: rootProject.file('config/license.gradle')
+	apply from: rootProject.file('gradle/publishing.gradle')
+	apply from: rootProject.file('gradle/license.gradle')
 
 	group = 'org.ajoberstar'
 
