@@ -16,12 +16,28 @@
 package org.ajoberstar.grgit.service
 
 import org.ajoberstar.grgit.Commit
+import org.ajoberstar.grgit.Repository
+import org.ajoberstar.grgit.operation.Log
 
 class HistoryService {
+	private final Repository repository
+
+	HistoryService(Repository repository) {
+		this.repository = repository
+	}
+
 	// List<DiffEntry> diff(Map parms)
 	
 	List<Commit> log(Map parms) {
-		
+		Log log = new Log(repository)
+		ConfigureUtil.configure(log, parms)
+		return log.call()
+	}
+
+	List<Commit> log(Closure config) {		
+		Log log = new Log(repository)
+		ConfigureUtil.configure(log, config)
+		return log.call()
 	}
 
 	// List<RefLogEntry> reflog(Map parms)

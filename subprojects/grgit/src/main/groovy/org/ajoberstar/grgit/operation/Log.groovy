@@ -15,6 +15,7 @@
  */
 package org.ajoberstar.grgit.operation
 
+import org.ajoberstar.grgit.Commit
 import org.ajoberstar.grgit.Repository
 import org.ajoberstar.grgit.exception.GrGitException
 import org.eclipse.jgit.api.LogCommand
@@ -38,7 +39,7 @@ class Log {
 		this.repo = repo	
 	}
 
-	List call() {
+	List<Commit> call() {
 		LogCommand cmd = repo.git.log()
 		includes.each { include ->
 			ObjectId object = JGitUtil.resolveObject(include)
