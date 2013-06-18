@@ -13,27 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.ajoberstar.grgit.operation
+package org.ajoberstar.grgit
 
-import org.ajoberstar.grgit.Commit
-import org.ajoberstar.grgit.Repository
+import groovy.transform.Immutable
 
-class BranchAdd {
-	enum TrackingMode {
-		NO_TRACK,
-		TRACK,
-		SET_UPSTREAM
-	}
+/**
+ * Represents a Git commit.
+ * @since 0.7.0
+ * @author Andrew Oberstar
+ */
+ @Immutable
+class Person {
+	/**
+	 * Name of person.
+	 */
 	String name
-	Commit startPoint
-	boolean force
-	TrackingMode trackingMode
 
-	BranchAdd(Repository repo) {
-		
-	}
-
-	void call() {
-
-	}
+	/**
+	 * Email address of person.
+	 */
+	String email
 }

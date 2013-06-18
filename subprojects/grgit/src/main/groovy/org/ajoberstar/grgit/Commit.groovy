@@ -15,6 +15,47 @@
  */
 package org.ajoberstar.grgit
 
-class Commit {
+import groovy.transform.Immutable
 
+/**
+ * Represents a Git commit.
+ * @since 0.7.0
+ * @author Andrew Oberstar
+ */
+ @Immutable
+class Commit {
+	/**
+	 * The full hash of the commit.
+	 */
+	String id
+
+	/**
+	 * The first 7 characters of the commit hash.
+	 */
+	String abbreviatedId
+
+	/**
+	 * The author of the changes in the commit.
+	 */
+	Person author
+
+	/**
+	 * The committer of the changes in the commit.
+	 */
+	Person committer
+
+	/**
+	 * The time the commit was created.
+	 */
+	int time
+
+	/**
+	 * The full commit message.
+	 */
+	String fullMessage
+
+	/**
+	 * The shortened commit message.
+	 */
+	String shortMessage
 }

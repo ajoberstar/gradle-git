@@ -21,7 +21,7 @@ class HistoryService {
 	// List<DiffEntry> diff(Map parms)
 	
 	List<Commit> log(Map parms) {
-
+		
 	}
 
 	// List<RefLogEntry> reflog(Map parms)

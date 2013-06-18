@@ -15,6 +15,31 @@
  */
 package org.ajoberstar.grgit
 
+import groovy.transform.TupleConstructor
+import org.eclipse.jgit.api.Git
+
+/**
+ * Represents a Git repository.
+ * @since 0.7.0
+ * @author Andrew Oberstar
+ */
+@TupleConstructor
 class Repository {
-	File rootDir
+	/**
+	 * The JGit instance opened for this repository.
+	 */
+	final Git git
+
+	/**
+	 * Gets the directory the repository is contained in.
+	 * @return the root directory
+	 */
+	File getRootDir() {
+		return git.repository.directory
+	}
+
+	@Override
+	String toString() {
+		return "Repository(${getRootDir().canonicalPath})"
+	}
 }

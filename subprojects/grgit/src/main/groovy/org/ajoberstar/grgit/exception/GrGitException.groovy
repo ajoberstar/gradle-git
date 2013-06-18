@@ -13,27 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.ajoberstar.grgit.operation
+package org.ajoberstar.grgit.exception
 
-import org.ajoberstar.grgit.Commit
-import org.ajoberstar.grgit.Repository
+import groovy.transform.InheritConstructors
 
-class BranchAdd {
-	enum TrackingMode {
-		NO_TRACK,
-		TRACK,
-		SET_UPSTREAM
-	}
-	String name
-	Commit startPoint
-	boolean force
-	TrackingMode trackingMode
-
-	BranchAdd(Repository repo) {
-		
-	}
-
-	void call() {
-
-	}
-}
+@InheritConstructors
+class GrGitException extends RuntimeException {}

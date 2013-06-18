@@ -13,27 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.ajoberstar.grgit.operation
+package org.ajoberstar.grgit.service
 
-import org.ajoberstar.grgit.Commit
 import org.ajoberstar.grgit.Repository
 
-class BranchAdd {
-	enum TrackingMode {
-		NO_TRACK,
-		TRACK,
-		SET_UPSTREAM
-	}
-	String name
-	Commit startPoint
-	boolean force
-	TrackingMode trackingMode
-
-	BranchAdd(Repository repo) {
-		
+/**
+ *
+ * @since 0.7.0
+ * @author Andrew Oberstar
+ */
+class ServiceFactory {
+	private ServiceFactory() {
+		throw new AssertionError("Cannot instantiate.")
 	}
 
-	void call() {
+	static Repository createRepository(File rootDir) {
+		return new Repository(rootDir)
+	}
 
+	static RepositoryService createRepositoryService(Repository repo) {
+		return new RepositoryService(repo)
 	}
 }

@@ -15,19 +15,40 @@
  */
 package org.ajoberstar.grgit.service
 
+import org.ajoberstar.grgit.Repository
 import org.ajoberstar.grgit.Status
 
+/**
+ * 
+ * @since 0.7.0
+ * @author Andrew Oberstar
+ */
 class RepositoryService {
-	HistoryService history
-	StageService stage
+	final Repository repository
 
-	BranchService branches
-	NoteService notes
-	RemoteService remotes
-	StashService stashes
-	TagService tags
+	final HistoryService history
+	final StageService stage
 
-	Status status
+	final BranchService branches
+	final NoteService notes
+	final RemoteService remotes
+	final StashService stashes
+	final TagService tags
+
+	final Status status
+
+	RepositoryService(Repository repository) {
+		this.repository = repository
+		this.history = new HistoryService(repository)
+		this.stage = null
+		this.branch = null
+		this.notes = null
+		this.remotes = null
+		this.stashes = null
+		this.tags = null
+		this.status = null
+	}
+
 	boolean isBare() {
 
 	}
