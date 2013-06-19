@@ -18,6 +18,7 @@ package org.ajoberstar.grgit.operation
 import org.ajoberstar.grgit.Commit
 import org.ajoberstar.grgit.Repository
 import org.ajoberstar.grgit.exception.GrGitException
+import org.ajoberstar.grgit.util.JGitUtil
 import org.eclipse.jgit.api.LogCommand
 import org.eclipse.jgit.api.errors.GitAPIException
 import org.eclipse.jgit.lib.ObjectId
@@ -32,6 +33,7 @@ class Log {
 
 	List includes = []
 	List excludes = []
+	List paths = []
 	int skipCommits = 0
 	int maxCommits = -1
 
@@ -39,15 +41,23 @@ class Log {
 		this.repo = repo	
 	}
 
+	void range(Object since, Object until) {
+		excludes << since
+		includes << until
+	}
+
 	List<Commit> call() {
 		LogCommand cmd = repo.git.log()
 		includes.each { include ->
-			ObjectId object = JGitUtil.resolveObject(include)
+			ObjectId object = JGitUtil.resolveObject(repo, include)
 			cmd.add(object)
 		}
 		excludes.each { exclude ->
-			ObjectId object = JGitUtil.resolveObject(exclude)
+			ObjectId object = JGitUtil.resolveObject(repo, exclude)
 			cmd.not(object)
+		}
+		paths.each { path ->
+			cmd.addPath(path)
 		}
 		cmd.skip = skipCommits
 		cmd.maxCount = maxCommits

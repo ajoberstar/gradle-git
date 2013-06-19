@@ -41,7 +41,7 @@ class RepositoryService {
 		this.repository = repository
 		this.history = new HistoryService(repository)
 		this.stage = null
-		this.branch = null
+		this.branches = null
 		this.notes = null
 		this.remotes = null
 		this.stashes = null

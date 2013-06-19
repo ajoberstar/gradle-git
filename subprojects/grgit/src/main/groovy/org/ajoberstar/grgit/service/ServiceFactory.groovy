@@ -32,7 +32,7 @@ class ServiceFactory {
 		return new Repository(Git.open(rootDir))
 	}
 
-	static RepositoryService createRepositoryService(Repository repo) {
+	static RepositoryService createService(Repository repo) {
 		return new RepositoryService(repo)
 	}
 }
