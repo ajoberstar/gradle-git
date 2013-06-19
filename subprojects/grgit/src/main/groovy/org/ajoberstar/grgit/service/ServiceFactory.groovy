@@ -16,6 +16,7 @@
 package org.ajoberstar.grgit.service
 
 import org.ajoberstar.grgit.Repository
+import org.eclipse.jgit.api.Git
 
 /**
  *
@@ -28,7 +29,7 @@ class ServiceFactory {
 	}
 
 	static Repository createRepository(File rootDir) {
-		return new Repository(rootDir)
+		return new Repository(Git.open(rootDir))
 	}
 
 	static RepositoryService createRepositoryService(Repository repo) {
