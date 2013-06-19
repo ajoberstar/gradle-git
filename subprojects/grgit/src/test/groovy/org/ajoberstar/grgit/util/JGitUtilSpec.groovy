@@ -1,5 +1,7 @@
 package org.ajoberstar.grgit.util
 
+import org.ajoberstar.grgit.Commit
+import org.ajoberstar.grgit.Person
 import org.ajoberstar.grgit.Repository
 import org.ajoberstar.grgit.service.ServiceFactory
 import org.eclipse.jgit.api.Git
@@ -60,13 +62,28 @@ class JGitUtilSpec extends Specification {
 		JGitUtil.resolveObject(repo, 'master~2') == commits[0]
 	}
 
+	def 'convertCommit works for valid commit'() {
+		given:
+		Person person = new Person(repo.git.repo.config.getString('user', null, 'name'), repo.git.repo.config.getString('user', null, 'email'))
+		expect:
+		JGitUtil.convertCommit(commits[0]) == new Commit(
+			ObjectId.toString(commits[0]),
+			ObjectId.toString(commits[0])[0..6],
+			person,
+			person,
+			commits[0].commitTime,
+			'first commit\ntesting',
+			'first commit testing'
+		)
+	}
+
 	def setup() {
 		File repoDir = tempDir.newFolder('repo')
 		Git git = Git.init().setDirectory(repoDir).call()
 		File testFile = new File(repoDir, '1.txt')
 		testFile << '1\n'
 		git.add().addFilepattern(testFile.name).call()
-		commits << git.commit().setMessage('first commit').call()
+		commits << git.commit().setMessage('first commit\ntesting').call()
 		testFile << '2\n'
 		git.add().addFilepattern(testFile.name).call()
 		commits << git.commit().setMessage('second commit').call()
