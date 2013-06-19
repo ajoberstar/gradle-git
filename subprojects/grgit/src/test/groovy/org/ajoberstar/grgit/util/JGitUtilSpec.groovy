@@ -3,8 +3,12 @@ package org.ajoberstar.grgit.util
 import org.ajoberstar.grgit.Commit
 import org.ajoberstar.grgit.Person
 import org.ajoberstar.grgit.Repository
+import org.ajoberstar.grgit.exception.GrGitException
 import org.ajoberstar.grgit.service.ServiceFactory
 import org.eclipse.jgit.api.Git
+import org.eclipse.jgit.errors.AmbiguousObjectException
+import org.eclipse.jgit.errors.IncorrectObjectTypeException
+import org.eclipse.jgit.errors.RevisionSyntaxException
 import org.eclipse.jgit.lib.ObjectId
 import org.eclipse.jgit.merge.MergeStrategy
 import org.junit.Rule
@@ -60,6 +64,22 @@ class JGitUtilSpec extends Specification {
 	def 'resolveObject works for the n-th ancestor'() {
 		expect:
 		JGitUtil.resolveObject(repo, 'master~2') == commits[0]
+	}
+
+	def 'resolveObject fails if revision cannot be found'() {
+		when:
+		JGitUtil.resolveObject(repo, 'unreal')
+		then:
+		def e = thrown(GrGitException)
+		e.cause == null
+	}
+
+	def 'resolveObject fails if revision syntax is wrong'() {
+		when:
+		JGitUtil.resolveObject(repo, 'lkj!)#(*')
+		then:
+		def e = thrown(GrGitException)
+		e.cause instanceof RevisionSyntaxException
 	}
 
 	def 'convertCommit works for valid commit'() {

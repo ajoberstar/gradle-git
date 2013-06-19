@@ -22,7 +22,7 @@ import org.ajoberstar.grgit.exception.GrGitException
 import org.eclipse.jgit.api.errors.GitAPIException
 import org.eclipse.jgit.errors.AmbiguousObjectException
 import org.eclipse.jgit.errors.IncorrectObjectTypeException
-import org.eclipse.jgit.errors.MissingObjectException
+import org.eclipse.jgit.errors.RevisionSyntaxException
 import org.eclipse.jgit.lib.PersonIdent
 import org.eclipse.jgit.lib.ObjectId
 import org.eclipse.jgit.revwalk.RevCommit
@@ -42,8 +42,8 @@ class JGitUtil {
 			}
 		} catch (AmbiguousObjectException e) {
 			throw new GrGitException("Revision string is ambiguous: ${revstr}", e)
-		} catch (MissingObjectException e) {
-			throw new GrGitException("Commit could not be found in repository: ${revstr}", e)
+		} catch (RevisionSyntaxException e) {
+			throw new GrGitException("Revision string syntax isn't supported: ${revstr}", e)
 		} catch (IncorrectObjectTypeException e) {
 			throw new GrGitException("Revision string did not point to a commit: ${revstr}", e)
 		} catch (IOException e) {
