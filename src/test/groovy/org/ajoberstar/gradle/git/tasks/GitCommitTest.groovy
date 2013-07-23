@@ -33,7 +33,7 @@ class GitCommitTest extends Specification {
         localGit = Git.init().setDirectory(testDir).call()
 
         project = ProjectBuilder.builder().withName("GradleGitPluginTest").withProjectDir(testDir).build()
-        gitCommitTask = project.tasks.add("gitCommit", GitCommit)
+        gitCommitTask = project.tasks.create("gitCommit", GitCommit)
         gitCommitTask.message = 'test'
 
         project.file("1.txt").withWriter { it << '111' }

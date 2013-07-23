@@ -21,7 +21,7 @@ apply plugin: 'github-pages'
 
 group = 'org.ajoberstar'
 description = 'Git plugins for Gradle'
-version = '0.6.0'
+version = '0.6.1'
 
 sourceCompatibility = '1.5'
 
@@ -30,7 +30,7 @@ repositories {
 }
 
 dependencies {
-	groovy localGroovy()
+	compile localGroovy()
 	compile gradleApi()
 	compile 'org.eclipse.jgit:org.eclipse.jgit:2.2.0.201212191850-r'
 	compile 'org.eclipse.jgit:org.eclipse.jgit.ui:2.2.0.201212191850-r'
@@ -128,4 +128,8 @@ githubPages {
 			into 'docs/groovydoc'
 		}
 	}
+}
+
+task wrapper(type: Wrapper) {
+    gradleVersion = '1.6'
 }

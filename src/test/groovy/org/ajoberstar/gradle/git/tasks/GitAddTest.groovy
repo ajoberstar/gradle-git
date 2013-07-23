@@ -33,7 +33,7 @@ class GitAddTest extends Specification {
         localGit = Git.init().setDirectory(testDir).call()
 
         project = ProjectBuilder.builder().withName("GradleGitPluginTest").withProjectDir(testDir).build()
-        gitAddTask = project.tasks.add('gitAdd', GitAdd)
+        gitAddTask = project.tasks.create('gitAdd', GitAdd)
 
         project.file("1.txt").withWriter { it << '111' }
         project.file("2.txt").withWriter { it << '222' }

@@ -66,7 +66,7 @@ public class GitBranchListTest extends Specification {
 
 	def setup() {
 		project = ProjectBuilder.builder().withName("GradleGitPluginTest").withProjectDir(localRepo).build()
-		project.tasks.add(name: 'branchList', type: GitBranchList)
+		project.tasks.create(name: 'branchList', type: GitBranchList)
 	}
 
 	def 'when work on branch then workingBranch reflects current branch info'() {

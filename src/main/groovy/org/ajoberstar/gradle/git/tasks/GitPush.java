@@ -29,6 +29,8 @@ import org.gradle.api.tasks.Optional;
 import org.gradle.api.tasks.TaskAction;
 import org.gradle.util.ConfigureUtil;
 
+import java.util.List;
+
 /**
  * Task to push changes to a remote repository.
  * @since 0.1.0
@@ -36,6 +38,7 @@ import org.gradle.util.ConfigureUtil;
 public class GitPush extends GitBase implements AuthenticationSupported {
 	private PasswordCredentials credentials = new BasicPasswordCredentials();
 	private Object remote = null;
+	private List<String> namesOrSpecs;
 	private boolean pushTags = false;
 	private boolean pushAll = false;
 	private boolean force = false;
@@ -48,6 +51,13 @@ public class GitPush extends GitBase implements AuthenticationSupported {
 		PushCommand cmd = getGit().push();
 		TransportAuthUtil.configure(cmd, this);
 		cmd.setRemote(getRemote());
+
+		if(getNamesOrSpecs() != null) {
+			for(String nameOrSpec : getNamesOrSpecs()) {
+				cmd.add(nameOrSpec);
+			}
+		}
+
 		if (isPushTags()) {
 			cmd.setPushTags();
 		}
@@ -107,7 +117,27 @@ public class GitPush extends GitBase implements AuthenticationSupported {
 	public void setRemote(Object remote) {
 		this.remote = remote;
 	}
-	
+
+	/**
+	 * Gets the names or specs to push to.
+	 *
+	 * @return Names or specs
+	 */
+	@Input
+	@Optional
+	public List<String> getNamesOrSpecs() {
+		return namesOrSpecs;
+	}
+
+	/**
+	 * Sets the names or specs to push to.
+	 *
+	 * @param namesOrSpecs Names or specs
+	 */
+	public void setNamesOrSpecs(List<String> namesOrSpecs) {
+		this.namesOrSpecs = namesOrSpecs;
+	}
+
 	/**
 	 * Gets whether tags will also be pushed.
 	 * @return whether to push tags
