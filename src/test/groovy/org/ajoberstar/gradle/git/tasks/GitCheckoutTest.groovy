@@ -34,7 +34,7 @@ class GitCheckoutTest extends Specification {
         localGit = Git.init().setDirectory(testDir).call()
 
         project = ProjectBuilder.builder().withName("GradleGitPluginTest").withProjectDir(testDir).build()
-        project.tasks.add(name: "gitCheckout", type: GitCheckout)
+        project.tasks.create(name: "gitCheckout", type: GitCheckout)
 
         project.file("testMaster.txt").withWriter { it << 'testMaster' }
         localGit.add().addFilepattern("testMaster.txt").call()

@@ -28,7 +28,7 @@ class GitStatusTest extends Specification {
 
 	def setup() {
 		project = ProjectBuilder.builder().withName("GradleGitPluginTest").withProjectDir(testDir).build()
-		project.tasks.add(name: "gitStatus", type: GitStatus)
+		project.tasks.create(name: "gitStatus", type: GitStatus)
 		git = Git.init().setDirectory(testDir).call()
 		project.file("existing.txt").withWriter { it << 'test' }
 		git.add().addFilepattern("existing.txt").call()

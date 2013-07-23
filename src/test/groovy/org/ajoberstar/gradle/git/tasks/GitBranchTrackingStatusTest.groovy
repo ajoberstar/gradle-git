@@ -60,7 +60,7 @@ class GitBranchTrackingStatusTest extends Specification {
 
     def setup() {
         project = ProjectBuilder.builder().withName("GradleGitPluginTest").withProjectDir(localRepo).build()
-        task = project.tasks.add(name: 'branchTrackingStatus', type: GitBranchTrackingStatus)
+        task = project.tasks.create(name: 'branchTrackingStatus', type: GitBranchTrackingStatus)
     }
 
     def cleanup() {

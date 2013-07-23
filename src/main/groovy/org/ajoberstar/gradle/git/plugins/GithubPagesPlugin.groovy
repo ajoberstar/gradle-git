@@ -52,7 +52,7 @@ class GithubPagesPlugin implements Plugin<Project> {
 	 */
 	void apply(Project project) {
 		GithubPagesPluginExtension extension = new GithubPagesPluginExtension(project)
-		project.extensions.add('githubPages', extension)	
+		project.extensions.create('githubPages', extension)
 		setDefaultCredentials(project, extension)
 		configureTasks(project, extension)
 		
@@ -73,11 +73,11 @@ class GithubPagesPlugin implements Plugin<Project> {
 	 * @param extension the plugin extension
 	 */
 	private void configureTasks(final Project project, final GithubPagesPluginExtension extension) {		
-		Delete clean = project.tasks.add(CLEAN_TASK_NAME, Delete)
+		Delete clean = project.tasks.create(CLEAN_TASK_NAME, Delete)
 		clean.description = 'Cleans the working path of the repo.'
 		clean.delete { extension.workingPath }
 		
-		GitClone clone = project.tasks.add(CLONE_TASK_NAME, GitClone)
+		GitClone clone = project.tasks.create(CLONE_TASK_NAME, GitClone)
 		clone.description = 'Clones the Github repo checking out the gh-pages branch'
 		clone.dependsOn clean
 		clone.conventionMapping.credentials = { extension.credentials }
@@ -91,27 +91,27 @@ class GithubPagesPlugin implements Plugin<Project> {
 			}
 		}
 		
-		Copy process = project.tasks.add(PROCESS_TASK_NAME, Copy)
+		Copy process = project.tasks.create(PROCESS_TASK_NAME, Copy)
 		process.description = 'Processes the gh-pages files, copying them to the working repo'
 		process.dependsOn clone
 		process.with extension.pages
 		process.into { extension.workingPath }
 		
-		GitAdd add = project.tasks.add(ADD_TASK_NAME, GitAdd)
+		GitAdd add = project.tasks.create(ADD_TASK_NAME, GitAdd)
 		add.description = 'Adds all changes to the working gh-pages repo'
 		add.dependsOn process
 		
-		GitCommit commit = project.tasks.add(COMMIT_TASK_NAME, GitCommit)
+		GitCommit commit = project.tasks.create(COMMIT_TASK_NAME, GitCommit)
 		commit.description = 'Commits all changes to the working gh-pages repo'
 		commit.dependsOn add
 		commit.message = 'Publish of github pages from Gradle'
 		
-		GitPush push = project.tasks.add(PUSH_TASK_NAME, GitPush)
+		GitPush push = project.tasks.create(PUSH_TASK_NAME, GitPush)
 		push.description = 'Pushes all changes in the working gh-pages repo to Github'
 		push.dependsOn commit
 		push.conventionMapping.credentials = { extension.credentials }
 		
-		Task publish = project.tasks.add(PUBLISH_TASK_NAME)
+		Task publish = project.tasks.create(PUBLISH_TASK_NAME)
 		publish.description = 'Publishes all gh-pages changes to Github'
 		publish.dependsOn push
 	}
