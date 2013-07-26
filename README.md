@@ -158,6 +158,9 @@ github.credentials.password = password
 
 ## Release Notes
 
+**v0.6.1**
+* Updated `GitPush` to support specifying branch names or specs to push. Contributed by [Benjamin Muschko](https://github.com/bmuschko)
+
 **v0.6.0**
 * Added support for jsch-agent-proxy. This allows use of sshagent and Pageant to provide ssh credentials.
 
