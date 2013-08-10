@@ -15,9 +15,27 @@
  */
 package org.ajoberstar.grgit.service
 
-class StageService {
-	void add(Map parms) {
+import org.ajoberstar.grgit.Repository
+import org.ajoberstar.grgit.operation.AddOp
+import org.ajoberstar.grgit.util.ConfigureUtil
 
+class StageService {
+	private final Repository repository
+
+	StageService(Repository repository) {
+		this.repository = repository
+	}
+
+	void add(Map parms = [:]) {
+		AddOp add = new AddOp(repository)
+		ConfigureUtil.configure(add, parms)
+		add.call()
+	}
+
+	void add(Closure config) {
+		AddOp add = new AddOp(repository)
+		ConfigureUtil.configure(add, config)
+		add.call()
 	}
 
 	void remove(Map parms) {
@@ -29,6 +47,6 @@ class StageService {
 	}
 
 	void apply(Map parms) {
-		
+
 	}
 }
