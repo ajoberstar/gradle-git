@@ -17,9 +17,11 @@ package org.ajoberstar.grgit.service
 
 import org.ajoberstar.grgit.Repository
 import org.ajoberstar.grgit.Status
+import org.ajoberstar.grgit.operation.StatusOp
+import org.ajoberstar.grgit.util.ConfigureUtil
 
 /**
- * 
+ *
  * @since 0.7.0
  * @author Andrew Oberstar
  */
@@ -49,6 +51,18 @@ class RepositoryService {
 		this.status = null
 	}
 
+	Status status(Map parms = [:]) {
+		StatusOp status = new StatusOp(repository)
+		ConfigureUtil.configure(status, parms)
+		return status.call()
+	}
+
+	Status status(Closure config) {
+		StatusOp status = new StatusOp(repository)
+		ConfigureUtil.configure(status, config)
+		return status.call()
+	}
+
 	boolean isBare() {
 
 	}
@@ -58,6 +72,6 @@ class RepositoryService {
 	}
 
 	void garbageCollect(Map parms) {
-		
+
 	}
 }

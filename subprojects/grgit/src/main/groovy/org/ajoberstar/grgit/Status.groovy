@@ -15,6 +15,50 @@
  */
 package org.ajoberstar.grgit
 
-class Status {
+import groovy.transform.EqualsAndHashCode
+import groovy.transform.ToString
 
+@EqualsAndHashCode
+@ToString(includeNames=true)
+class Status {
+	final Changes staged
+	final Changes unstaged
+
+	Status(
+		Set<? extends String> stagedNewFiles,
+		Set<? extends String> stagedModifiedFiles,
+		Set<? extends String> stagedDeletedFiles,
+		Set<? extends String> unstagedNewFiles,
+		Set<? extends String> unstagedModifiedFiles,
+		Set<? extends String> unstagedDeletedFiles
+	) {
+		this.staged = new Changes(stagedNewFiles, stagedModifiedFiles, stagedDeletedFiles)
+		this.unstaged = new Changes(unstagedNewFiles, unstagedModifiedFiles, unstagedDeletedFiles)
+	}
+
+	@EqualsAndHashCode
+	@ToString(includeNames=true)
+	class Changes {
+		final Set<String> newFiles
+		final Set<String> modifiedFiles
+		final Set<String> deletedFiles
+
+		private Changes(
+			Set<? extends String> newFiles,
+			Set<? extends String> modifiedFiles,
+			Set<? extends String> deletedFiles
+		) {
+			this.newFiles = newFiles
+			this.modifiedFiles = modifiedFiles
+			this.deletedFiles = deletedFiles
+		}
+
+		Set<String> getAllChanges() {
+			return newFiles + modifiedFiles + deletedFiles
+		}
+	}
+
+	boolean isClean() {
+		return (staged.allChanges + unstaged.allChanges).empty
+	}
 }

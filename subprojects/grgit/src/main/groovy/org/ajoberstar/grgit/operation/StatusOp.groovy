@@ -13,26 +13,31 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.ajoberstar.grgit.service
+package org.ajoberstar.grgit.operation
+
+import java.util.concurrent.Callable
 
 import org.ajoberstar.grgit.Repository
-import org.eclipse.jgit.api.Git
+import org.ajoberstar.grgit.Status
+import org.ajoberstar.grgit.exception.GrGitException
+import org.ajoberstar.grgit.util.JGitUtil
 
-/**
- *
- * @since 0.7.0
- * @author Andrew Oberstar
- */
-class ServiceFactory {
-	private ServiceFactory() {
-		throw new AssertionError("Cannot instantiate.")
+import org.eclipse.jgit.api.StatusCommand
+import org.eclipse.jgit.api.errors.GitAPIException
+
+class StatusOp implements Callable<Status> {
+	private final Repository repo
+
+	StatusOp(Repository repo) {
+		this.repo = repo
 	}
 
-	static Repository createRepository(File rootDir) {
-		return new Repository(rootDir, Git.open(rootDir))
-	}
-
-	static RepositoryService createService(Repository repo) {
-		return new RepositoryService(repo)
+	Status call() {
+		StatusCommand cmd = repo.git.status()
+		try {
+			return JGitUtil.convertStatus(cmd.call())
+		} catch (GitAPIException e) {
+			throw new GrGitException('Problem retrieving status.', e)
+		}
 	}
 }

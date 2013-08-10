@@ -18,6 +18,7 @@ package org.ajoberstar.grgit.util
 import org.ajoberstar.grgit.Commit
 import org.ajoberstar.grgit.Person
 import org.ajoberstar.grgit.Repository
+import org.ajoberstar.grgit.Status
 import org.ajoberstar.grgit.exception.GrGitException
 import org.eclipse.jgit.api.errors.GitAPIException
 import org.eclipse.jgit.errors.AmbiguousObjectException
@@ -68,5 +69,16 @@ class JGitUtil {
 		props.fullMessage = rev.fullMessage
 		props.shortMessage = rev.shortMessage
 		return new Commit(props)
+	}
+
+	static Status convertStatus(org.eclipse.jgit.api.Status jgitStatus) {
+		return new Status(
+			jgitStatus.added,
+			jgitStatus.changed,
+			jgitStatus.removed,
+			jgitStatus.untracked,
+			jgitStatus.modified,
+			jgitStatus.missing
+		)
 	}
 }

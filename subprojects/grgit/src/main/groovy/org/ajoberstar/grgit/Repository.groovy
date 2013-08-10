@@ -26,17 +26,14 @@ import org.eclipse.jgit.api.Git
 @TupleConstructor
 class Repository {
 	/**
+	 * The directory the repository is contained in.
+	 */
+	final rootDir
+
+	/**
 	 * The JGit instance opened for this repository.
 	 */
 	final Git git
-
-	/**
-	 * Gets the directory the repository is contained in.
-	 * @return the root directory
-	 */
-	File getRootDir() {
-		return git.repository.directory
-	}
 
 	@Override
 	String toString() {
