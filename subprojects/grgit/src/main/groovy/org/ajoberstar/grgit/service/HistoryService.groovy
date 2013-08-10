@@ -17,7 +17,7 @@ package org.ajoberstar.grgit.service
 
 import org.ajoberstar.grgit.Commit
 import org.ajoberstar.grgit.Repository
-import org.ajoberstar.grgit.operation.Log
+import org.ajoberstar.grgit.operation.LogOp
 import org.ajoberstar.grgit.util.ConfigureUtil
 
 class HistoryService {
@@ -30,13 +30,13 @@ class HistoryService {
 	// List<DiffEntry> diff(Map parms)
 
 	List<Commit> log(Map parms = [:]) {
-		Log log = new Log(repository)
+		LogOp log = new LogOp(repository)
 		ConfigureUtil.configure(log, parms)
 		return log.call()
 	}
 
 	List<Commit> log(Closure config) {		
-		Log log = new Log(repository)
+		LogOp log = new LogOp(repository)
 		ConfigureUtil.configure(log, config)
 		return log.call()
 	}

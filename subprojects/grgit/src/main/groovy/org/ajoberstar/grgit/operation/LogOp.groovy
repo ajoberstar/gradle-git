@@ -15,6 +15,8 @@
  */
 package org.ajoberstar.grgit.operation
 
+import java.util.concurrent.Callable
+
 import org.ajoberstar.grgit.Commit
 import org.ajoberstar.grgit.Repository
 import org.ajoberstar.grgit.exception.GrGitException
@@ -28,7 +30,7 @@ import org.eclipse.jgit.lib.ObjectId
  * @since 0.7.0
  * @author Andrew Oberstar
  */
-class Log {
+class LogOp implements Callable<List<Commit>> {
 	private Repository repo
 
 	List includes = []
@@ -37,8 +39,8 @@ class Log {
 	int skipCommits = 0
 	int maxCommits = -1
 
-	Log(Repository repo) {
-		this.repo = repo	
+	LogOp(Repository repo) {
+		this.repo = repo
 	}
 
 	void range(Object since, Object until) {
