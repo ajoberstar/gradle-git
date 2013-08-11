@@ -26,7 +26,7 @@ import org.eclipse.jgit.merge.MergeStrategy
 import org.junit.Rule
 import org.junit.rules.TemporaryFolder
 
-class LogSpec extends Specification {
+class LogOpSpec extends Specification {
 	@Rule TemporaryFolder tempDir = new TemporaryFolder()
 
 	RepositoryService grgit
