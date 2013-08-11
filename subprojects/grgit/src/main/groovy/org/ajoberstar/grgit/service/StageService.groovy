@@ -17,6 +17,7 @@ package org.ajoberstar.grgit.service
 
 import org.ajoberstar.grgit.Repository
 import org.ajoberstar.grgit.operation.AddOp
+import org.ajoberstar.grgit.operation.RmOp
 import org.ajoberstar.grgit.util.ConfigureUtil
 
 class StageService {
@@ -38,8 +39,16 @@ class StageService {
 		add.call()
 	}
 
-	void remove(Map parms) {
+	void remove(Map parms = [:]) {
+		RmOp remove = new RmOp(repository)
+		ConfigureUtil.configure(remove, parms)
+		remove.call()
+	}
 
+	void remove(Closure config) {
+		RmOp remove = new RmOp(repository)
+		ConfigureUtil.configure(remove, config)
+		remove.call()
 	}
 
 	void reset(Map parms) {
