@@ -158,6 +158,9 @@ github.credentials.password = password
 
 ## Release Notes
 
+**v0.6.2**
+* Added `GitInit` to simply initialize a new local Git repo. Contributed by [Rasmus Praestholm](https://github.com/Cervator)
+
 **v0.6.1**
 * Updated `GitPush` to support specifying branch names or specs to push. Contributed by [Benjamin Muschko](https://github.com/bmuschko)
 
