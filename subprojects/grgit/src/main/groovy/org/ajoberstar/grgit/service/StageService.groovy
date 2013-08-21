@@ -51,8 +51,16 @@ class StageService {
 		remove.call()
 	}
 
-	void reset(Map parms) {
+	void reset(Map parms = [:]) {
+		ResetOp reset = new ResetOp(repository)
+		ConfigureUtil.configure(reset, parms)
+		reset.call()
+	}
 
+	void reset(Closure config) {
+		ResetOp reset = new ResetOp(repository)
+		ConfigureUtil.configure(reset, config)
+		reset.call()
 	}
 
 	void apply(Map parms) {
