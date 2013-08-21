@@ -1,3 +1,0 @@
-include 'grgit'
-
-project(':grgit').projectDir = new File(settingsDir, 'subprojects/grgit')
