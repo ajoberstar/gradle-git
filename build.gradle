@@ -31,11 +31,6 @@ repositories {
 
 dependencies {
 	groovy localGroovy()
-	testCompile 'junit:junit:4.10'
-	testCompile('org.spockframework:spock-core:0.7-groovy-1.8') { exclude group: 'org.codehaus.groovy' }
-}
-
-dependencies {
 	compile gradleApi()
 	compile 'org.ajoberstar:grgit:0.1.0-SNAPSHOT'
 	compile 'org.eclipse.jgit:org.eclipse.jgit:2.2.0.201212191850-r'
@@ -44,6 +39,9 @@ dependencies {
 	compile 'com.jcraft:jsch.agentproxy.pageant:0.0.6'
 	compile 'com.jcraft:jsch.agentproxy.sshagent:0.0.6'
 	compile 'com.jcraft:jsch.agentproxy.usocket-jna:0.0.6'
+
+	testCompile 'junit:junit:4.10'
+	testCompile('org.spockframework:spock-core:0.7-groovy-1.8') { exclude group: 'org.codehaus.groovy' }
 }
 
 githubPages {
