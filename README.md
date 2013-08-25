@@ -26,7 +26,7 @@ Add the following lines to your build to use the gradle-git plugins.
 
     buildscript {
       repositories { mavenCentral() }
-      dependencies { classpath 'org.ajoberstar:gradle-git:0.4.0' }
+      dependencies { classpath 'org.ajoberstar:gradle-git:0.6.3' }
     }
 
 ## Using Tasks
@@ -157,6 +157,9 @@ github.credentials.password = password
 ---
 
 ## Release Notes
+
+**v0.6.3**
+* Fixed jsch-agent-proxy support to fall back to other options when agents aren't really available. See #31.
 
 **v0.6.2**
 * Added `GitInit` to simply initialize a new local Git repo. Contributed by [Rasmus Praestholm](https://github.com/Cervator)
