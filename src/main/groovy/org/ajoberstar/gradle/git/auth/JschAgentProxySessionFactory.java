@@ -18,6 +18,7 @@ package org.ajoberstar.gradle.git.auth;
 import org.eclipse.jgit.transport.JschConfigSessionFactory;
 import org.eclipse.jgit.transport.OpenSshConfig.Host;
 import org.eclipse.jgit.util.FS;
+import com.jcraft.jsch.IdentityRepository;
 import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.JSchException;
 import com.jcraft.jsch.Session;
@@ -55,7 +56,10 @@ public class JschAgentProxySessionFactory extends JschConfigSessionFactory {
 		JSch jsch = super.getJSch(hc, fs);
 		Connector con = determineConnector();
 		if (con != null) {
-			jsch.setIdentityRepository(new RemoteIdentityRepository(con));
+			IdentityRepository remoteRepo = new RemoteIdentityRepository(con);
+			if (!remoteRepo.getIdentities().isEmpty()) {
+				jsch.setIdentityRepository(remoteRepo);
+			}
 		}
 		return jsch;
 	}
@@ -78,6 +82,9 @@ public class JschAgentProxySessionFactory extends JschConfigSessionFactory {
 				return null;
 			}
 		} catch (AgentProxyException e) {
+			logger.debug("Could not configure JSCH agent proxy connector.", e);
+			return null;
+		} catch (UnsatisfiedLinkError e) {
 			logger.debug("Could not configure JSCH agent proxy connector.", e);
 			return null;
 		}
