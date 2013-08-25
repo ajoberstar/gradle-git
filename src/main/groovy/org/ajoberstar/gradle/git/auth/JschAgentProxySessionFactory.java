@@ -15,6 +15,9 @@
  */
 package org.ajoberstar.gradle.git.auth;
 
+import java.util.Arrays;
+import java.util.List;
+
 import org.eclipse.jgit.transport.JschConfigSessionFactory;
 import org.eclipse.jgit.transport.OpenSshConfig.Host;
 import org.eclipse.jgit.util.FS;
@@ -72,24 +75,59 @@ public class JschAgentProxySessionFactory extends JschConfigSessionFactory {
 	 * @return the connector available at this time
 	 */
 	private Connector determineConnector() {
-		try {
-			if (SSHAgentConnector.isConnectorAvailable()) {
-				logger.info("ssh-agent available");
-				USocketFactory usf = new JNAUSocketFactory();
-				return new SSHAgentConnector(usf);
-			} else if (PageantConnector.isConnectorAvailable()) {
-				logger.info("pageant available");
-				return new PageantConnector();
-			} else {
-				logger.info("jsch agent proxy not available");
+		List<AgentSelector> selectors = Arrays.asList(new SshAgentSelector(), new PageantSelector());
+		for (AgentSelector selector : selectors) {
+			Connector connector = selector.select();
+			if (connector != null) {
+				return connector;
+			}
+		}
+		logger.info("jsch agent proxy not available");
+		return null;
+	}
+
+	private interface AgentSelector {
+		public Connector select();
+	}
+
+	private class SshAgentSelector implements AgentSelector {
+		public Connector select() {
+			try {
+				if (SSHAgentConnector.isConnectorAvailable()) {
+					logger.info("ssh-agent available");
+					USocketFactory usf = new JNAUSocketFactory();
+					return new SSHAgentConnector(usf);
+				} else {
+					logger.info("ssh-agent not available");
+					return null;
+				}
+			} catch (AgentProxyException e) {
+				logger.info("ssh-agent could not be configured: " + e.getMessage());
+				logger.debug("ssh-agent failure details", e);
+				return null;
+			} catch (UnsatisfiedLinkError e) {
+				logger.info("ssh-agent could not be configured: " + e.getMessage());
+				logger.debug("ssh-agent failure details", e);
 				return null;
 			}
-		} catch (AgentProxyException e) {
-			logger.debug("Could not configure JSCH agent proxy connector.", e);
-			return null;
-		} catch (UnsatisfiedLinkError e) {
-			logger.debug("Could not configure JSCH agent proxy connector.", e);
-			return null;
+		}
+	}
+
+	private class PageantSelector implements AgentSelector {
+		public Connector select() {
+			try {
+				if (PageantConnector.isConnectorAvailable()) {
+					logger.info("pageant available");
+					return new PageantConnector();
+				} else {
+					logger.info("pageant not available");
+					return null;
+				}
+			} catch (AgentProxyException e) {
+				logger.info("pageant could not be configured: " + e.getMessage());
+				logger.debug("pageant failure details", e);
+				return null;
+			}
 		}
 	}
 }
