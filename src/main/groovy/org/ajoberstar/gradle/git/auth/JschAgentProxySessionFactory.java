@@ -80,6 +80,9 @@ public class JschAgentProxySessionFactory extends JschConfigSessionFactory {
 		} catch (AgentProxyException e) {
 			logger.debug("Could not configure JSCH agent proxy connector.", e);
 			return null;
+		} catch (UnsatisfiedLinkError e) {
+			logger.debug("Could not configure JSCH agent proxy connector.", e);
+			return null;
 		}
 	}
 }
