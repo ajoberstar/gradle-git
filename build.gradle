@@ -77,7 +77,7 @@ uploadArchives {
 		snapshotRepository(url:'https://oss.sonatype.org/content/repositories/snapshots') {
 			authentication(userName:sonatypeUserName, password:sonatypePassword)
 		}
-		
+
 		beforeDeployment { signing.signPom it }
 
 		pom.project {
