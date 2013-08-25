@@ -58,7 +58,10 @@ public class JschAgentProxySessionFactory extends JschConfigSessionFactory {
 		if (con != null) {
 			IdentityRepository remoteRepo = new RemoteIdentityRepository(con);
 			if (!remoteRepo.getIdentities().isEmpty()) {
+				logger.info("using agent proxy");
 				jsch.setIdentityRepository(remoteRepo);
+			} else {
+				logger.info("not using agent proxy: no identities found");
 			}
 		}
 		return jsch;
