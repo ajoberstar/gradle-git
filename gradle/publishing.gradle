@@ -26,39 +26,41 @@ signing {
 	sign configurations.archives
 }
 
-uploadArchives {
-	repositories.mavenDeployer {
-		name = 'Sonatype OSS'
-		repository(url:'https://oss.sonatype.org/service/local/staging/deploy/maven2') {
-			authentication(userName:sonatypeUserName, password:sonatypePassword)
-		}
-		snapshotRepository(url:'https://oss.sonatype.org/content/repositories/snapshots') {
-			authentication(userName:sonatypeUserName, password:sonatypePassword)
-		}
-		
-		beforeDeployment { signing.signPom it }
+if (project.hasProperty('sonatypeUserName') && project.hasProperty('sonatypePassword')) {
+	uploadArchives {
+		repositories.mavenDeployer {
+			name = 'Sonatype OSS'
+			repository(url:'https://oss.sonatype.org/service/local/staging/deploy/maven2') {
+				authentication(userName:sonatypeUserName, password:sonatypePassword)
+			}
+			snapshotRepository(url:'https://oss.sonatype.org/content/repositories/snapshots') {
+				authentication(userName:sonatypeUserName, password:sonatypePassword)
+			}
 
-		pom.project {
-			name project.name
-			description project.description
-			url 'http://github.com/ajoberstar/gradle-git'
-			licenses {
-				license {
-					name 'The Apache Software License, Version 2.0'
-					url 'http://www.apache.org/licenses/LICENSE-2.0'
-				}
-			}
-			developers {
-				developer {
-					id 'ajoberstar'
-					name 'Andrew Oberstar'
-					email 'andrew@ajoberstar.org'
-				}
-			}
-			scm {
-				connection 'git://github.com/ajoberstar/gradle-git.git'
-				developerConnection 'git@github.com:ajoberstar/gradle-git.git'
+			beforeDeployment { signing.signPom it }
+
+			pom.project {
+				name project.name
+				description project.description
 				url 'http://github.com/ajoberstar/gradle-git'
+				licenses {
+					license {
+						name 'The Apache Software License, Version 2.0'
+						url 'http://www.apache.org/licenses/LICENSE-2.0'
+					}
+				}
+				developers {
+					developer {
+						id 'ajoberstar'
+						name 'Andrew Oberstar'
+						email 'andrew@ajoberstar.org'
+					}
+				}
+				scm {
+					connection 'git://github.com/ajoberstar/gradle-git.git'
+					developerConnection 'git@github.com:ajoberstar/gradle-git.git'
+					url 'http://github.com/ajoberstar/gradle-git'
+				}
 			}
 		}
 	}
