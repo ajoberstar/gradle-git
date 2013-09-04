@@ -22,11 +22,11 @@ artifacts {
 	archives groovydocJar
 }
 
-signing {
-	sign configurations.archives
-}
-
 if (project.hasProperty('sonatypeUserName') && project.hasProperty('sonatypePassword')) {
+	signing {
+		sign configurations.archives
+	}
+
 	uploadArchives {
 		repositories.mavenDeployer {
 			name = 'Sonatype OSS'
