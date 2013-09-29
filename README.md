@@ -2,6 +2,8 @@
 
 A set of plugins to support Git in the Gradle build tool.
 
+[![Build Status](https://travis-ci.org/ajoberstar/gradle-git.png?branch=master)](https://travis-ci.org/ajoberstar/gradle-git)
+
 There are two primary use cases for these plugins:
 * Publishing to a Github Pages website.  The `github-pages` plugin adds support
 for publishing static files to the `gh-pages` branch of a Git repository.
