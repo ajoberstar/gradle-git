@@ -52,7 +52,7 @@ class GithubPagesPlugin implements Plugin<Project> {
 	 */
 	void apply(Project project) {
 		GithubPagesPluginExtension extension = new GithubPagesPluginExtension(project)
-		project.extensions.add('githubPages', extension)	
+		project.extensions.create('githubPages', extension, project)	
 		setDefaultCredentials(project, extension)
 		configureTasks(project, extension)
 		
