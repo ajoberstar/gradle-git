@@ -15,9 +15,8 @@
  */
 package org.ajoberstar.gradle.git.plugins
 
-import org.ajoberstar.grgit.Repository
+import org.ajoberstar.grgit.Grgit
 import org.ajoberstar.grgit.service.RepositoryService
-import org.ajoberstar.grgit.service.ServiceFactory
 import org.gradle.api.Project
 
 class GrGitExtension {
@@ -28,7 +27,6 @@ class GrGitExtension {
 	}
 
 	RepositoryService repo(Object path) {
-		Repository repo = ServiceFactory.createRepository(project.file(path))
-		return ServiceFactory.createService(repo)
+		return Grgit.open(project.file(path))
 	}
 }

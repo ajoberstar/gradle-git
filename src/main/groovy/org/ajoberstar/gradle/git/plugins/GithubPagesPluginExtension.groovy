@@ -17,6 +17,7 @@ package org.ajoberstar.gradle.git.plugins
 
 import org.ajoberstar.gradle.git.auth.BasicPasswordCredentials
 import org.ajoberstar.gradle.util.ObjectUtil
+import org.ajoberstar.grgit.service.RepositoryService
 import org.gradle.api.Project
 import org.gradle.api.artifacts.repositories.AuthenticationSupported
 import org.gradle.api.artifacts.repositories.PasswordCredentials
@@ -30,22 +31,22 @@ import org.gradle.util.ConfigureUtil
 class GithubPagesPluginExtension implements AuthenticationSupported {
 	private final Project project
 	PasswordCredentials credentials = new BasicPasswordCredentials()
-	
+
 	/**
 	 * The URI of the Github repository.
 	 */
 	Object repoUri
-	
+
 	/**
 	 * The distribution of files to put in gh-pages.
 	 */
 	final CopySpec pages
-	
+
 	/**
 	 * The path to put the github repository in.
 	 */
 	Object workingPath = "${project.buildDir}/ghpages"
-	
+
 	/**
 	 * Constructs the plugin extension.
 	 * @param project the project to create
@@ -57,7 +58,7 @@ class GithubPagesPluginExtension implements AuthenticationSupported {
 			from 'src/main/ghpages'
 		}
 	}
-	
+
 	/**
 	 * Gets the URI of the Github repository.  This
 	 * will be used to clone the repository.
@@ -66,7 +67,7 @@ class GithubPagesPluginExtension implements AuthenticationSupported {
 	String getRepoUri() {
 		return ObjectUtil.unpackString(repoUri)
 	}
-	
+
 	/**
 	 * Gets the working directory that the repo will be places in.
 	 * @return the working directory
@@ -74,7 +75,15 @@ class GithubPagesPluginExtension implements AuthenticationSupported {
 	File getWorkingDir() {
 		return project.file(getWorkingPath())
 	}
-	
+
+	/**
+	 * Gets the Git repository in the working directory.
+	 * @return the working repository
+	 */
+	RepositoryService getWorkingRepo() {
+		return Grgit.open(getWorkingDir())
+	}
+
 	/**
 	 * Configures the gh-pages copy spec.
 	 * @param closure the configuration closure
@@ -82,7 +91,7 @@ class GithubPagesPluginExtension implements AuthenticationSupported {
 	void pages(Closure closure) {
 		ConfigureUtil.configure(closure, pages)
 	}
-	
+
 	/**
 	 * Configured the credentials to be used when interacting with
 	 * the repo. This will be passed a {@link PasswordCredentials}

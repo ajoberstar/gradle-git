@@ -1,67 +1,66 @@
-apply plugin: 'maven'
-apply plugin: 'signing'
+apply plugin: 'maven-publish'
+apply plugin: 'bintray'
 
-task sourcesJar(type:Jar) {
-	classifier = 'sources'
-	from sourceSets.main.allSource
-}
+publishing {
+	publications {
+		main(MavenPublication) {
+			from components.java
+			artifact sourcesJar
+			artifact javadocJar
+			artifact groovydocJar
 
-task javadocJar(type:Jar) {
-	classifier = 'javadoc'
-	from javadoc.outputs.files
-}
-
-task groovydocJar(type:Jar) {
-	classifier = 'groovydoc'
-	from groovydoc.outputs.files
-}
-
-artifacts {
-	archives sourcesJar
-	archives javadocJar
-	archives groovydocJar
-}
-
-if (project.hasProperty('sonatypeUserName') && project.hasProperty('sonatypePassword')) {
-	signing {
-		sign configurations.archives
+			pom.withXml {
+				asNode().with {
+					appendNode('description', 'Git plugins for Gradle')
+					appendNode('url', 'http://github.com/ajoberstar/gradle-git')
+					appendNode('licenses').with {
+						appendNode('license').with {
+							appendNode('name', 'The Apache Software License, Version 2.0')
+							appendNode('url', 'http://www.apache.org/licenses/LICENSE-2.0')
+						}
+					}
+					appendNode('developers').with {
+						appendNode('developer').with {
+							appendNode('id', 'ajoberstar')
+							appendNode('name', 'Andrew Oberstar')
+							appendNode('email', 'andrew@ajoberstar.org')
+						}
+					}
+					appendNode('scm').with {
+						appendNode('connection', 'git://github.com/ajoberstar/gradle-git.git')
+						appendNode('developerConnection', 'git@github.com:ajoberstar/gradle-git.git')
+						appendNode('url', 'http://github.com/ajoberstar/gradle-git')
+					}
+				}
+			}
+		}
 	}
-
-	uploadArchives {
-		repositories.mavenDeployer {
-			name = 'Sonatype OSS'
-			repository(url:'https://oss.sonatype.org/service/local/staging/deploy/maven2') {
-				authentication(userName:sonatypeUserName, password:sonatypePassword)
-			}
-			snapshotRepository(url:'https://oss.sonatype.org/content/repositories/snapshots') {
-				authentication(userName:sonatypeUserName, password:sonatypePassword)
-			}
-
-			beforeDeployment { signing.signPom it }
-
-			pom.project {
-				name project.name
-				description project.description
-				url 'http://github.com/ajoberstar/gradle-git'
-				licenses {
-					license {
-						name 'The Apache Software License, Version 2.0'
-						url 'http://www.apache.org/licenses/LICENSE-2.0'
-					}
-				}
-				developers {
-					developer {
-						id 'ajoberstar'
-						name 'Andrew Oberstar'
-						email 'andrew@ajoberstar.org'
-					}
-				}
-				scm {
-					connection 'git://github.com/ajoberstar/gradle-git.git'
-					developerConnection 'git@github.com:ajoberstar/gradle-git.git'
-					url 'http://github.com/ajoberstar/gradle-git'
+	repositories {
+		mavenLocal()
+		if (project.hasProperty('bintrayUser') && project.hasProperty('bintrayKey')) {
+			maven {
+				name = 'JfrogSnapshots'
+				url = 'http://oss.jfrog.org/artifactory/simple/oss-snapshot-local/'
+				credentials {
+					username = project.bintrayUser
+					password = project.bintrayKey
 				}
 			}
+		}
+	}
+}
+
+if (project.hasProperty('bintrayUser') && project.hasProperty('bintrayKey')) {
+	bintray {
+		user = project.bintrayUser
+		key = project.bintrayKey
+		publications = ['main']
+		pkg {
+			repo = 'gradle-plugins'
+			name = 'ajoberstar:gradle-git'
+			desc = 'Git plugins for Gradle'
+			licenses = ['Apache-2.0']
+			labels = ['gradle', 'git']
 		}
 	}
 }

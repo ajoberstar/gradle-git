@@ -1,12 +1,15 @@
 buildscript {
 	repositories {
+		mavenLocal()
+		jcenter()
 		mavenCentral()
-		maven { url 'https://oss.sonatype.org/content/groups/public/' }
+		maven { url = 'http://oss.jfrog.org/artifactory/simple/oss-snapshot-local/' }
 	}
 	dependencies {
+		// classpath 'org.ajoberstar:gradle-git:0.7.0-SNAPSHOT'
 		classpath 'org.ajoberstar:gradle-git:0.6.1'
-		classpath 'org.ajoberstar:gradle-jacoco:0.3.0'
 		classpath 'nl.javadude.gradle.plugins:license-gradle-plugin:0.6.0'
+		classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:0.3'
 	}
 }
 
@@ -25,23 +28,38 @@ version = '0.7.0-SNAPSHOT'
 sourceCompatibility = '1.5'
 
 repositories {
+	jcenter()
 	mavenCentral()
-	maven { url 'https://oss.sonatype.org/content/groups/public/' }
 }
 
 dependencies {
-	groovy localGroovy()
+	compile localGroovy()
 	compile gradleApi()
-	compile 'org.ajoberstar:grgit:0.1.0-SNAPSHOT'
-	compile 'org.eclipse.jgit:org.eclipse.jgit:2.2.0.201212191850-r'
-	compile 'org.eclipse.jgit:org.eclipse.jgit.ui:2.2.0.201212191850-r'
-	compile 'com.jcraft:jsch.agentproxy.jsch:0.0.6'
-	compile 'com.jcraft:jsch.agentproxy.pageant:0.0.6'
-	compile 'com.jcraft:jsch.agentproxy.sshagent:0.0.6'
-	compile 'com.jcraft:jsch.agentproxy.usocket-jna:0.0.6'
+	compile 'org.ajoberstar:grgit:0.1.0'
 
 	testCompile 'junit:junit:4.10'
 	testCompile('org.spockframework:spock-core:0.7-groovy-1.8') { exclude group: 'org.codehaus.groovy' }
+}
+
+task sourcesJar(type:Jar) {
+	classifier = 'sources'
+	from sourceSets.main.allSource
+}
+
+task javadocJar(type:Jar) {
+	classifier = 'javadoc'
+	from javadoc.outputs.files
+}
+
+task groovydocJar(type:Jar) {
+	classifier = 'groovydoc'
+	from groovydoc.outputs.files
+}
+
+artifacts {
+	archives sourcesJar
+	archives javadocJar
+	archives groovydocJar
 }
 
 githubPages {
@@ -55,4 +73,8 @@ githubPages {
 			into 'docs/groovydoc'
 		}
 	}
+}
+
+wrapper {
+	gradleVersion = '1.8'
 }
