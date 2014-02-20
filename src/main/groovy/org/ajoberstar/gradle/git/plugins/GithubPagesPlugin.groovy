@@ -82,7 +82,7 @@ class GithubPagesPlugin implements Plugin<Project> {
 		clone.dependsOn clean
 		clone.conventionMapping.credentials = { extension.credentials }
 		clone.uri = { extension.repoUri }
-		clone.branch = 'gh-pages'
+		clone.branch = { extension.targetBranch }
 		clone.destinationPath = { extension.workingPath }
 		clone.doLast {
 			String currentBranch = Git.open(clone.destinationDir).repository.branch 
