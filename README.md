@@ -112,6 +112,7 @@ The repository that the pages will be pushed to is configured via the
 ```
 githubPages {
   repoUri = 'git@github.com:ajoberstar/gradle-git.git'
+  targetBranch = master
 }
 ```
 
@@ -154,6 +155,32 @@ but rather in the user's `~/.gradle/gradle.properties`.
 ```
 github.credentials.username = username
 github.credentials.password = password
+```
+
+In case you plan to use Travis-CI make sure to follow the [travis guide on encrypted keys](http://docs.travis-ci.com/user/encryption-keys/) 
+to setup an encrypted authentication token like the following:
+
+1. Create a new "Personal Access Token” on Github at https://github.com/settings/applications and name it whatever fits your needs
+2. Install the travis CLI on your local machine via “gem install travis” (NOTE: ruby needs to be installed locally!!)
+3. Encrypt your Personal Access Token via “travis encrypt GH_TOKEN=<MYTOKENCHARS>”
+4. add the encrypted token to your `.travis.yml` file like the following
+
+```ruby
+# ...
+env:
+  global:
+  - secure: "E6iGay3wQcbhAUM5S5WkjYUmg6b7oJG9l8T2y0WWRgx50oqR0/jGzCYHpJGCHlb9OOZpB2BnhpYS6fCg09MsPYKcgsMXgjYzozWGBYifBIVNI07zQhDByztWr3fsrwrZc31ifqC3EGL/UEwvN5F093rRufDw2jomGpFQn7gL4Kc="
+```
+
+5. Adjust your credentials in the `build.gradle` to something like
+```groovy
+githubPages {
+  // ...
+  credentials {
+    username = System.getenv('GH_TOKEN')
+    password = ''
+  }
+}
 ```
 
 ---

@@ -16,11 +16,9 @@
 package org.ajoberstar.gradle.git.plugins
 
 import org.ajoberstar.grgit.Grgit
-import org.gradle.api.GradleException
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.Task
-
 /**
  * Plugin to enable publishing to gh-pages branch of Github.
  * @since 0.1.0
@@ -52,7 +50,7 @@ class GithubPagesPlugin implements Plugin<Project> {
 		publish.description = 'Publishes all gh-pages changes to Github'
 		publish.doLast {
 			extension.workingDir.deleteDir()
-			repo = Grgit.clone(uri: extension.repoUri, refToCheckout: 'gh-pages', dir: extension.workingDir)
+                repo = Grgit.clone(uri: extension.repoUri, refToCheckout: extension.targetBranch, dir: extension.workingDir)
 			project.copy {
 				with extension.pages
 				into repo.repository.rootDir
