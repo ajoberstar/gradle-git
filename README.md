@@ -26,7 +26,7 @@ Add the following lines to your build to use the gradle-git plugins.
 
     buildscript {
       repositories { mavenCentral() }
-      dependencies { classpath 'org.ajoberstar:gradle-git:0.4.0' }
+      dependencies { classpath 'org.ajoberstar:gradle-git:0.6.4' }
     }
 
 ## Using Tasks
@@ -110,6 +110,7 @@ The repository that the pages will be pushed to is configured via the
 ```
 githubPages {
   repoUri = 'git@github.com:ajoberstar/gradle-git.git'
+  targetBranch = 'master' // if you don't want to push to gh-pages
 }
 ```
 
@@ -157,6 +158,10 @@ github.credentials.password = password
 ---
 
 ## Release Notes
+
+**v0.6.4**
+* Adding `targetPath` property to `github-pages` plugin to allow pushing to branches besides `gh-pages`. Contributed by [Alexander Heusingfeld](https://github.com/aheusingfeld)
+* Fix to bypass SSHAgentConnector in certain situations where correct libraries aren't in place.
 
 **v0.6.3**
 * Fixed jsch-agent-proxy support to fall back to other options when agents aren't really available. See #31.
@@ -221,4 +226,3 @@ and `GitPlugin` provided no useful functionality.
 **v0.1.0**
 
 Initial release.
-
