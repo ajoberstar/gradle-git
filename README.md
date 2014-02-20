@@ -157,6 +157,8 @@ github.credentials.username = username
 github.credentials.password = password
 ```
 
+#### Travis CI Notes
+
 In case you plan to use Travis-CI make sure to follow the [travis guide on encrypted keys](http://docs.travis-ci.com/user/encryption-keys/) 
 to setup an encrypted authentication token like the following:
 

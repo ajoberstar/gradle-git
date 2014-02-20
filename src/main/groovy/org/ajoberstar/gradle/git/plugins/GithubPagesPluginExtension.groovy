@@ -37,12 +37,12 @@ class GithubPagesPluginExtension implements AuthenticationSupported {
 	 */
 	Object repoUri
 
-    /**
-     * The branch of the Github repository to push to.
-     */
-    Object targetBranch = 'gh-pages'
+	/**
+	 * The branch of the Github repository to push to.
+	 */
+	Object targetBranch = 'gh-pages'
 
-    /**
+	/**
 	 * The distribution of files to put in gh-pages.
 	 */
 	final CopySpec pages
