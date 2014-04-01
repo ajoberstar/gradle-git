@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2013 the original author or authors.
+ * Copyright 2012-2014 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ package org.ajoberstar.gradle.git.plugins
 import org.ajoberstar.gradle.git.auth.BasicPasswordCredentials
 import org.ajoberstar.gradle.util.ObjectUtil
 import org.ajoberstar.grgit.service.RepositoryService
+
 import org.gradle.api.Project
 import org.gradle.api.artifacts.repositories.AuthenticationSupported
 import org.gradle.api.artifacts.repositories.PasswordCredentials
