@@ -18,6 +18,10 @@ package org.ajoberstar.gradle.git.plugins
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 
+/**
+ * Plugin adding access to Grgit.
+ * @since 0.7.0
+ */
 class GrGitPlugin implements Plugin<Project> {
 	void apply(Project project) {
 		project.extensions.create('grgit', GrGitExtension, project)

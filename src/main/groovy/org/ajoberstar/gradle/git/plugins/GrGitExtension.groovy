@@ -16,10 +16,13 @@
 package org.ajoberstar.gradle.git.plugins
 
 import org.ajoberstar.grgit.Grgit
-import org.ajoberstar.grgit.service.RepositoryService
 
 import org.gradle.api.Project
 
+/**
+ * Extension providing access to Grgit.
+ * @since 0.7.0
+ */
 class GrGitExtension {
 	private final Project project
 
@@ -27,7 +30,7 @@ class GrGitExtension {
 		this.project = project
 	}
 
-	RepositoryService repo(Object path) {
+	Grgit repo(Object path) {
 		return Grgit.open(project.file(path))
 	}
 }

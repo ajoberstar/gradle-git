@@ -17,7 +17,7 @@ package org.ajoberstar.gradle.git.plugins
 
 import org.ajoberstar.gradle.git.auth.BasicPasswordCredentials
 import org.ajoberstar.gradle.util.ObjectUtil
-import org.ajoberstar.grgit.service.RepositoryService
+import org.ajoberstar.grgit.Grgit
 
 import org.gradle.api.Project
 import org.gradle.api.artifacts.repositories.AuthenticationSupported
@@ -86,7 +86,7 @@ class GithubPagesPluginExtension implements AuthenticationSupported {
 	 * Gets the Git repository in the working directory.
 	 * @return the working repository
 	 */
-	RepositoryService getWorkingRepo() {
+	Grgit getWorkingRepo() {
 		return Grgit.open(getWorkingDir())
 	}
 
