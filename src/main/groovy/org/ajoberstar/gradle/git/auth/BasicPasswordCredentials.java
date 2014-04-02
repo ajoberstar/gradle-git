@@ -81,10 +81,10 @@ public class BasicPasswordCredentials implements PasswordCredentials, Serializab
 	 * otherwise returns credentials in Grgit format.
 	 */
 	public Credentials toGrgit() {
-		if (username && password) {
-			return new Credentials(username, password)
+		if (username != null && password != null) {
+			return new Credentials(username, password);
 		} else {
-			return null
+			return null;
 		}
 	}
 }
