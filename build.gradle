@@ -39,7 +39,7 @@ dependencies {
 	compile gradleApi()
 
 	// grgit
-	compile 'org.ajoberstar:grgit:0.2.0'
+	compile 'org.ajoberstar:grgit:0.2.1'
 
 	// testing
 	testCompile 'junit:junit:4.10'

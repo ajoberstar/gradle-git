@@ -26,9 +26,6 @@ import org.gradle.api.Task
  * @since 0.1.0
  */
 class GithubPagesPlugin implements Plugin<Project> {
-	static final String USERNAME_PROP = 'github.credentials.username'
-	static final String PASSWORD_PROP = 'github.credentials.password'
-
 	static final String PUBLISH_TASK_NAME = 'publishGhPages'
 
 	/**
@@ -37,7 +34,6 @@ class GithubPagesPlugin implements Plugin<Project> {
 	 */
 	void apply(Project project) {
 		GithubPagesPluginExtension extension = project.extensions.create('githubPages', GithubPagesPluginExtension, project)
-		setDefaultCredentials(project, extension)
 		configureTasks(project, extension)
 	}
 
@@ -51,7 +47,12 @@ class GithubPagesPlugin implements Plugin<Project> {
 		publish.description = 'Publishes all gh-pages changes to Github'
 		publish.doLast {
 			extension.workingDir.deleteDir()
-			repo = Grgit.clone(uri: extension.repoUri, refToCheckout: extension.targetBranch, dir: extension.workingDir)
+			repo = Grgit.clone {
+				uri = extension.repoUri
+				refToCheckout = extension.targetBranch
+				dir = extension.workingDir
+				credentials = extension.credentials?.toGrgit()
+			}
 			project.copy {
 				with extension.pages
 				into repo.repository.rootDir
@@ -60,20 +61,6 @@ class GithubPagesPlugin implements Plugin<Project> {
 			repo.add(patterns: ['.'])
 			repo.commit(message: 'Publish of Github pages from Gradle.')
 			repo.push()
-		}
-	}
-
-	/**
-	 * Sets the default credentials based on project properties.
-	 * @param project the project to get properties from
-	 * @param extension the extension to configure credentials for
-	 */
-	private void setDefaultCredentials(Project project, GithubPagesPluginExtension extension) {
-		if (project.hasProperty(USERNAME_PROP)) {
-			extension.credentials.username = project[USERNAME_PROP]
-		}
-		if (project.hasProperty(PASSWORD_PROP)) {
-			extension.credentials.password = project[PASSWORD_PROP]
 		}
 	}
 }

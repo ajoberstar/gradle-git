@@ -17,6 +17,8 @@ package org.ajoberstar.gradle.git.auth;
 
 import java.io.Serializable;
 
+import org.ajoberstar.grgit.Credentials;
+
 import org.gradle.api.artifacts.repositories.PasswordCredentials;
 
 /**
@@ -27,14 +29,14 @@ public class BasicPasswordCredentials implements PasswordCredentials, Serializab
 	private static final long serialVersionUID = 1L;
 	private String username;
 	private String password;
-	
+
 	/**
 	 * Constructs credentials with {@code null} username and password.
 	 */
 	public BasicPasswordCredentials() {
 		this(null, null);
 	}
-	
+
 	/**
 	 * Constructs credentials with the given arguments.
 	 * @param username the username to set
@@ -44,32 +46,45 @@ public class BasicPasswordCredentials implements PasswordCredentials, Serializab
 		this.username = username;
 		this.password = password;
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
 	public String getUsername() {
 		return username;
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
 	public void setUsername(String username) {
 		this.username = username;
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
 	public String getPassword() {
 		return password;
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
 	public void setPassword(String password) {
 		this.password = password;
+	}
+
+	/**
+	 * Converts to credentials for use in Grgit.
+	 * @return {@code null} if both username and password are {@code null},
+	 * otherwise returns credentials in Grgit format.
+	 */
+	public Credentials toGrgit() {
+		if (username && password) {
+			return new Credentials(username, password)
+		} else {
+			return null
+		}
 	}
 }

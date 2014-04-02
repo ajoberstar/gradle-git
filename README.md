@@ -20,146 +20,73 @@ the full list of tasks and plugins.
 
 Credit goes to [Peter Ledbrook](https://github.com/pledbrook) for the initial idea.
 
----
-
 ## Adding the Plugins
 
-Add the following lines to your build to use the gradle-git plugins.
+Add the following lines to your build to use the `gradle-git` plugins.
 
     buildscript {
-      repositories { mavenCentral() }
-      dependencies { classpath 'org.ajoberstar:gradle-git:0.6.3' }
+      repositories {
+        // jcenter()
+        mavenCentral()
+      }
+      dependencies {
+        classpath 'org.ajoberstar:gradle-git:<version>'
+      }
     }
 
-## Using Tasks
+## Using Grgit
 
 If all you want to do is use a few of the tasks, there aren't any plugins
-to apply.  You merely need to start using the tasks:
+to apply.  You merely need to start using the classes:
 
 ```groovy
-import org.ajoberstar.gradle.git.tasks.*
+import org.ajoberstar.grgit.*
 
-task tag(type: GitTag) {
-	tagName = version
-	message = "Release of ${version}"
+ext.repo = Grgit.open(project.file('.'))
+
+version = "1.0.0-${repo.head().abbreviatedId}"
+
+task tagRelease << {
+  repo.tag.add {
+    name = version
+    message = "Release of ${version}"
+  }
 }
 ```
 
-For details on the available methods/properties see the API docs listed above.
+For details on the available methods/properties see the API docs of
+[Grgit](http://ajoberstar.org/grgit/docs/groovydoc/org/ajoberstar/grgit/Grgit.html).
+Examples of how to use each operation are provided.
 
-## Repository
-
-By default all `GitBase` tasks (any task that acts on an existing local
-repository, i.e. everything except `GitClone`) will act on the repository
-stored in the root Gradle project's directory.
-
-This can be overriden with the following:
+## Using Github Pages
 
 ```groovy
-task add(type: GitAdd) {
-	repoPath = 'some/other/place/to/look'
+apply plugin: 'github-pages'
+
+githubPages {
+  repoUri = '...'
+  pages {
+    from javadoc.outputs.files
+  }
 }
 ```
+
+See the [GithubPagesPluginExtension](http://ajoberstar.org/gradle-git/docs/groovydoc/org/ajoberstar/gradle/git/plugins/GithubPagesPluginExtension.html) docs for information on the defaults.
+
+The plugin adds a single `publishGhPages` task that will clone the
+repository, copy in the files in the `pages` `CopySpec`, add all of
+the changes, commit, and push back to the remote.
 
 ## Authentication
 
-All authentication methods supported by JGit should be supported by these
-plugins.  However, the only ones that are tested are:
-* Username/Password
-* SSH (with or without a passphrase)
-  * sshagent and Pageant are also supported
+Grgit provides multiple ways to authenticate with remote repositories. If using hardcoded credentials, it is suggested to use the system properties rather than including them in the repository.
 
-On any task that supports/requires credentials, you will have two options for
-configuration:
-
-### Programmatic Username/Password
-
-Use the `credentials` property/method to configure username/password creds
-
-```groovy
-task push(type: GitPush) {
-  credentials {
-    username = 'something'
-    password = 'somethingSecret'
-  }
-}
-```
-
-It is unlikely that you would hardcode your password into the build file, so
-you should store these in another file, such as the user level Gradle properties
-(`~/.gradle/gradle.properties`).
-
-### Prompt for Credentials
-
-If no username/password credentials are provided programmatically, you will be
-prompted for any necessary credentials at execution time.  This method has been
-tested with username/password auth, as well as SSH w/ passphrase auth.
-
-## Github Pages Plugin
-
-To apply the Github Pages plugin add the following line to your build:
-
-    apply plugin: 'github-pages'
-
-This configures tasks needed to clone, add, commit, and push changes to the
-gh-pages branch of your Github repository.
-
-### Configuring Repository To Push To
-
-The repository that the pages will be pushed to is configured via the
-`githubPages` extension:
-
-```
-githubPages {
-  repoUri = 'git@github.com:ajoberstar/gradle-git.git'
-  targetBranch = master
-}
-```
-
-### Configuring Files to Publish
-
-The files that will be published to gh-pages are in the `githubPages.pages`
-CopySpec. By default all files in `src/main/ghpages` will be included. The
-default location the repository will be cloned to is `build/ghpages`. This
-can be configured with `githubPages.workingPath`.
-
-```
-githubPages {
-  pages {
-    from(javadoc.outputs.files) {
-      into 'docs/javadoc'
-    }
-    from(groovydoc.outputs.files) {
-      into 'docs/groovydoc'
-    }
-  }
-  workingPath = 'build/somewhere/else'
-}
-```
-
-To publish your changes run:
-
-```
-./gradlew publishGhPages
-```
-
-### Properties-Based Authentication
-
-Beyond what is mentioned above, the github-pages plugin also provides a
-file based way to authenticate.  If you are using username/password
-credentials and don't want to re-enter them during each build, you can
-specify the credentials in the `gradle.properties` file.  As these are
-sensitive values, they should not be in the project's `gradle.properties`,
-but rather in the user's `~/.gradle/gradle.properties`.
-
-```
-github.credentials.username = username
-github.credentials.password = password
-```
+See Grgit's [AuthConfig](http://ajoberstar.org/grgit/docs/groovydoc/org/ajoberstar/grgit/auth/AuthConfig.html) docs for information on the
+various authentication options.
 
 #### Travis CI Notes
 
-In case you plan to use Travis-CI make sure to follow the [travis guide on encrypted keys](http://docs.travis-ci.com/user/encryption-keys/) 
+In case you plan to use Travis-CI make sure to follow the [travis guide on encrypted keys](http://docs.travis-ci.com/user/encryption-keys/)
 to setup an encrypted authentication token like the following:
 
 1. Create a new "Personal Access Token” on Github at https://github.com/settings/applications and name it whatever fits your needs
@@ -185,9 +112,21 @@ githubPages {
 }
 ```
 
----
-
 ## Release Notes
+
+**v0.7.0**
+* Complete rewrite of the Git layer in the [grgit](https://github.com/ajoberstar/grgit) library.
+* Git functionality can be used in a more free form manner, rather than dedicated tasks for each operation.
+* Breaking Changes:
+  * The API has almost completely changed. See the Groovydoc of [gradle-git](http://ajoberstar.org/gradle-git/docs/groovydoc/) and [grgit](http://ajoberstar.org/grgit/docs/groovydoc/index.html) for details.
+  * Plugin requires Java 7. Comment on [issue 42](https://github.com/ajoberstar/gradle-git/issues/42) if you have any feedback on that.
+
+**v0.6.5**
+* Fixing `GitPush.namesOrSpecs(String...)` to avoid NPE.
+
+**v0.6.4**
+* Adding `targetPath` property to `github-pages` plugin to allow pushing to branches besides `gh-pages`. Contributed by [Alexander Heusingfeld](https://github.com/aheusingfeld)
+* Fix to bypass SSHAgentConnector in certain situations where correct libraries aren't in place.
 
 **v0.6.3**
 * Fixed jsch-agent-proxy support to fall back to other options when agents aren't really available. See #31.

@@ -40,16 +40,19 @@ class GithubPagesPluginExtension implements AuthenticationSupported {
 
 	/**
 	 * The branch of the Github repository to push to.
+	 * Defaults to {@code gh-pages}
 	 */
 	Object targetBranch = 'gh-pages'
 
 	/**
-	 * The distribution of files to put in gh-pages.
+	 * The distribution of files to put in gh-pages. Defaults
+	 * to including {@code src/main/ghpages}.
 	 */
 	final CopySpec pages
 
 	/**
-	 * The path to put the github repository in.
+	 * The path to put the github repository in. Defaults to
+	 * {@code build/ghpages}.
 	 */
 	Object workingPath = "${project.buildDir}/ghpages"
 
@@ -80,14 +83,6 @@ class GithubPagesPluginExtension implements AuthenticationSupported {
 	 */
 	File getWorkingDir() {
 		return project.file(getWorkingPath())
-	}
-
-	/**
-	 * Gets the Git repository in the working directory.
-	 * @return the working repository
-	 */
-	Grgit getWorkingRepo() {
-		return Grgit.open(getWorkingDir())
 	}
 
 	/**
