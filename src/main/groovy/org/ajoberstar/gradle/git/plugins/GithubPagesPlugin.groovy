@@ -47,12 +47,12 @@ class GithubPagesPlugin implements Plugin<Project> {
 		publish.description = 'Publishes all gh-pages changes to Github'
 		publish.doLast {
 			extension.workingDir.deleteDir()
-			repo = Grgit.clone {
-				uri = extension.repoUri
-				refToCheckout = extension.targetBranch
-				dir = extension.workingDir
-				credentials = extension.credentials?.toGrgit()
-			}
+			ext.repo = Grgit.clone(
+				uri: extension.repoUri,
+				refToCheckout: extension.targetBranch,
+				dir: extension.workingDir,
+				credentials: extension.credentials?.toGrgit()
+			)
 			project.copy {
 				with extension.pages
 				into repo.repository.rootDir

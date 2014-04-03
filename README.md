@@ -114,6 +114,9 @@ githubPages {
 
 ## Release Notes
 
+**v0.7.1**
+* Fixed `publishGhPages` to actually work. (Sorry about that...)
+
 **v0.7.0**
 * Complete rewrite of the Git layer in the [grgit](https://github.com/ajoberstar/grgit) library.
 * Git functionality can be used in a more free form manner, rather than dedicated tasks for each operation.
