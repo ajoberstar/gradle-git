@@ -15,9 +15,13 @@
  */
 package org.ajoberstar.gradle.git.semver
 
-import com.github.zafarkhaja.semver.Version
 import com.github.zafarkhaja.semver.GrammarException
-import com.github.zafarkhaja.semver.UnexpectedElementTypeException
+import com.github.zafarkhaja.semver.Version
+import com.github.zafarkhaja.semver.util.UnexpectedElementTypeException
+
+import org.ajoberstar.grgit.Commit
+import org.ajoberstar.grgit.Grgit
+
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
@@ -34,7 +38,7 @@ import org.slf4j.LoggerFactory
  *
  * @since 0.8.0
  */
-abstract class NearestVersionTagLocator {
+class NearestVersionTagLocator {
 	private static final Logger logger = LoggerFactory.getLogger(NearestVersionTagLocator)
 
 	/**
@@ -61,18 +65,24 @@ abstract class NearestVersionTagLocator {
 	 * @return the version corresponding to the nearest tag
 	 */
 	Version locate(Grgit grgit, String fromRevStr = 'HEAD') {
+		logger.debug('Beginning locate for {} starting at {}', grgit, fromRevStr)
+		Commit target = grgit.resolveCommit(fromRevStr)
 		grgit.tag.list().inject([:]) { map, tag ->
 			Version version = parseAsVersion(tag.name)
+			logger.debug('Tag {} parsed as {} version.', tag.fullName, version)
 			if (version && acceptVersion(version)) {
+				logger.debug('Version {} accepted.', version)
 				map[tag] = version
 			}
 			map
-		}.max { tag, version ->
+		}.min { entry ->
+			logger.debug('Getting commit log from {} to {}', entry?.key?.fullName, fromRevStr)
 			grgit.log {
-				range tag.fullName, fromRevStr
+				range entry.key.commit.id, target.id
 			}.size()
-		}.with { entry ->
-			entry.value
+		}?.with { entry ->
+			logger.debug('Found smallest commit log on {}', entry?.value)
+			entry?.value
 		}
 	}
 
@@ -87,7 +97,7 @@ abstract class NearestVersionTagLocator {
 		return true
 	}
 
-	private Version parseAsVersion(String name) {
+	protected Version parseAsVersion(String name) {
 		try {
 			return Version.valueOf(extractName(name))
 		} catch (GrammarException e) {
@@ -99,7 +109,7 @@ abstract class NearestVersionTagLocator {
 		}
 	}
 
-	private String extractName(String tagName) {
+	protected String extractName(String tagName) {
 		if (tagName.charAt(0) == 'v') {
 			return tagName[1..-1]
 		} else {

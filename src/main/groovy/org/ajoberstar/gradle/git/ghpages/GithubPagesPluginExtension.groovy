@@ -17,7 +17,6 @@ package org.ajoberstar.gradle.git.ghpages
 
 import org.ajoberstar.gradle.git.auth.BasicPasswordCredentials
 import org.ajoberstar.gradle.util.ObjectUtil
-import org.ajoberstar.grgit.Grgit
 
 import org.gradle.api.Project
 import org.gradle.api.artifacts.repositories.AuthenticationSupported

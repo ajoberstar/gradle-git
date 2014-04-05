@@ -15,6 +15,8 @@
  */
 package org.ajoberstar.gradle.git.semver
 
+import org.ajoberstar.grgit.Grgit
+
 class InferredVersion {
 	Grgit grgit
 	ReleaseType releaseType

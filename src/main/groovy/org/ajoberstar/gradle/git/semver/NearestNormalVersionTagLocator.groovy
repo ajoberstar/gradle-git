@@ -16,7 +16,6 @@
 package org.ajoberstar.gradle.git.semver
 
 import com.github.zafarkhaja.semver.Version
-import com.github.zafarkhaja.semver.MetadataVersion
 
 /**
  * Same as {@link NearestVersionTagLocator}, but only "release" versions
@@ -34,6 +33,6 @@ class NearestNormalVersionTagLocator extends NearestVersionTagLocator {
 	 */
 	@Override
 	protected boolean acceptVersion(Version version) {
-		return version.preReleaseVersion == MetadataVersion.NULL
+		return version.preReleaseVersion.empty
 	}
 }
