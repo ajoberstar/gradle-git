@@ -5,7 +5,7 @@ buildscript {
 		maven { url 'http://dl.bintray.com/ajoberstar/temp-forks' }
 	}
 	dependencies {
-		classpath 'org.ajoberstar:gradle-ajoberstar:0.1.1'
+		classpath 'org.ajoberstar:gradle-ajoberstar:0.1.2'
 	}
 }
 
@@ -14,13 +14,13 @@ apply plugin: 'ajoberstar'
 
 group = 'org.ajoberstar'
 description = 'Git plugins for Gradle'
-version = '0.7.1'
+version = '0.8.0-SNAPSHOT'
 
 ajoberstar {
 	friendlyName = 'Gradle Git Plugin'
 	description = 'Git plugin for Gradle'
 	bintrayRepo = 'gradle-plugins'
-	bintrayLabels = ['gradle', 'git']
+	bintrayLabels = ['gradle', 'git', 'semver']
 	copyrightYears = '2012-2014'
 }
 
@@ -40,6 +40,9 @@ dependencies {
 
 	// grgit
 	compile 'org.ajoberstar:grgit:0.2.1'
+
+	// semver
+	compile 'com.github.zafarkhaja:java-semver:0.7.2'
 
 	// testing
 	testCompile 'junit:junit:4.10'
