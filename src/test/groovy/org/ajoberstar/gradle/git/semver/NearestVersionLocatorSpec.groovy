@@ -15,20 +15,17 @@
  */
 package org.ajoberstar.gradle.git.semver
 
+import java.security.SecureRandom
+
+import com.energizedwork.spock.extensions.TempDirectory
+
 import com.github.zafarkhaja.semver.Version
 
 import org.ajoberstar.grgit.Grgit
 
-import org.junit.Rule
-import org.junit.rules.TemporaryFolder
-
+import spock.lang.Shared
 import spock.lang.Specification
 import spock.lang.Unroll
-import spock.lang.Shared
-
-import com.energizedwork.spock.extensions.TempDirectory
-
-import java.security.SecureRandom
 
 class NearestVersionLocatorSpec extends Specification {
 	@TempDirectory(clean=true)
