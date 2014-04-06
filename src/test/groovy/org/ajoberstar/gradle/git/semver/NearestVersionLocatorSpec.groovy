@@ -24,56 +24,76 @@ import org.junit.rules.TemporaryFolder
 
 import spock.lang.Specification
 import spock.lang.Unroll
+import spock.lang.Shared
+
+import com.energizedwork.spock.extensions.TempDirectory
+
+import java.security.SecureRandom
 
 class NearestVersionLocatorSpec extends Specification {
-	@Rule TemporaryFolder tempDir = new TemporaryFolder()
+	@TempDirectory(clean=true)
+	@Shared File repoDir
 
-	Grgit grgit
+	@Shared Grgit grgit
 
-	def setup() {
-		File repoDir = tempDir.newFolder('repo')
+	@Shared SecureRandom random = new SecureRandom()
+
+	def setupSpec() {
 		grgit = Grgit.init(dir: repoDir)
 
 		commit()
 		commit()
-		grgit.branch.add(name: 'unreachable')
+		// grgit.branch.add(name: 'unreachable')
+		addBranch('unreachable')
 
 		commit()
-		grgit.tag.add(name: '0.0.1-beta.3')
-		grgit.branch.add(name: 'no-normal')
+		// grgit.tag.add(name: '0.0.1-beta.3')
+		addTag('0.0.1-beta.3')
+		// grgit.branch.add(name: 'no-normal')
+		addBranch('no-normal')
 
 		commit()
-		grgit.tag.add(name: '0.1.0')
+		// grgit.tag.add(name: '0.1.0')
+		addTag('0.1.0')
 
 		commit()
-		grgit.branch.add(name: 'RB_0.1')
-
-		commit()
-		commit()
-		grgit.tag.add(name: '0.2.0')
-
-		grgit.checkout(branch: 'RB_0.1')
-
-		commit()
-		grgit.tag.add(name: 'v0.1.1+2010.01.01.12.00.00')
+		// grgit.branch.add(name: 'RB_0.1')
+		addBranch('RB_0.1')
 
 		commit()
 		commit()
+		// grgit.tag.add(name: '0.2.0')
+		addTag('0.2.0')
+
+		// grgit.checkout(branch: 'RB_0.1')
+		checkout('RB_0.1')
+
 		commit()
-		commit()
-		grgit.tag.add(name: 'v0.1.2-beta.1')
+		// grgit.tag.add(name: 'v0.1.1+2010.01.01.12.00.00')
+		addTag('v0.1.1+2010.01.01.12.00.00')
 
 		commit()
 		commit()
 		commit()
-		grgit.checkout(branch: 'master')
+		commit()
+		// grgit.tag.add(name: 'v0.1.2-beta.1')
+		addTag('v0.1.2-beta.1')
 
 		commit()
-		grgit.tag.add(name: 'v1.0.0')
-		grgit.branch.add(name: 'RB_1.0')
+		commit()
+		commit()
+		// grgit.checkout(branch: 'master')
+		checkout('master')
 
 		commit()
-		grgit.tag.add(name: '1.1.0-rc.1+abcde')
+		// grgit.tag.add(name: 'v1.0.0')
+		addTag('v1.0.0')
+		// grgit.branch.add(name: 'RB_1.0')
+		addBranch('RB_1.0')
+
+		commit()
+		// grgit.tag.add(name: '1.1.0-rc.1+abcde')
+		addTag('1.1.0-rc.1+abcde')
 	}
 
 	@Unroll('when on #head, locator finds normal #normal with distance #distance and nearest #any at #stage')
@@ -96,8 +116,39 @@ class NearestVersionLocatorSpec extends Specification {
 	}
 
 	private void commit() {
-		new File(grgit.repository.rootDir, '1.txt') << '1'
+		byte[] bytes = new byte[128]
+		random.nextBytes(bytes)
+		new File(grgit.repository.rootDir, '1.txt') << bytes
 		grgit.add(patterns: ['1.txt'])
-		grgit.commit(message: 'do')
+		def commit = grgit.commit(message: 'do')
+		println "Created commit: ${commit.abbreviatedId}"
+	}
+
+	private void addBranch(String name) {
+		def currentHead = grgit.head()
+		def currentBranch = grgit.branch.current
+		def newBranch = grgit.branch.add(name: name)
+		def atCommit = grgit.resolveCommit(newBranch.fullName)
+		println "Added new branch ${name} at ${atCommit.abbreviatedId}"
+		assert currentBranch == grgit.branch.current
+		assert currentHead == atCommit
+	}
+
+	private void addTag(String name) {
+		def currentHead = grgit.head()
+		def newTag = grgit.tag.add(name: name)
+		def atCommit = grgit.resolveCommit(newTag.fullName)
+		println "Added new tag ${name} at ${atCommit.abbreviatedId}"
+		assert currentHead == atCommit
+	}
+
+	private void checkout(String name) {
+		def currentHead = grgit.head()
+		grgit.checkout(branch: name)
+		def atCommit = grgit.resolveCommit(name)
+		def newHead = grgit.head()
+		println "Checkout out ${name}, which is at ${atCommit.abbreviatedId}"
+		assert currentHead != grgit.head()
+		assert atCommit == newHead
 	}
 }

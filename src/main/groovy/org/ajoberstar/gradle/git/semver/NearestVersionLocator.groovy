@@ -66,15 +66,29 @@ final class NearestVersionLocator {
 			Version version = parseAsVersion(tag.name)
 			logger.debug('Tag {} parsed as {} version.', tag.fullName, version)
 			if (version) {
-				def tagUnreachableCommits = grgit.log {
-					range head.id, tag.commit.id
-				}.size()
-
-				if (!tagUnreachableCommits) {
-					def distance = grgit.log {
-						range tag.commit.id, head.id
-					}.size()
-					def data = [version: version, distance: distance]
+				def data
+				if (tag.commit == head) {
+					logger.debug('Tag {} is at head. Including as candidate.', tag.fullName)
+					data = [version: version, distance: 0]
+				} else {
+					def unreachableCommitLog = grgit.log {
+						range head.id, tag.commit.id
+					}
+					logger.debug('Unreachable commits in tag {}: {}', tag.fullName, unreachableCommitLog.collect { it.abbreviatedId })
+					def unreachableCommits = unreachableCommitLog.size()
+					if (unreachableCommits) {
+						logger.debug('Tag {} has {} unreachable commits. Excluding as candidate.', tag.fullName, unreachableCommits)
+					} else {
+						logger.debug('Tag {} has {} unreachable commits. Including as candidate.', tag.fullName, unreachableCommits)
+						def reachableCommitLog = grgit.log {
+							range tag.commit.id, head.id
+						}
+						logger.debug('Reachable commits after tag {}: {}', tag.fullName, reachableCommitLog.collect { it.abbreviatedId })
+						def distance = reachableCommitLog.size()
+						data = [version: version, distance: distance]
+					}
+				}
+				if (data) {
 					logger.debug('Tag data found: {}', data)
 					list << data
 				}
