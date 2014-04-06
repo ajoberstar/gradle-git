@@ -25,16 +25,22 @@ import org.junit.rules.TemporaryFolder
 import spock.lang.Specification
 import spock.lang.Unroll
 
-class NearestVersionTagLocatorSpec extends Specification {
+class NearestVersionLocatorSpec extends Specification {
 	@Rule TemporaryFolder tempDir = new TemporaryFolder()
 
 	Grgit grgit
-	List commits = []
-	int commitNum = 0
 
 	def setup() {
 		File repoDir = tempDir.newFolder('repo')
 		grgit = Grgit.init(dir: repoDir)
+
+		commit()
+		commit()
+		grgit.branch.add(name: 'unreachable')
+
+		commit()
+		grgit.tag.add(name: '0.0.1-beta.3')
+		grgit.branch.add(name: 'no-normal')
 
 		commit()
 		grgit.tag.add(name: '0.1.0')
@@ -52,9 +58,14 @@ class NearestVersionTagLocatorSpec extends Specification {
 		grgit.tag.add(name: 'v0.1.1+2010.01.01.12.00.00')
 
 		commit()
+		commit()
+		commit()
+		commit()
 		grgit.tag.add(name: 'v0.1.2-beta.1')
 
-
+		commit()
+		commit()
+		commit()
 		grgit.checkout(branch: 'master')
 
 		commit()
@@ -65,21 +76,28 @@ class NearestVersionTagLocatorSpec extends Specification {
 		grgit.tag.add(name: '1.1.0-rc.1+abcde')
 	}
 
-	@Unroll('#locator from #revstr returns #version')
-	def 'locator returns correct version'() {
+	@Unroll('when on #head, locator finds normal #normal with distance #distance and nearest #any at #stage')
+	def 'locator returns correct value'() {
+		given:
+		grgit.checkout(branch: head)
 		expect:
-		locator.newInstance().locate(grgit, revstr) == version
+		def nearest = NearestVersionLocator.locate(grgit)
+		nearest.any == Version.valueOf(any)
+		nearest.normal == Version.valueOf(normal)
+		nearest.distance == distance
+		nearest.stage == stage
 		where:
-		locator                        | revstr   | version
-		NearestVersionTagLocator       | 'HEAD'   | Version.valueOf('1.1.0-rc.1+abcde')
-		NearestNormalVersionTagLocator | 'HEAD'   | Version.valueOf('1.0.0')
-		NearestVersionTagLocator       | 'RB_0.1' | Version.valueOf('0.1.2-beta.1')
-		NearestNormalVersionTagLocator | 'RB_0.1' | Version.valueOf('0.1.1+2010.01.01.12.00.00')
+		head          | any                | normal                      | distance | stage
+		'master'      | '1.1.0-rc.1+abcde' | '1.0.0'                     | 1        | 'rc'
+		'RB_0.1'      | '0.1.2-beta.1'     | '0.1.1+2010.01.01.12.00.00' | 7        | 'beta'
+		'RB_1.0'      | '1.0.0'            | '1.0.0'                     | 0        | ''
+		'no-normal'   | '0.0.1-beta.3'     | '0.0.0'                     | 3        | 'beta'
+		'unreachable' | '0.0.0'            | '0.0.0'                     | 2        | ''
 	}
 
 	private void commit() {
 		new File(grgit.repository.rootDir, '1.txt') << '1'
 		grgit.add(patterns: ['1.txt'])
-		commits << grgit.commit(message: "do ${++commitNum}")
+		grgit.commit(message: 'do')
 	}
 }
