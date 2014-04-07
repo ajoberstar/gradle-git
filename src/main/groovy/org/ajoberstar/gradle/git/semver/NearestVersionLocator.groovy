@@ -88,15 +88,7 @@ final class NearestVersionLocator {
 					logger.debug('Tag {} is at head. Including as candidate.', tag.fullName)
 					data = [version: version, distance: 0]
 				} else {
-					// TODO after Grgit supports this get rid of the JGit refernces
-					def jgitRepo = grgit.repository.jgit.repo
-					def revWalk = new RevWalk(jgitRepo)
-
-					def headCommit = revWalk.lookupCommit(jgitRepo.resolve(head.id))
-					def tagCommit = revWalk.lookupCommit(jgitRepo.resolve(tag.commit.id))
-					def ancestor = revWalk.isMergedInto(tagCommit, headCommit)
-
-					if (ancestor) {
+					if (grgit.isAncestorOf(tag, head)) {
 						logger.debug('Tag {} is an ancestor of HEAD. Including as a candidate.', tag.name)
 						def reachableCommitLog = grgit.log {
 							range tag.commit.id, head.id
