@@ -147,5 +147,6 @@ class NearestVersionLocatorSpec extends Specification {
 		println "Checkout out ${name}, which is at ${atCommit.abbreviatedId}"
 		assert currentHead != grgit.head()
 		assert atCommit == newHead
+		assert name == grgit.branch.current.name
 	}
 }

@@ -15,6 +15,8 @@
  */
 package org.ajoberstar.gradle.git.semver
 
+import java.security.SecureRandom
+
 import com.energizedwork.spock.extensions.TempDirectory
 
 import org.ajoberstar.grgit.Grgit
@@ -28,6 +30,8 @@ class InferredVersionSpec extends Specification {
 	@Shared File repoDir
 
 	@Shared Grgit grgit
+
+	@Shared SecureRandom random = new SecureRandom()
 
 	def setupSpec() {
 		grgit = Grgit.init(dir: repoDir)
@@ -120,7 +124,9 @@ class InferredVersionSpec extends Specification {
 	}
 
 	private void commit() {
-		new File(grgit.repository.rootDir, '1.txt') << '1'
+		byte[] bytes = new byte[128]
+		random.nextBytes(bytes)
+		new File(grgit.repository.rootDir, '1.txt') << bytes
 		grgit.add(patterns: ['1.txt'])
 		grgit.commit(message: 'do')
 	}

@@ -22,6 +22,8 @@ import com.github.zafarkhaja.semver.util.UnexpectedElementTypeException
 import org.ajoberstar.grgit.Commit
 import org.ajoberstar.grgit.Grgit
 
+import org.eclipse.jgit.revwalk.RevWalk
+
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
@@ -79,28 +81,31 @@ final class NearestVersionLocator {
 		Commit head = grgit.head()
 		List versionTags = grgit.tag.list().inject([]) { list, tag ->
 			Version version = parseAsVersion(tag.name)
-			logger.debug('Tag {} parsed as {} version.', tag.fullName, version)
+			logger.debug('Tag {} ({}) parsed as {} version.', tag.name, tag.commit.abbreviatedId, version)
 			if (version) {
 				def data
 				if (tag.commit == head) {
 					logger.debug('Tag {} is at head. Including as candidate.', tag.fullName)
 					data = [version: version, distance: 0]
 				} else {
-					def unreachableCommitLog = grgit.log {
-						range head.id, tag.commit.id
-					}
-					logger.debug('Unreachable commits in tag {}: {}', tag.fullName, unreachableCommitLog.collect { it.abbreviatedId })
-					def unreachableCommits = unreachableCommitLog.size()
-					if (unreachableCommits) {
-						logger.debug('Tag {} has {} unreachable commits. Excluding as candidate.', tag.fullName, unreachableCommits)
-					} else {
-						logger.debug('Tag {} has {} unreachable commits. Including as candidate.', tag.fullName, unreachableCommits)
+					// TODO after Grgit supports this get rid of the JGit refernces
+					def jgitRepo = grgit.repository.jgit.repo
+					def revWalk = new RevWalk(jgitRepo)
+
+					def headCommit = revWalk.lookupCommit(jgitRepo.resolve(head.id))
+					def tagCommit = revWalk.lookupCommit(jgitRepo.resolve(tag.commit.id))
+					def ancestor = revWalk.isMergedInto(tagCommit, headCommit)
+
+					if (ancestor) {
+						logger.debug('Tag {} is an ancestor of HEAD. Including as a candidate.', tag.name)
 						def reachableCommitLog = grgit.log {
 							range tag.commit.id, head.id
 						}
 						logger.debug('Reachable commits after tag {}: {}', tag.fullName, reachableCommitLog.collect { it.abbreviatedId })
 						def distance = reachableCommitLog.size()
 						data = [version: version, distance: distance]
+					} else {
+						logger.debug('Tag {} is not an ancestor of HEAD. Excluding as a candidate.', tag.name)
 					}
 				}
 				if (data) {
