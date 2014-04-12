@@ -59,7 +59,7 @@ class GithubPagesPlugin implements Plugin<Project> {
 			}
 			repo.add(patterns: ['.'], update: true)
 			repo.add(patterns: ['.'])
-			repo.commit(message: 'Publish of Github pages from Gradle.')
+			repo.commit(message: extension.commitMessage)
 			repo.push()
 		}
 	}

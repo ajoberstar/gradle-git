@@ -56,6 +56,12 @@ class GithubPagesPluginExtension implements AuthenticationSupported {
 	Object workingPath = "${project.buildDir}/ghpages"
 
 	/**
+	 * The message used when committing changes to Github pages branch.
+	 * Defaults to 'Publish of Github pages from Gradle.'.
+	 */
+	String commitMessage = 'Publish of Github pages from Gradle.'
+
+	/**
 	 * Constructs the plugin extension.
 	 * @param project the project to create
 	 * the extension for
