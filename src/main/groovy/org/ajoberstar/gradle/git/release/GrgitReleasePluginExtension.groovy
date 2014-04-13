@@ -52,6 +52,13 @@ class GrgitReleasePluginExtension {
 	boolean prefixTagNameWithV = true
 
 	/**
+	 * Closure to generate the message used when tagging releases.
+	 * Is passed {@link #version} after it is inferred. Should return
+	 * a string. Defaults to "Release of ${version}".
+	 */
+	Closure generateTagMessage = { version -> "Release of ${version}" }
+
+	/**
 	 * Tasks that should be executed before the release is tagged, branched, and
 	 * pushed to the remote. Defaults to an empty list.
 	 */
@@ -93,5 +100,14 @@ class GrgitReleasePluginExtension {
 		} else {
 			return null
 		}
+	}
+
+	/**
+	 * The message to use when tagging the release. Generated
+	 * from {@link #generateTagMessage}.
+	 * @return message to use in release tag
+	 */
+	String getTagMessage() {
+		return generateTagMessage(version)
 	}
 }

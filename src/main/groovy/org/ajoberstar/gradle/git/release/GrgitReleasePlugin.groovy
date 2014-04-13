@@ -134,7 +134,7 @@ class GrgitReleasePlugin implements Plugin<Project> {
 						ext.tagName = extension.tagName
 						if (tagName) {
 							logger.warn('Tagging repository as {}', tagName)
-							grgit.tag.add(name: tagName, message: "Release of ${extension.version}")
+							grgit.tag.add(name: tagName, message: extension.tagMessage)
 							toPush << tagName
 						}
 
