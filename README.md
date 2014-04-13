@@ -4,21 +4,27 @@ A set of plugins to support Git in the Gradle build tool.
 
 [![Build Status](https://travis-ci.org/ajoberstar/gradle-git.png?branch=master)](https://travis-ci.org/ajoberstar/gradle-git)
 
-There are two primary use cases for these plugins:
+There are three primary use cases for these plugins:
 * Publishing to a Github Pages website.  The `github-pages` plugin adds support
 for publishing static files to the `gh-pages` branch of a Git repository.
-* General Git actions.  The `gradle-git` JAR provides numerous tasks
-for basic Git functions that can be performed as part of your build.
+* Managing your release process. The `grgit-release` plugin adds an opinionated
+way to manage releases and comply with [Semantic Versioning](http://semver.org).
+* General Git actions.  This plugin JAR depends on, and makes available,
+[grgit](https://github.com/ajoberstar/grgit) which provides a Groovy API for
+interacting with Git repositories.
 
-For more information see the documentation in the next sections as well as
-the full list of tasks and plugins.
+For more information see the documentation in the next sections.
 
 **API Documentation:**
 
 * [Javadoc](http://ajoberstar.org/gradle-git/docs/javadoc)
 * [Groovydoc](http://ajoberstar.org/gradle-git/docs/groovydoc)
 
-Credit goes to [Peter Ledbrook](https://github.com/pledbrook) for the initial idea.
+Credit goes to [Peter Ledbrook](https://github.com/pledbrook) for the initial
+idea for the `github-pages` plugin.
+
+Thanks to [Zafar Khaja](https://github.com/zafarkhaja) for the very helpful
+[java-semver](https://github.com/zafarkhaja/java-semver) library.
 
 ## Adding the Plugins
 
@@ -34,10 +40,13 @@ Add the following lines to your build to use the `gradle-git` plugins.
       }
     }
 
+See the Release Notes at the bottom of this README for the available versions.
+
 ## Using Grgit
 
-If all you want to do is use a few of the tasks, there aren't any plugins
-to apply.  You merely need to start using the classes:
+For freeform access to a Git repository, you only need the dependency on
+`gradle-git`, no additional plugins need to be applied. Import the `grgit`
+package and start using a repository.
 
 ```groovy
 import org.ajoberstar.grgit.*
@@ -56,9 +65,19 @@ task tagRelease << {
 
 For details on the available methods/properties see the API docs of
 [Grgit](http://ajoberstar.org/grgit/docs/groovydoc/org/ajoberstar/grgit/Grgit.html).
-Examples of how to use each operation are provided.
+Examples of how to use each operation are provided there.
 
-## Using Github Pages
+### Authentication
+
+Grgit provides multiple ways to authenticate with remote repositories. If using hardcoded credentials, it is suggested to use the system properties rather than including them in the repository.
+
+See Grgit's [AuthConfig](http://ajoberstar.org/grgit/docs/groovydoc/org/ajoberstar/grgit/auth/AuthConfig.html) docs for information on the
+various authentication options.
+
+Methods that produce a `Grgit` instance, which includes `clone`, `init`, and `open`, all take a `Credentials` instance if
+you want to provide hardcoded credentials programmatically.
+
+## github-pages
 
 ```groovy
 apply plugin: 'github-pages'
@@ -71,20 +90,213 @@ githubPages {
 }
 ```
 
-See the [GithubPagesPluginExtension](http://ajoberstar.org/gradle-git/docs/groovydoc/org/ajoberstar/gradle/git/plugins/GithubPagesPluginExtension.html) docs for information on the defaults.
+See the [GithubPagesPluginExtension](http://ajoberstar.org/gradle-git/docs/groovydoc/org/ajoberstar/gradle/git/ghpages/GithubPagesPluginExtension.html) docs for information on the defaults.
 
 The plugin adds a single `publishGhPages` task that will clone the
 repository, copy in the files in the `pages` `CopySpec`, add all of
 the changes, commit, and push back to the remote.
 
-## Authentication
+## grgit-release
 
-Grgit provides multiple ways to authenticate with remote repositories. If using hardcoded credentials, it is suggested to use the system properties rather than including them in the repository.
+### Other Options for Gradle Release Plugins
 
-See Grgit's [AuthConfig](http://ajoberstar.org/grgit/docs/groovydoc/org/ajoberstar/grgit/auth/AuthConfig.html) docs for information on the
-various authentication options.
+Before describing this plugins functionality I want to point out the other plugins available (that I'm aware of):
 
-#### Travis CI Notes
+* [townsfolk/gradle-release](https://github.com/townsfolk/gradle-release) - designed to work like the Maven Release
+plugin. If that's what you're looking for this is your best option.
+* [ari/gradle-release-plugin](https://github.com/ari/gradle-release-plugin/) - Seems purely oriented around versioning
+the release and tagging it. Versions are generated dynamically based on current branch or tag.
+* [stianh/gradle-release-plugin](https://github.com/stianh/gradle-release-plugin) - Similar approach (and created before)
+the `ari` plugin. However, as of `4/13/14` it hasn't had any commits in 9 months.
+
+### Approach of grgit-release
+
+The `grgit-release` plugin is intended to be opinionated, and I am not trying to meet all needs. The core principles of
+this plugin are:
+
+* [Semantic versioning](http://semver.org) is the ideal way to version code (for most use cases).
+* A Git repository contains enough information to be able to build useful version numbers that comply with semver, with
+limited direction from the user. **The version should not need to be hardcoded into the source code.**
+
+The general functionality involves:
+
+1. Inferring the desired version based on the nearest tagged version(s) (similar to `git describe`) and the users input
+of the **scope** of the changes being made and what **stage** of development they are in.
+1. Ensuring all changes in the repository have been committed.
+1. Ensuring there aren't any commits in the upstream branch that haven't been merged yet.
+1. Validating that there have been commits since the nearest version. (Don't re-release with a different version.)
+1. Optionally, checking all Java/Groovy files for @since tags. If they exist, ensure that they match a version that has
+been tagged in the repository or the version that was just inferred.
+1. Execute whatever release tasks the user specified in the plugin configuration. (e.g. `build`, `publishToRepo`)
+1. Optionally, tag the release. Can be configured to only tag certain types of versions. (e.g. only `final` and `rc`)
+1. Push changes in current branch to the remote. If a tag was made it will also be pushed.
+
+### Applying the Plugin
+
+Only the `grgit` property is mandatory. `releaseTasks` should be filled in if
+you want the code built or published. Everything else has defaults, as noted
+below.
+
+```groovy
+apply plugin: 'grgit-release'
+
+import org.ajoberstar.grgit.*
+
+release {
+  grgit = Grgit.open(project.file('.'))
+  remote = 'upstream' // default is 'origin'
+  prefixTagNameWithV = false // default is true
+  releaseTasks = ['build', 'publishGhPages', 'bintrayUpload'] // defaults to []
+  enforceSinceTags = true // default is false
+
+  version {
+    untaggedStages = ['alpha'] // default is ['dev']
+    taggedStages = ['beta'] // default is ['milestone', 'rc']
+    useBuildMetadataForStage = { true } // default is { stage -> stage != 'final' }
+    createBuildMetadata = { new Date().format('yyyy.MM.dd.hh.mm.ss') } // default is { grgit.head().abbreviatedId }
+  }
+
+  generateTagMessage = { version -> // default is "Release of ${version}"
+    StringBuilder builder = new StringBuilder()
+    builder.append('Release of ')
+    builder.append(version)
+    builder.append('\n\n')
+    grgit.log {
+      range "v${version.nearest.normal.toString()}^{commit}", 'HEAD'
+    }.inject(builder) { bldr, commit ->
+      bldr.append('- ')
+      bldr.append(commit.shortMessage)
+      bldr.append('\n')
+    }
+    builder.toString()
+  }
+}
+```
+
+### Using the Plugin
+
+The two main concepts used as part of the version inference are:
+
+* A *normal* version in the parlance of semver is `<major>.<minor>.<patch>` without
+any pre-release info or build metadata.
+* The *nearest* version is determined by finding the shortest commit log between
+a tagged version and the current `HEAD`. In cases where there are multiple version
+tags with the same distance, they will be sorted according to semver rules and the
+one with the highest precedence will be returned.
+* **scope** - Changes can be either `MAJOR`, `MINOR`, or `PATCH`. These correspond
+to the portions of a semver version `<major>.<minor>.<patch>[.<pre-release>][+<build-metadata>]`
+* **stage** - Correspond to stages of development. The entirety of available stages is
+the union of `untaggedStages` and `taggedStages` with the addition of `final`. Stages will be
+used as part of the pre-release info in a version: `<stage>.<num>`.
+  * For untagged stages the `num` will correspond to the number of commits since the nearest
+  tagged normal version.
+  * For tagged stages the `num` will be incremented from the nearest version if it
+  has the same normal component and stage. Otherwise it will be set to 1.
+
+There are 2 task rules added to handle releases:
+* `ready<scope>VersionAs<stage>` - (e.g. `readyMinorVersionAsRc`) This will run before any
+other tasks in the build.
+  * Infers the version. If there have been no commits since the nearest version
+  the task will fail.
+  * Checks for changes in the repository. If there are any changes they will be
+  printed out and the task will fail.
+  * Fetches from remote.
+  * Checks current branch's tracking status to ensure it isn't behind. If it is
+  behind the task will fail.
+* `release<scope>VersionAs<stage>` - (e.g. `releasePatchVersionAsFinal`) This will run after
+any tasks specified in `releaseTasks` and the corresponding `ready<scope>VersionAs<Stage>`.
+  * Tags the version if `stage` is either `final` or in `taggedStages`.
+  * Pushes the current branch and, if created, the release tag to the remote.
+
+### Version Inference
+
+Versions will be inferred in the following ways:
+* If a `ready*` task is executed, the version will be inferred during its execution,
+using the **stage** and **scope** from the name of the task.
+* Otherwise, the version will be inferred as soon as the task graph has been populated.
+It will assume the scope is `PATCH` and the stage is the first entry in `untaggedStages`
+set.
+  * Given `untaggedStages` is a `SortedSet` and semver dictates lexicographical sorting
+  of non-numeric components, this should be the stage with the lowest precedence.
+
+If a build tries to access the version before it is inferred an `IllegalStateException`
+will be thrown.
+
+When a version is being inferred the first step is to find the nearest tagged version.
+
+1. All tags in the repository are listed.
+  * If the name cannot be parsed as a valid semver version, it is ignored.
+  * If the tag is not an ancestor of `HEAD`, it is ignored.
+1. A commit log is generated between the tag and `HEAD`.
+1. The tag with the smallest log is returned.
+  * In cases where there are multiple tags with the smallest log, they will be ordered
+  according to semver rules and the one with the highest precedence will be returned.
+
+This is completed to determine both the absolute nearest version and the nearest normal
+version.
+
+The normal component of the inferred version starts from the nearest
+normal version and the component corresponding to **scope** is incremented.
+
+e.g. If the nearest normal version is `1.3.2` and the absolute nearest version is
+`1.4.0-milestone.2`. Assume the stage is `rc` in all cases.
+
+| Scope   | Inferred Version |
+| ------  | ---------------- |
+| `PATCH` | `1.3.3-rc.1`     |
+| `MINOR` | `1.4.0-rc.1`     |
+| `MAJOR` | `2.0.0-rc.1`     |
+
+The pre-release component is based on the requested `stage`. Untagged stages
+are numbered by the count of commits since the nearest normal version. Tagged
+stages are numbered in incrementing order within a stage.
+
+e.g. If the nearest normal version is `1.3.2`, the absolute nearest version is
+`1.4.0-milestone.2`, and there have been 6 commits since `1.3.2`. Assume
+the scope is `MINOR` in all cases.
+
+| Stage       | Inferred Version    |
+| ----------- | ------------------- |
+| `dev`       | `1.4.0-dev.6`       |
+| `milestone` | `1.4.0-milestone.3` |
+| `rc         | `1.4.0-rc.1`        |
+
+
+The build-metadata is determined based on `useBuildMetadataForStage` and
+`createBuildMetadata`. If any is created it is appended to the version after
+a `+`. For example, with the defaults: `1.2.3-rc.1+123abcd
+
+### Validating @since Tags in Source Code
+
+An additional task (`validateSinceTags`) is added to enforce `@since` tags in
+Javadoc/Groovydoc comments. It defaults to checking all `.java` or `.groovy` files
+in the `main` source set. This task only runs if `release.enforceSinceTags` is set
+to `true`.
+
+The task will enforce that any `@since` tags used in the source code correspond to
+a version considered valid in the repository.
+
+For example, if the repository has the following tags:
+* v0.1.0
+* 0.2.1+gibberish
+* nonsense (for the purposes of version inference this wouldn't be considered, but
+it is here)
+
+Also assume that the user executed `releaseMinorVersionAsRc`. The only allowed
+values for `@since` tags would be:
+* 0.1.0
+* 0.2.1+gibberish (`v` prefixes should not be used)
+* nonsense
+* 0.3.0 (can use the target normal version)
+* 0.3.0-rc.1 (or the entire inferred version)
+
+```groovy
+validateSinceTags {
+  source += sourceSets.test.allJava // defaults to sourceSets.main.allJava
+}
+```
+
+## Travis CI Authentication Notes
 
 In case you plan to use Travis-CI make sure to follow the [travis guide on encrypted keys](http://docs.travis-ci.com/user/encryption-keys/)
 to setup an encrypted authentication token like the following:
@@ -113,6 +325,11 @@ githubPages {
 ```
 
 ## Release Notes
+
+**v0.8.0**
+* Updated `GithubPagesPluginExtension` to allow configuration of commit message
+used.
+* Added an opinionated release plugin `grgit-release`. See docs above for info.
 
 **v0.7.1**
 * Fixed `publishGhPages` to actually work. (Sorry about that...)
