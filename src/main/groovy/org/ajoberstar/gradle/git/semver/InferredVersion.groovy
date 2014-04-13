@@ -124,8 +124,10 @@ class InferredVersion {
 		NearestVersion nearest = NearestVersionLocator.locate(grgit)
 		logger.debug('Located nearest version: {}', nearest)
 
-		if (nearest.distance == 0) {
+		if (nearest.distanceFromNormal == 0) {
 			throw new IllegalStateException("No changes since ${nearest.normal}, nothing to release.")
+		} else if (nearest.distanceFromAny == 0) {
+			throw new IllegalStateException("No changes since ${nearest.any}, nothing to release.")
 		}
 
 		Version target = inferNormal(nearest.normal, scope)
@@ -134,7 +136,7 @@ class InferredVersion {
 			// do nothing
 		} else if (untaggedStages.contains(stage)) {
 			// use commit count
-			target = target.setPreReleaseVersion("${stage}.${nearest.distance}")
+			target = target.setPreReleaseVersion("${stage}.${nearest.distanceFromNormal}")
 		} else if (nearest.any.normalVersion == target.normalVersion && nearest.stage == stage) {
 			// increment pre-release
 			target = nearest.any.incrementPreReleaseVersion()

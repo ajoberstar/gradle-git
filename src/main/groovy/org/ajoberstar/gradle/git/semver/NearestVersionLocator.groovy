@@ -120,9 +120,10 @@ final class NearestVersionLocator {
 
 		Version anyVersion = any ? any.version : Version.valueOf('0.0.0')
 		Version normalVersion = normal ? normal.version : Version.valueOf('0.0.0')
-		int distance = normal ? normal.distance : grgit.log(includes: [head.id]).size()
+		int distanceFromAny = any ? any.distance : grgit.log(includes: [head.id]).size()
+		int distanceFromNormal = normal ? normal.distance : grgit.log(includes: [head.id]).size()
 
-		return new NearestVersion(anyVersion, normalVersion, distance)
+		return new NearestVersion(anyVersion, normalVersion, distanceFromAny, distanceFromNormal)
 	}
 
 	protected static Version parseAsVersion(String name) {

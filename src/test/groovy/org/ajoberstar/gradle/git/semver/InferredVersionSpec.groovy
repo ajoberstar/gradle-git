@@ -42,6 +42,8 @@ class InferredVersionSpec extends Specification {
 
 		commit()
 		grgit.tag.add(name: '0.0.1-milestone.3')
+
+		commit()
 		grgit.branch.add(name: 'no-normal')
 
 		commit()
@@ -80,6 +82,8 @@ class InferredVersionSpec extends Specification {
 
 		commit()
 		grgit.tag.add(name: '1.1.0-rc.1+abcde')
+
+		commit()
 	}
 
 	@Unroll('when on #head, #stage version of #scope change infers #expected')
@@ -101,7 +105,7 @@ class InferredVersionSpec extends Specification {
 		'unreachable' | 'patch' | 'final'     | '0.0.1'
 		'unreachable' | 'minor' | 'dev'       | '0.1.0-dev.2'
 		'unreachable' | 'major' | 'dev'       | '1.0.0-dev.2'
-		'no-normal'   | 'patch' | 'dev'       | '0.0.1-dev.3'
+		'no-normal'   | 'patch' | 'dev'       | '0.0.1-dev.4'
 		'no-normal'   | 'patch' | 'milestone' | '0.0.1-milestone.4'
 		'no-normal'   | 'patch' | 'rc'        | '0.0.1-rc.1'
 		'no-normal'   | 'patch' | 'final'     | '0.0.1'
@@ -119,7 +123,7 @@ class InferredVersionSpec extends Specification {
 		'RB_1.0'      | 'minor' | 'final'     | '1.1.0'
 		'RB_1.0'      | 'patch' | 'final'     | '1.0.1'
 		'RB_1.0'      | 'major' | 'final'     | '2.0.0'
-		'master'      | 'minor' | 'dev'       | '1.1.0-dev.1'
+		'master'      | 'minor' | 'dev'       | '1.1.0-dev.2'
 		'master'      | 'minor' | 'milestone' | '1.1.0-milestone.1'
 		'master'      | 'minor' | 'rc'        | '1.1.0-rc.2'
 		'master'      | 'minor' | 'final'     | '1.1.0'
@@ -127,7 +131,7 @@ class InferredVersionSpec extends Specification {
 		'master'      | 'major' | 'rc'        | '2.0.0-rc.1'
 	}
 
-	def 'cannot infer version if no changes since nearest normal'() {
+	def 'cannot infer version if no changes since nearest version'() {
 		given:
 		grgit.checkout(branch: 'RB_0.2')
 		def version = new InferredVersion()

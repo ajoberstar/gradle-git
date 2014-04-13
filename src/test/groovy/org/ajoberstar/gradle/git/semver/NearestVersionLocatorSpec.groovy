@@ -101,7 +101,7 @@ class NearestVersionLocatorSpec extends Specification {
 		def nearest = NearestVersionLocator.locate(grgit)
 		nearest.any == Version.valueOf(any)
 		nearest.normal == Version.valueOf(normal)
-		nearest.distance == distance
+		nearest.distanceFromNormal == distance
 		nearest.stage == stage
 		where:
 		head          | any                | normal                      | distance | stage

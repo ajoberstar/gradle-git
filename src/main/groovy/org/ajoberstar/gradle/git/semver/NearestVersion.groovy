@@ -37,9 +37,14 @@ class NearestVersion {
 	final Version normal
 
 	/**
+	 * The number of commits since {@code any} reachable from HEAD.
+	 */
+	final int distanceFromAny
+
+	/**
 	 * The number of commits since {@code normal} reachable from HEAD.
 	 */
-	final int distance
+	final int distanceFromNormal
 
 	/**
 	 * The pre-release stage of the {@code any} version.
