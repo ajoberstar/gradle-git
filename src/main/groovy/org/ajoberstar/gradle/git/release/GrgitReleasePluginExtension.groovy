@@ -52,26 +52,6 @@ class GrgitReleasePluginExtension {
 	boolean prefixTagNameWithV = true
 
 	/**
-	 * Closure to determine if a release branch should be created. Is passed the
-	 * inferred {@link com.github.zafarkhaja.semver.Version}. Should return
-	 * {@code true} if a branch should be created, {@code false} otherwise.
-	 * Defaults to returning true for final minor releases (e.g. 1.1.0 or 2.0.0,
-	 * not 1.2.0-rc.1 or 1.4.1).
-	 */
-	Closure branchReleaseIf = { version ->
-		version.preReleaseVersion.empty &&
-			version.patchVersion == 0
-	}
-
-	/**
-	 * Closure to determine the release branch name if {@link #branchReleaseIf}
-	 * returns {@code true}. Is passed the inferred {@link com.github.zafarkhaja.semver.Version}.
-	 * Should return the String name of the branch to create. Defaults to returning
-	 * {@code release-<major>.<minor>} (e.g. {@code release-3.1}).
-	 */
-	Closure determineBranchNameFor = { version -> "release-${version.majorVersion}.${version.minorVersion}" }
-
-	/**
 	 * Tasks that should be executed before the release is tagged, branched, and
 	 * pushed to the remote. Defaults to an empty list.
 	 */
@@ -105,13 +85,5 @@ class GrgitReleasePluginExtension {
 		} else {
 			return null
 		}
-	}
-
-	/**
-	 * Gets the branch name that will be used.
-	 * @return the release branch name
-	 */
-	String getBranchName() {
-		return branchReleaseIf(version.inferredVersion) ? determineBranchNameFor(version.inferredVersion) : null
 	}
 }

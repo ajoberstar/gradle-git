@@ -99,13 +99,6 @@ class GrgitReleasePlugin implements Plugin<Project> {
 							toPush << tagName
 						}
 
-						ext.branchName = extension.branchName
-						if (branchName) {
-							logger.warn('Creating release branch named {}', branchName)
-							grgit.branch.add(name: branchName)
-							toPush << branchName
-						}
-
 						logger.warn('Pushing changes in {} to {}', toPush, extension.remote)
 						grgit.push(remote: extension.remote, refsOrSpecs: toPush)
 					}
