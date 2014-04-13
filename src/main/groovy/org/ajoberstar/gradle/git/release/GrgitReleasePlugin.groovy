@@ -33,6 +33,7 @@ class GrgitReleasePlugin implements Plugin<Project> {
 		project.version = extension.version
 		addReadyVersionTaskRule(project, extension)
 		addReleaseTaskRule(project, extension)
+		addFallBackInferLogic(project, extension)
 	}
 
 	private void addReadyVersionTaskRule(Project project, GrgitReleasePluginExtension extension) {
@@ -64,7 +65,7 @@ class GrgitReleasePlugin implements Plugin<Project> {
 						}
 
 						extension.version.infer(m[0][1].toLowerCase(), m[0][2].toLowerCase())
-						logger.warn('Inferred version is {}', extension.version)
+						logger.warn('Inferred version as {}', extension.version)
 					}
 				}
 				project.tasks.all { task ->
@@ -105,6 +106,22 @@ class GrgitReleasePlugin implements Plugin<Project> {
 						grgit.push(remote: extension.remote, refsOrSpecs: toPush)
 					}
 				}
+			}
+		}
+	}
+
+	private void addFallBackInferLogic(Project project, GrgitReleasePluginExtension extension) {
+		project.gradle.taskGraph.whenReady { graph ->
+			def inferTask = graph.allTasks.find { task ->
+				task.name =~ /ready(.+)VersionAs(.+)/
+			}
+			if (!inferTask) {
+				// the first untagged stage should be the lowest precedence given semver rules
+				def stage = extension.version.untaggedStages.find()
+				def scope = 'patch'
+				logger.info('No ready<scope>VersionAs<stage> task requested. Inferring as {} {} release.', stage, scope)
+				extension.version.infer(scope, stage)
+				logger.warn('Inferred verison as {}', extension.version)
 			}
 		}
 	}
