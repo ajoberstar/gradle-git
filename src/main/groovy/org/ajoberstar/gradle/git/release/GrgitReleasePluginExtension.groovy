@@ -19,40 +19,54 @@ import com.github.zafarkhaja.semver.Version
 
 import org.ajoberstar.gradle.git.semver.InferredVersion
 import org.ajoberstar.grgit.Grgit
+import org.ajoberstar.grgit.util.ConfigureUtil
 
 import org.gradle.api.Project
 
 class GrgitReleasePluginExtension {
 	private final Project project
-	Grgit grgit
 
 	InferredVersion version = new InferredVersion()
+	Grgit grgit
+
+	String remote = 'origin'
 
 	Closure tagReleaseIf = { version -> version.preReleaseVersion.empty }
-	Closure createTagName = { version -> "v${version}" }
+	boolean prefixTagNameWithV = true
 
 	Closure branchReleaseIf = { version ->
 		version.preReleaseVersion.empty &&
 			version.patchVersion == 0 &&
 			version.minorVersion == 0
 	}
-	Closure createBranchName = { version -> "release-${version}" }
+	Closure determineBranchNameFor = { version -> "release-${version}" }
+
+	Iterable releaseTasks = []
 
 
 	GrgitReleasePluginExtension(Project project) {
 		this.project = project
-		this.grgit = Grgit.open(project.rootProject.file('.'))
+		this.repoDir = project.rootProject.file('.')
 	}
 
 	void version(Closure closure) {
+		ConfigureUtil.configure(version, closure)
+	}
 
+	void setGrgit(Grgit grgit) {
+		this.grgit = grgit
+		version.grgit = grgit
 	}
 
 	String getTagName(Version version) {
-		return tagRelease(version) ? tagName(version) : null
+		if (tagReleaseIf(version)) {
+			return prefixTagNameWithV ? "v${version}" : version
+		} else {
+			return null
+		}
 	}
 
 	String getBranchName(Version version) {
-		return branchRelease(version) ? branchName(version) : null
+		return branchReleaseIf(version) ? determineBranchNameFor(version) : null
 	}
 }

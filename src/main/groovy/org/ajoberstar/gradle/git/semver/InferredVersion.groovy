@@ -28,7 +28,7 @@ import org.slf4j.LoggerFactory
  *
  * <p>
  * Version will be inferred by finding the nearest tagged version using
- * {@link org.ajoberstar.gradle.git.semver.NearestVesrionLocator}. Based on
+ * {@link org.ajoberstar.gradle.git.semver.NearestVersionLocator}. Based on
  * the scope of the changes and the stage of their completion (both of which
  * must be provided to the {@link #infer(String, String)} method) the nearest
  * version will be incremented appropriately to result in the inferred version.
