@@ -177,9 +177,9 @@ release {
 
 The two main concepts used as part of the version inference are:
 
-* A *normal* version in the parlance of semver is `<major>.<minor>.<patch>` without
+* A **normal** version in the parlance of semver is `<major>.<minor>.<patch>` without
 any pre-release info or build metadata.
-* The *nearest* version is determined by finding the shortest commit log between
+* The **nearest** version is determined by finding the shortest commit log between
 a tagged version and the current `HEAD`. In cases where there are multiple version
 tags with the same distance, they will be sorted according to semver rules and the
 one with the highest precedence will be returned.
@@ -225,7 +225,7 @@ will be thrown.
 When a version is being inferred the first step is to find the nearest tagged version.
 
 1. All tags in the repository are listed.
-  * If the name cannot be parsed as a valid semver version, it is ignored.
+  * If the name cannot be parsed as a valid semver version, it is ignored. Prefixed `v`s will be removed.
   * If the tag is not an ancestor of `HEAD`, it is ignored.
 1. A commit log is generated between the tag and `HEAD`.
 1. The tag with the smallest log is returned.
@@ -259,19 +259,19 @@ the scope is `MINOR` in all cases.
 | ----------- | ------------------- |
 | `dev`       | `1.4.0-dev.6`       |
 | `milestone` | `1.4.0-milestone.3` |
-| `rc         | `1.4.0-rc.1`        |
-
+| `rc`        | `1.4.0-rc.1`        |
+| `final`     | `1.4.0`             |
 
 The build-metadata is determined based on `useBuildMetadataForStage` and
 `createBuildMetadata`. If any is created it is appended to the version after
-a `+`. For example, with the defaults: `1.2.3-rc.1+123abcd
+a `+`. For example, with the defaults: `1.2.3-rc.1+123abcd`
 
 ### Validating @since Tags in Source Code
 
 An additional task (`validateSinceTags`) is added to enforce `@since` tags in
 Javadoc/Groovydoc comments. It defaults to checking all `.java` or `.groovy` files
 in the `main` source set. This task only runs if `release.enforceSinceTags` is set
-to `true`.
+to `true`. By default this task will finalize the `read*` tasks.
 
 The task will enforce that any `@since` tags used in the source code correspond to
 a version considered valid in the repository.
