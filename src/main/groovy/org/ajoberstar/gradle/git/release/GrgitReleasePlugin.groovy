@@ -38,9 +38,6 @@ class GrgitReleasePlugin implements Plugin<Project> {
 				project.tasks.create(taskName) {
 					description = 'Ensures the project is ready to be released.'
 					doLast {
-						extension.version.infer(m[0][1].toLowerCase(), m[0][2].toLowerCase())
-						logger.warn('Inferred version is {}', extension.version)
-
 						logger.info('Checking for uncommitted changes in repo.')
 						ext.grgit = extension.grgit
 						ext.status = grgit.status()
@@ -61,6 +58,9 @@ class GrgitReleasePlugin implements Plugin<Project> {
 							println "Current branch is behind by ${branchStatus.behindCount} commits. Cannot proceed."
 							throw new IllegalStateException("Current branch is behind ${extension.remote}.")
 						}
+
+						extension.version.infer(m[0][1].toLowerCase(), m[0][2].toLowerCase())
+						logger.warn('Inferred version is {}', extension.version)
 					}
 				}
 				project.tasks.all { task ->
