@@ -58,6 +58,14 @@ class GrgitReleasePluginExtension {
 	Iterable releaseTasks = []
 
 	/**
+	 * Runs task to check that all @since tags in the source code point to a
+	 * version that has been tagged in the repository, matches the inferred
+	 * version (either the whole version or just the normal piece).
+	 * Defaults to {@code false}.
+	 */
+	boolean enforceSinceTags = false
+
+	/**
 	 * Configure the version. Delegates to {@link #version}.
 	 * @param closure a closure to configure the version
 	 */

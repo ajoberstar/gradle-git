@@ -17,6 +17,7 @@ package org.ajoberstar.gradle.git.release
 
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.api.plugins.JavaPlugin
 
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -31,9 +32,45 @@ class GrgitReleasePlugin implements Plugin<Project> {
 	void apply(Project project) {
 		GrgitReleasePluginExtension extension = project.extensions.create('release', GrgitReleasePluginExtension)
 		project.version = extension.version
+		addValidateSinceTagsTask(project, extension)
 		addReadyVersionTaskRule(project, extension)
 		addReleaseTaskRule(project, extension)
 		addFallBackInferLogic(project, extension)
+	}
+
+	private void addValidateSinceTagsTask(Project project, GrgitReleasePluginExtension extension) {
+		project.tasks.create('validateSinceTags') {
+			onlyIf { extension.enforceSinceTags }
+			ext.source = []
+			project.plugins.withType(JavaPlugin) {
+				source = project.sourceSets.main.allJava
+			}
+			doLast {
+				def tags = extension.grgit.tag.list()
+				def anyInvalid = false
+				source.each { file ->
+					file.readLines().eachWithIndex { line, index ->
+						def m = line =~ /@since\s+(\S+)/
+						if (m) {
+							def sinceVersion = m[0][1]
+							def target = extension.version.inferredVersion.toString()
+							def targetNormal = extension.version.inferredVersion.normalVersion.toString()
+							def anyTags = tags.any { tag -> [sinceVersion, "v${sinceVersion}".toString()].contains(tag.name) }
+							if ([target, targetNormal].contains(sinceVersion) || anyTags) {
+								logger.debug('Valid @since tag {} on line {} of file {}.', sinceVersion, index + 1, file)
+							} else {
+								logger.error('Inalid @since tag {} on line {} of file {}.', sinceVersion, index + 1, file)
+								anyInvalid = true
+							}
+						}
+					}
+				}
+				if (anyInvalid) {
+					throw new IllegalStateException("One or more files have invalid @since tags. See output above.")
+				}
+			}
+
+		}
 	}
 
 	private void addReadyVersionTaskRule(Project project, GrgitReleasePluginExtension extension) {
@@ -43,6 +80,9 @@ class GrgitReleasePlugin implements Plugin<Project> {
 				project.tasks.create(taskName) {
 					description = 'Ensures the project is ready to be released.'
 					doLast {
+						extension.version.infer(m[0][1].toLowerCase(), m[0][2].toLowerCase())
+						logger.warn('Inferred version as {}', extension.version)
+
 						logger.info('Checking for uncommitted changes in repo.')
 						ext.grgit = extension.grgit
 						ext.status = grgit.status()
@@ -64,16 +104,15 @@ class GrgitReleasePlugin implements Plugin<Project> {
 							throw new IllegalStateException("Current branch is behind ${extension.remote}.")
 						}
 
-						extension.version.infer(m[0][1].toLowerCase(), m[0][2].toLowerCase())
-						logger.warn('Inferred version as {}', extension.version)
-
 						if (!extension.version.releasable) {
 							throw new IllegalStateException("No changes since ${extension.version}. There is nothing to release.")
 						}
 					}
 				}
 				project.tasks.all { task ->
-					if (name != taskName) {
+					if (name == taskName) {
+						task.finalizedBy 'validateSinceTags'
+					} else {
 						task.mustRunAfter taskName
 					}
 				}
