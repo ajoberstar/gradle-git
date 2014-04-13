@@ -23,31 +23,82 @@ import org.ajoberstar.grgit.util.ConfigureUtil
 
 import org.gradle.api.Project
 
+/**
+ * Extension providing properties to configure the behavior of the GrgitReleasePlugin.
+ * @since 0.8.0
+ */
 class GrgitReleasePluginExtension {
+	/**
+	 * The version class that will be set on the project by default. When the
+	 * release is "readied" the intended version will be inferred from the
+	 * state of the repository.
+	 */
 	InferredVersion version = new InferredVersion()
+
+	/**
+	 * The repository to perform the release on.
+	 */
 	Grgit grgit
 
+	/**
+	 * The remote to fetch from and push to. Defaults to {@code origin}.
+	 */
 	String remote = 'origin'
 
+	/**
+	 * Whether or not to prefix release tag names with a "v". Defaults to
+	 * {@code true}.
+	 */
 	boolean prefixTagNameWithV = true
 
+	/**
+	 * Closure to determine if a release branch should be created. Is passed the
+	 * inferred {@link com.github.zafarkhaja.semver.Version}. Should return
+	 * {@code true} if a branch should be created, {@code false} otherwise.
+	 * Defaults to returning true for final minor releases (e.g. 1.1.0 or 2.0.0,
+	 * not 1.2.0-rc.1 or 1.4.1).
+	 */
 	Closure branchReleaseIf = { version ->
 		version.preReleaseVersion.empty &&
 			version.patchVersion == 0
 	}
+
+	/**
+	 * Closure to determine the release branch name if {@link #branchReleaseIf}
+	 * returns {@code true}. Is passed the inferred {@link com.github.zafarkhaja.semver.Version}.
+	 * Should return the String name of the branch to create. Defaults to returning
+	 * {@code release-<major>.<minor>} (e.g. {@code release-3.1}).
+	 */
 	Closure determineBranchNameFor = { version -> "release-${version.majorVersion}.${version.minorVersion}" }
 
+	/**
+	 * Tasks that should be executed before the release is tagged, branched, and
+	 * pushed to the remote. Defaults to an empty list.
+	 */
 	Iterable releaseTasks = []
 
+	/**
+	 * Configure the version. Delegates to {@link #version}.
+	 * @param closure a closure to configure the version
+	 */
 	void version(Closure closure) {
 		ConfigureUtil.configure(version, closure)
 	}
 
+	/**
+	 * Sets the repository to use on both this extension and the underlying
+	 * {@link #version}.
+	 * @param grgit the repository to use
+	 */
 	void setGrgit(Grgit grgit) {
 		this.grgit = grgit
 		version.grgit = grgit
 	}
 
+	/**
+	 * Gets the tag name that will be used.
+	 * @return the release tag name
+	 */
 	String getTagName() {
 		if ((version.taggedStages + ['final']).contains(version.stage)) {
 			return prefixTagNameWithV ? "v${version}" : version
@@ -56,6 +107,10 @@ class GrgitReleasePluginExtension {
 		}
 	}
 
+	/**
+	 * Gets the branch name that will be used.
+	 * @return the release branch name
+	 */
 	String getBranchName() {
 		return branchReleaseIf(version.inferredVersion) ? determineBranchNameFor(version.inferredVersion) : null
 	}

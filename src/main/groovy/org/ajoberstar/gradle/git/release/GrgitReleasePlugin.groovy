@@ -21,6 +21,10 @@ import org.gradle.api.Project
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
+/**
+ * Plugin providing opinionated release functionality for Git projects.
+ * @since 0.8.0
+ */
 class GrgitReleasePlugin implements Plugin<Project> {
 	private static final Logger logger = LoggerFactory.getLogger(GrgitReleasePlugin)
 
