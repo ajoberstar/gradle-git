@@ -53,6 +53,7 @@ class InferredVersionSpec extends Specification {
 		commit()
 		commit()
 		grgit.tag.add(name: '0.2.0')
+		grgit.branch.add(name: 'RB_0.2')
 
 		grgit.checkout(branch: 'RB_0.1')
 
@@ -72,7 +73,10 @@ class InferredVersionSpec extends Specification {
 
 		commit()
 		grgit.tag.add(name: 'v1.0.0')
-		grgit.branch.add(name: 'RB_1.0')
+		grgit.checkout(branch: 'RB_1.0', createBranch: true)
+
+		commit()
+		grgit.checkout(branch: 'master')
 
 		commit()
 		grgit.tag.add(name: '1.1.0-rc.1+abcde')
@@ -109,7 +113,7 @@ class InferredVersionSpec extends Specification {
 		'RB_0.1'      | 'patch' | 'final'     | '0.1.2'
 		'RB_0.1'      | 'minor' | 'final'     | '0.2.0'
 		'RB_0.1'      | 'major' | 'final'     | '1.0.0'
-		'RB_1.0'      | 'minor' | 'dev'       | '1.1.0-dev.0'
+		'RB_1.0'      | 'minor' | 'dev'       | '1.1.0-dev.1'
 		'RB_1.0'      | 'minor' | 'milestone' | '1.1.0-milestone.1'
 		'RB_1.0'      | 'minor' | 'rc'        | '1.1.0-rc.1'
 		'RB_1.0'      | 'minor' | 'final'     | '1.1.0'
@@ -121,6 +125,17 @@ class InferredVersionSpec extends Specification {
 		'master'      | 'minor' | 'final'     | '1.1.0'
 		'master'      | 'patch' | 'rc'        | '1.0.1-rc.1'
 		'master'      | 'major' | 'rc'        | '2.0.0-rc.1'
+	}
+
+	def 'cannot infer version if no changes since nearest normal'() {
+		given:
+		grgit.checkout(branch: 'RB_0.2')
+		def version = new InferredVersion()
+		version.grgit = grgit
+		when:
+		version.infer('patch', 'dev')
+		then:
+		thrown(IllegalStateException)
 	}
 
 	private void commit() {

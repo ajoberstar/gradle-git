@@ -29,15 +29,13 @@ class GrgitReleasePluginExtension {
 
 	String remote = 'origin'
 
-	Closure tagReleaseIf = { version -> version.preReleaseVersion.empty }
 	boolean prefixTagNameWithV = true
 
 	Closure branchReleaseIf = { version ->
 		version.preReleaseVersion.empty &&
-			version.patchVersion == 0 &&
-			version.minorVersion == 0
+			version.patchVersion == 0
 	}
-	Closure determineBranchNameFor = { version -> "release-${version}" }
+	Closure determineBranchNameFor = { version -> "release-${version.majorVersion}.${version.minorVersion}" }
 
 	Iterable releaseTasks = []
 
@@ -51,16 +49,14 @@ class GrgitReleasePluginExtension {
 	}
 
 	String getTagName() {
-		Version inferredVersion = version.inferredVersion
-		if (tagReleaseIf(inferredVersion)) {
-			return prefixTagNameWithV ? "v${inferredVersion}" : inferredVersion
+		if ((version.taggedStages + ['final']).contains(version.stage)) {
+			return prefixTagNameWithV ? "v${version}" : version
 		} else {
 			return null
 		}
 	}
 
 	String getBranchName() {
-		Version inferredVersion = version.inferredVersion
-		return branchReleaseIf(inferredVersion) ? determineBranchNameFor(inferredVersion) : null
+		return branchReleaseIf(version.inferredVersion) ? determineBranchNameFor(version.inferredVersion) : null
 	}
 }

@@ -56,6 +56,8 @@ import org.slf4j.LoggerFactory
 class InferredVersion {
 	private static final Logger logger = LoggerFactory.getLogger(InferredVersion)
 	private Version inferredVersion = null
+	private ChangeScope scope
+	private String stage
 
 	/**
 	 * The git repository to infer from.
@@ -115,10 +117,17 @@ class InferredVersion {
 		} else if (!getAllStages().contains(stage)) {
 			throw new IllegalArgumentException("Invalid stage (${stage}). Must use one of: ${getAllStages()}")
 		}
+		this.scope = scope
+		this.stage = stage
 		logger.debug('Beginning version inference for {} version of {} change', stage, scope)
 
 		NearestVersion nearest = NearestVersionLocator.locate(grgit)
 		logger.debug('Located nearest version: {}', nearest)
+
+		if (nearest.distance == 0) {
+			throw new IllegalStateException("No changes since ${nearest.normal}, nothing to release.")
+		}
+
 		Version target = inferNormal(nearest.normal, scope)
 		logger.debug('Inferred target normal version: {}', target)
 		if (stage == 'final') {
@@ -157,6 +166,22 @@ class InferredVersion {
 	Version getInferredVersion() {
 		if (inferredVersion) {
 			return inferredVersion
+		} else {
+			throw new IllegalStateException("Version has not been inferred.")
+		}
+	}
+
+	ChangeScope getScope() {
+		if (inferredVersion) {
+			return scope
+		} else {
+			throw new IllegalStateException("Version has not been inferred.")
+		}
+	}
+
+	String getStage() {
+		if (inferredVersion) {
+			return stage
 		} else {
 			throw new IllegalStateException("Version has not been inferred.")
 		}
