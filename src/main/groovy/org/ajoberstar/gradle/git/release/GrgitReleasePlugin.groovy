@@ -66,6 +66,10 @@ class GrgitReleasePlugin implements Plugin<Project> {
 
 						extension.version.infer(m[0][1].toLowerCase(), m[0][2].toLowerCase())
 						logger.warn('Inferred version as {}', extension.version)
+
+						if (!extension.version.releasable) {
+							throw new IllegalStateException("No changes since ${extension.version}. There is nothing to release.")
+						}
 					}
 				}
 				project.tasks.all { task ->
