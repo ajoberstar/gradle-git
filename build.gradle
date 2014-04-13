@@ -29,7 +29,6 @@ sourceCompatibility = '1.7'
 repositories {
 	jcenter()
 	mavenCentral()
-	maven { url 'http://dl.bintray.com/robfletcher/maven' }
 }
 
 dependencies {
