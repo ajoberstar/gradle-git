@@ -14,7 +14,7 @@ apply plugin: 'ajoberstar'
 
 group = 'org.ajoberstar'
 description = 'Git plugins for Gradle'
-version = '0.8.0-SNAPSHOT'
+version = '0.8.0'
 
 ajoberstar {
 	friendlyName = 'Gradle Git Plugin'
