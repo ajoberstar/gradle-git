@@ -75,6 +75,7 @@ class NearestVersionLocatorSpec extends Specification {
 		commit()
 		// grgit.tag.add(name: 'v0.1.2-beta.1')
 		addTag('v0.1.2-beta.1')
+		addTag('v0.1.2-alpha.1')
 
 		commit()
 		commit()
@@ -85,6 +86,7 @@ class NearestVersionLocatorSpec extends Specification {
 		commit()
 		// grgit.tag.add(name: 'v1.0.0')
 		addTag('v1.0.0')
+		addTag('v1.0.0-rc.3')
 		// grgit.branch.add(name: 'RB_1.0')
 		addBranch('RB_1.0')
 

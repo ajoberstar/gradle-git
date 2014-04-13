@@ -61,8 +61,11 @@ final class NearestVersionLocator {
 	 * The nearest tag is determined by getting a commit log between
 	 * the tag and {@code HEAD}. The version tag with the smallest
 	 * log from a pure count of commits will have its version returned. If two
-	 * version tags have a log of the same size, it is undefined which will be
-	 * returned.
+	 * version tags have a log of the same size, the versions will be compared
+	 * to find the one with the highest precedence according to semver rules.
+	 * For example, {@code 1.0.0} has higher precedence than {@code 1.0.0-rc.2}.
+	 * For tags with logs of the same size and versions of the same precedence
+	 * it is undefined which will be returned.
 	 * </p>
 	 *
 	 * <p>
@@ -110,12 +113,12 @@ final class NearestVersionLocator {
 
 		Map normal = versionTags.findAll { versionTag ->
 			versionTag.version.preReleaseVersion.empty
-		}.min { versionTag ->
-			versionTag.distance
+		}.min { a, b ->
+			a.distance <=> b.distance ?: (a.version <=> b.version) * -1
 		}
 
-		Map any = versionTags.min { versionTag ->
-			versionTag.distance
+		Map any = versionTags.min { a, b ->
+			a.distance <=> b.distance ?: (a.version <=> b.version) * -1
 		}
 
 		Version anyVersion = any ? any.version : Version.valueOf('0.0.0')

@@ -58,6 +58,7 @@ class InferredVersion {
 	private Version inferredVersion = null
 	private ChangeScope scope
 	private String stage
+	private boolean releasable
 
 	/**
 	 * The git repository to infer from.
@@ -124,32 +125,32 @@ class InferredVersion {
 		NearestVersion nearest = NearestVersionLocator.locate(grgit)
 		logger.debug('Located nearest version: {}', nearest)
 
-		if (nearest.distanceFromNormal == 0) {
-			throw new IllegalStateException("No changes since ${nearest.normal}, nothing to release.")
-		} else if (nearest.distanceFromAny == 0) {
-			throw new IllegalStateException("No changes since ${nearest.any}, nothing to release.")
-		}
+		this.releasable = nearest.distanceFromAny > 0
+		if (releasable) {
+			Version target = inferNormal(nearest.normal, scope)
+			logger.debug('Inferred target normal version: {}', target)
+			if (stage == 'final') {
+				// do nothing
+			} else if (untaggedStages.contains(stage)) {
+				// use commit count
+				target = target.setPreReleaseVersion("${stage}.${nearest.distanceFromNormal}")
+			} else if (nearest.any.normalVersion == target.normalVersion && nearest.stage == stage) {
+				// increment pre-release
+				target = nearest.any.incrementPreReleaseVersion()
+			} else {
+				// first version for stage
+				target = target.setPreReleaseVersion("${stage}.1")
+			}
 
-		Version target = inferNormal(nearest.normal, scope)
-		logger.debug('Inferred target normal version: {}', target)
-		if (stage == 'final') {
-			// do nothing
-		} else if (untaggedStages.contains(stage)) {
-			// use commit count
-			target = target.setPreReleaseVersion("${stage}.${nearest.distanceFromNormal}")
-		} else if (nearest.any.normalVersion == target.normalVersion && nearest.stage == stage) {
-			// increment pre-release
-			target = nearest.any.incrementPreReleaseVersion()
+			if (useBuildMetadataForStage(stage)) {
+				target = target.setBuildMetadata(createBuildMetadata())
+			}
+			logger.info('Inferred version {} for {} {} change.', target, stage, scope)
+			inferredVersion = target
 		} else {
-			// first version for stage
-			target = target.setPreReleaseVersion("${stage}.1")
+			logger.info('No changes since {}, using that version.', nearest.any)
+			inferredVersion = nearest.any
 		}
-
-		if (useBuildMetadataForStage(stage)) {
-			target = target.setBuildMetadata(createBuildMetadata())
-		}
-		logger.info('Inferred version {} for {} {} change.', target, stage, scope)
-		inferredVersion = target
 	}
 
 	private Version inferNormal(Version previous, ChangeScope scope) {
@@ -184,6 +185,14 @@ class InferredVersion {
 	String getStage() {
 		if (inferredVersion) {
 			return stage
+		} else {
+			throw new IllegalStateException("Version has not been inferred.")
+		}
+	}
+
+	boolean getReleasable() {
+		if (inferredVersion) {
+			return releasable
 		} else {
 			throw new IllegalStateException("Version has not been inferred.")
 		}

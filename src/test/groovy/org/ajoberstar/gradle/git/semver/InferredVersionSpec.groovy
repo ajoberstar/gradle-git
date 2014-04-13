@@ -97,6 +97,7 @@ class InferredVersionSpec extends Specification {
 		version.infer(scope, stage)
 		then:
 		version.toString() == expected
+		version.releasable
 		where:
 		head          | scope   | stage       | expected
 		'unreachable' | 'patch' | 'dev'       | '0.0.1-dev.2'
@@ -131,15 +132,23 @@ class InferredVersionSpec extends Specification {
 		'master'      | 'major' | 'rc'        | '2.0.0-rc.1'
 	}
 
-	def 'cannot infer version if no changes since nearest version'() {
+	def 'infers a non-releasable version if no changes since nearest version'() {
 		given:
-		grgit.checkout(branch: 'RB_0.2')
+		grgit.checkout(branch: head)
 		def version = new InferredVersion()
+		version.useBuildMetadataForStage = { false }
 		version.grgit = grgit
 		when:
-		version.infer('patch', 'dev')
+		version.infer(scope, stage)
 		then:
-		thrown(IllegalStateException)
+		version.toString() == expected
+		!version.releasable
+		where:
+		head          | scope   | stage       | expected
+		'RB_0.2'      | 'patch' | 'dev'       | '0.2.0'
+		'RB_0.2'      | 'patch' | 'final'     | '0.2.0'
+		'RB_0.2'      | 'minor' | 'milestone' | '0.2.0'
+		'RB_0.2'      | 'major' | 'rc'        | '0.2.0'
 	}
 
 	private void commit() {
