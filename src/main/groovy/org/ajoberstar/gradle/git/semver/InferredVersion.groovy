@@ -60,6 +60,8 @@ class InferredVersion {
 	private String stage
 	private boolean releasable
 
+	private NearestVersion nearest = null
+
 	/**
 	 * The git repository to infer from.
 	 */
@@ -122,7 +124,7 @@ class InferredVersion {
 		this.stage = stage
 		logger.debug('Beginning version inference for {} version of {} change', stage, scope)
 
-		NearestVersion nearest = NearestVersionLocator.locate(grgit)
+		this.nearest = NearestVersionLocator.locate(grgit)
 		logger.debug('Located nearest version: {}', nearest)
 
 		this.releasable = nearest.distanceFromAny > 0
@@ -193,6 +195,18 @@ class InferredVersion {
 	boolean getReleasable() {
 		if (inferredVersion) {
 			return releasable
+		} else {
+			throw new IllegalStateException("Version has not been inferred.")
+		}
+	}
+
+	/**
+	 * The nearest version that was found in the repository.
+	 * @return the nearest version
+	 */
+	NearestVersion getNearest() {
+		if (inferredVersion) {
+			return nearest
 		} else {
 			throw new IllegalStateException("Version has not been inferred.")
 		}
