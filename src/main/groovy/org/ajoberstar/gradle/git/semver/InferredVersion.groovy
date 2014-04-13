@@ -92,7 +92,7 @@ class InferredVersion {
 	 * Will called with no arguments and should return a String representing
 	 * the build metadata for this version.
 	 */
-	Closure<String> createBuildMetadata = { grgit.head().id }
+	Closure<String> createBuildMetadata = { grgit.head().abbreviatedId }
 
 	/**
 	 * Infers the version using the given arguments.
@@ -113,7 +113,7 @@ class InferredVersion {
 		if (scope == null) {
 			throw new IllegalArgumentException('Scope cannot be null.')
 		} else if (!getAllStages().contains(stage)) {
-			throw new IllegalArgumentException('Invalid stage (${stage}). Must use one of: ${getAllStages()}')
+			throw new IllegalArgumentException("Invalid stage (${stage}). Must use one of: ${getAllStages()}")
 		}
 		logger.debug('Beginning version inference for {} version of {} change', stage, scope)
 
@@ -151,6 +151,14 @@ class InferredVersion {
 				return previous.incrementPatchVersion()
 			default:
 				throw new IllegalArgumentException("Invalid scope: ${scope}")
+		}
+	}
+
+	Version getInferredVersion() {
+		if (inferredVersion) {
+			return inferredVersion
+		} else {
+			throw new IllegalStateException("Version has not been inferred.")
 		}
 	}
 

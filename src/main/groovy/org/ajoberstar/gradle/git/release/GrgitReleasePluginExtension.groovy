@@ -24,8 +24,6 @@ import org.ajoberstar.grgit.util.ConfigureUtil
 import org.gradle.api.Project
 
 class GrgitReleasePluginExtension {
-	private final Project project
-
 	InferredVersion version = new InferredVersion()
 	Grgit grgit
 
@@ -43,12 +41,6 @@ class GrgitReleasePluginExtension {
 
 	Iterable releaseTasks = []
 
-
-	GrgitReleasePluginExtension(Project project) {
-		this.project = project
-		this.repoDir = project.rootProject.file('.')
-	}
-
 	void version(Closure closure) {
 		ConfigureUtil.configure(version, closure)
 	}
@@ -58,15 +50,17 @@ class GrgitReleasePluginExtension {
 		version.grgit = grgit
 	}
 
-	String getTagName(Version version) {
-		if (tagReleaseIf(version)) {
-			return prefixTagNameWithV ? "v${version}" : version
+	String getTagName() {
+		Version inferredVersion = version.inferredVersion
+		if (tagReleaseIf(inferredVersion)) {
+			return prefixTagNameWithV ? "v${inferredVersion}" : inferredVersion
 		} else {
 			return null
 		}
 	}
 
-	String getBranchName(Version version) {
-		return branchReleaseIf(version) ? determineBranchNameFor(version) : null
+	String getBranchName() {
+		Version inferredVersion = version.inferredVersion
+		return branchReleaseIf(inferredVersion) ? determineBranchNameFor(inferredVersion) : null
 	}
 }
