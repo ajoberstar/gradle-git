@@ -40,7 +40,7 @@ dependencies {
 	compile gradleApi()
 
 	// grgit
-	compile 'org.ajoberstar:grgit:0.2.2-beta.3'
+	compile 'org.ajoberstar:grgit:0.2.2'
 
 	// semver
 	compile 'com.github.zafarkhaja:java-semver:0.7.2'
