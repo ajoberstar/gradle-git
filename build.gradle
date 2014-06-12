@@ -14,7 +14,7 @@ apply plugin: 'ajoberstar'
 
 group = 'org.ajoberstar'
 description = 'Git plugins for Gradle'
-version = '0.8.0'
+version = '0.9.0'
 
 ajoberstar {
 	friendlyName = 'Gradle Git Plugin'
@@ -39,7 +39,7 @@ dependencies {
 	compile gradleApi()
 
 	// grgit
-	compile 'org.ajoberstar:grgit:0.2.2'
+	compile 'org.ajoberstar:grgit:0.2.3'
 
 	// semver
 	compile 'com.github.zafarkhaja:java-semver:0.7.2'

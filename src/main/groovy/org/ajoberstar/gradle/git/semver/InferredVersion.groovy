@@ -19,6 +19,8 @@ import com.github.zafarkhaja.semver.Version
 
 import org.ajoberstar.grgit.Grgit
 
+import org.gradle.api.Project
+
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
@@ -55,6 +57,10 @@ import org.slf4j.LoggerFactory
  */
 class InferredVersion {
 	private static final Logger logger = LoggerFactory.getLogger(InferredVersion)
+	private static final SCOPE_PROP_NAME = 'release.scope'
+	private static final STAGE_PROP_NAME = 'release.stage'
+
+	private final Project project
 	private Version inferredVersion = null
 	private ChangeScope scope
 	private String stage
@@ -99,6 +105,27 @@ class InferredVersion {
 	 */
 	Closure<String> createBuildMetadata = { grgit.head().abbreviatedId }
 
+	InferredVersion(Project project) {
+		this.project = project
+	}
+
+	/**
+	 * Infers the version using project properties {@code release.scope} and
+	 * {@code release.stage} or falls back to a scope of {@code patch} or the
+	 * lowest precedence stage from {@code untaggedStages}.
+	 */
+	void infer() {
+		def stage
+		if (project.hasProperty(STAGE_PROP_NAME)) {
+			stage = project[STAGE_PROP_NAME]
+		} else {
+			// the first untagged stage should be the lowest precedence given semver rules
+			stage = untaggedStages.find()
+		}
+		def scope = project.hasProperty(SCOPE_PROP_NAME) ? project[SCOPE_PROP_NAME] : 'patch'
+		infer(scope, stage)
+	}
+
 	/**
 	 * Infers the version using the given arguments.
 	 * @param scope the scope of the change. Must be a string matching one of
@@ -122,7 +149,7 @@ class InferredVersion {
 		}
 		this.scope = scope
 		this.stage = stage
-		logger.debug('Beginning version inference for {} version of {} change', stage, scope)
+		logger.info('Beginning version inference for {} version of {} change', stage, scope)
 
 		this.nearest = NearestVersionLocator.locate(grgit)
 		logger.debug('Located nearest version: {}', nearest)
@@ -147,10 +174,10 @@ class InferredVersion {
 			if (useBuildMetadataForStage(stage)) {
 				target = target.setBuildMetadata(createBuildMetadata())
 			}
-			logger.info('Inferred version {} for {} {} change.', target, stage, scope)
+			logger.warn('Inferred version {} for {} {} change.', target, stage, scope)
 			inferredVersion = target
 		} else {
-			logger.info('No changes since {}, using that version.', nearest.any)
+			logger.warn('No committed changes since {}, using that version.', nearest.any)
 			inferredVersion = nearest.any
 		}
 	}
@@ -224,11 +251,11 @@ class InferredVersion {
 
 	@Override
 	String toString() {
-		if (inferredVersion) {
-			return inferredVersion
-		} else {
-			throw new IllegalStateException("Version has not been inferred.")
+		if (!inferredVersion) {
+			logger.info('Version being inferred due to call to toString')
+			infer()
 		}
+		return inferredVersion
 	}
 
 	static enum ChangeScope {

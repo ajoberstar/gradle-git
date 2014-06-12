@@ -193,34 +193,43 @@ used as part of the pre-release info in a version: `<stage>.<num>`.
   * For tagged stages the `num` will be incremented from the nearest version if it
   has the same normal component and stage. Otherwise it will be set to 1.
 
-There are 2 task rules added to handle releases:
-* `ready<scope>VersionAs<stage>` - (e.g. `readyMinorVersionAsRc`) This will run before any
-other tasks in the build.
-  * Infers the version. If there have been no commits since the nearest version
-  the task will fail.
+The version is determined using two project properties:
+
+* `release.scope` - defaults to the `patch` if none specified.
+* `release.stage` - defaults to the first entry in `untaggedStages`.
+** Given `untaggedStages` is a `SortedSet` and semver dictates lexicographical sorting
+of non-numeric components, this should be the stage with the lowest precedence.
+
+There are 2 tasks that are added to handle releases:
+* `prepare` This will run before any other tasks in the build.
+  * If there have been no commits since the nearest version the task will fail.
   * Checks for changes in the repository. If there are any changes they will be
   printed out and the task will fail.
   * Fetches from remote.
   * Checks current branch's tracking status to ensure it isn't behind. If it is
   behind the task will fail.
-* `release<scope>VersionAs<stage>` - (e.g. `releasePatchVersionAsFinal`) This will run after
-any tasks specified in `releaseTasks` and the corresponding `ready<scope>VersionAs<Stage>`.
+* `release` - This will run after any tasks specified in `releaseTasks` and the `prepare` task.
   * Tags the version if `stage` is either `final` or in `taggedStages`.
   * Pushes the current branch and, if created, the release tag to the remote.
 
+#### Example Usage
+
+* `./gradlew release -Prelease.scope=major -Prelease.stage=final`
+* `./gradlew release -Prelease.stage=rc` - default to `patch` scope
+* `./gradlew release -Prelease.scope=minor` - default to `dev` stage
+* `./gradlew release` - default to `patch` scope and `dev` stage
+
+The release task does not have to be included for version inference to occur.
+
+NOTE: If preferred, the `release.scope` and/or `release.stage` can be versioned
+in the project's `gradle.properties`.
+
 ### Version Inference
 
-Versions will be inferred in the following ways:
-* If a `ready*` task is executed, the version will be inferred during its execution,
-using the **stage** and **scope** from the name of the task.
-* Otherwise, the version will be inferred as soon as the task graph has been populated.
-It will assume the scope is `PATCH` and the stage is the first entry in `untaggedStages`
-set.
-  * Given `untaggedStages` is a `SortedSet` and semver dictates lexicographical sorting
-  of non-numeric components, this should be the stage with the lowest precedence.
-
-If a build tries to access the version before it is inferred an `IllegalStateException`
-will be thrown.
+The version will be inferred as soon as `toString()` is called on the version,
+which should correspond to the first usage of the version. It will be inferred
+using the `release.scope` and `release.stage` properties, or their corresponding
+defaults.
 
 When a version is being inferred the first step is to find the nearest tagged version.
 
@@ -282,8 +291,8 @@ For example, if the repository has the following tags:
 * nonsense (for the purposes of version inference this wouldn't be considered, but
 it is here)
 
-Also assume that the user executed `releaseMinorVersionAsRc`. The only allowed
-values for `@since` tags would be:
+Also assume that the user executed `release -Prelease.scope=minor -Prelease.stage=rc`.
+The only allowed values for `@since` tags would be:
 * 0.1.0
 * 0.2.1+gibberish (`v` prefixes should not be used)
 * nonsense
@@ -325,6 +334,18 @@ githubPages {
 ```
 
 ## Release Notes
+
+**v0.9.0**
+
+* Breaking change for the `grgit-release` plugin.
+** The `ready<Scope>As<Stage>` and `release<Scope>As<Stage>` tasks were replaced
+by a `prepare` and a `release` task.
+** Scope and stage are now provided by project properties `release.scope` and
+`release.stage`.
+** Version inference happens when `toString` is called, instead of when the task
+graph is ready.
+** These changes work around some eager evaluation of the version experienced
+with the `maven-publish` and some other plugins.
 
 **v0.8.0**
 * Updated `GithubPagesPluginExtension` to allow configuration of commit message

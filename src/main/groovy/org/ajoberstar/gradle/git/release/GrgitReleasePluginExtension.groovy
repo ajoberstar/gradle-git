@@ -33,7 +33,7 @@ class GrgitReleasePluginExtension {
 	 * release is "readied" the intended version will be inferred from the
 	 * state of the repository.
 	 */
-	InferredVersion version = new InferredVersion()
+	InferredVersion version
 
 	/**
 	 * The repository to perform the release on.
@@ -71,6 +71,10 @@ class GrgitReleasePluginExtension {
 	 * Defaults to {@code false}.
 	 */
 	boolean enforceSinceTags = false
+
+	GrgitReleasePluginExtension(Project project) {
+		this.version = new InferredVersion(project)
+	}
 
 	/**
 	 * Configure the version. Delegates to {@link #version}.

@@ -28,14 +28,15 @@ import org.slf4j.LoggerFactory
  */
 class GrgitReleasePlugin implements Plugin<Project> {
 	private static final Logger logger = LoggerFactory.getLogger(GrgitReleasePlugin)
+	private static final RELEASE_TASK_NAME = 'release'
+	private static final PREPARE_TASK_NAME = 'prepare'
 
 	void apply(Project project) {
-		GrgitReleasePluginExtension extension = project.extensions.create('release', GrgitReleasePluginExtension)
+		GrgitReleasePluginExtension extension = project.extensions.create('release', GrgitReleasePluginExtension, project)
 		project.version = extension.version
 		addValidateSinceTagsTask(project, extension)
-		addReadyVersionTaskRule(project, extension)
-		addReleaseTaskRule(project, extension)
-		addFallBackInferLogic(project, extension)
+		addPrepareTask(project, extension)
+		addReleaseTask(project, extension)
 	}
 
 	private void addValidateSinceTagsTask(Project project, GrgitReleasePluginExtension extension) {
@@ -73,91 +74,64 @@ class GrgitReleasePlugin implements Plugin<Project> {
 		}
 	}
 
-	private void addReadyVersionTaskRule(Project project, GrgitReleasePluginExtension extension) {
-		project.tasks.addRule('Pattern: ready<scope>VersionAs<stage>') { String taskName ->
-			def m = taskName =~ /ready(.+)VersionAs(.+)/
-			if (m) {
-				project.tasks.create(taskName) {
-					description = 'Ensures the project is ready to be released.'
-					doLast {
-						extension.version.infer(m[0][1].toLowerCase(), m[0][2].toLowerCase())
-						logger.warn('Inferred version as {}', extension.version)
-
-						logger.info('Checking for uncommitted changes in repo.')
-						ext.grgit = extension.grgit
-						ext.status = grgit.status()
-						if (!status.clean) {
-							println "Repository has uncommitted changes:"
-							(status.staged.allChanges + status.unstaged.allChanges).each { change ->
-								println "\t${change}"
-							}
-							throw new IllegalStateException("Repository has uncommitted changes.")
-						}
-
-						logger.info('Fetching changes from remote.')
-						grgit.fetch(remote: extension.remote)
-
-						logger.info('Verifying current branch is not behind remote.')
-						ext.branchStatus = grgit.branch.status(branch: grgit.branch.current.fullName)
-						if (branchStatus.behindCount > 0) {
-							println "Current branch is behind by ${branchStatus.behindCount} commits. Cannot proceed."
-							throw new IllegalStateException("Current branch is behind ${extension.remote}.")
-						}
-
-						if (!extension.version.releasable) {
-							throw new IllegalStateException("No changes since ${extension.version}. There is nothing to release.")
-						}
+	private void addPrepareTask(Project project, GrgitReleasePluginExtension extension) {
+		project.tasks.create(PREPARE_TASK_NAME) {
+			description = 'Ensures the project is ready to be released.'
+			doLast {
+				logger.info('Checking for uncommitted changes in repo.')
+				ext.grgit = extension.grgit
+				ext.status = grgit.status()
+				if (!status.clean) {
+					println 'Repository has uncommitted changes:'
+					(status.staged.allChanges + status.unstaged.allChanges).each { change ->
+						println "\t${change}"
 					}
+					throw new IllegalStateException('Repository has uncommitted changes.')
 				}
-				project.tasks.all { task ->
-					if (name == taskName) {
-						task.finalizedBy 'validateSinceTags'
-					} else {
-						task.mustRunAfter taskName
-					}
+
+				logger.info('Fetching changes from remote.')
+				grgit.fetch(remote: extension.remote)
+
+				logger.info('Verifying current branch is not behind remote.')
+				ext.branchStatus = grgit.branch.status(branch: grgit.branch.current.fullName)
+				if (branchStatus.behindCount > 0) {
+					println "Current branch is behind by ${branchStatus.behindCount} commits. Cannot proceed."
+					throw new IllegalStateException("Current branch is behind ${extension.remote}.")
 				}
+
+				if (!extension.version.releasable) {
+					throw new IllegalStateException("No changes since ${extension.version}. There is nothing to release.")
+				}
+			}
+		}
+
+		project.tasks.all { task ->
+			if (name == PREPARE_TASK_NAME) {
+				task.finalizedBy 'validateSinceTags'
+			} else {
+				task.mustRunAfter PREPARE_TASK_NAME
 			}
 		}
 	}
 
-	private void addReleaseTaskRule(Project project, GrgitReleasePluginExtension extension) {
-		project.tasks.addRule('Pattern: release<scope>VersionAs<stage>') { String taskName ->
-			def m = taskName =~ /release(.+)VersionAs(.+)/
-			if (m) {
-				project.tasks.create(taskName) {
-					description = 'Releases version of this project.'
-					dependsOn "ready${m[0][1]}VersionAs${m[0][2]}", extension.releaseTasks
-					doLast {
-						ext.grgit = extension.grgit
-						ext.toPush = [grgit.branch.current.fullName]
+	private void addReleaseTask(Project project, GrgitReleasePluginExtension extension) {
+		project.tasks.create('release') {
+			description = 'Releases this project.'
+			dependsOn PREPARE_TASK_NAME
+			dependsOn { extension.releaseTasks }
+			doLast {
+				ext.grgit = extension.grgit
+				ext.toPush = [grgit.branch.current.fullName]
 
-						ext.tagName = extension.tagName
-						if (tagName) {
-							logger.warn('Tagging repository as {}', tagName)
-							grgit.tag.add(name: tagName, message: extension.tagMessage)
-							toPush << tagName
-						}
-
-						logger.warn('Pushing changes in {} to {}', toPush, extension.remote)
-						grgit.push(remote: extension.remote, refsOrSpecs: toPush)
-					}
+				ext.tagName = extension.tagName
+				if (tagName) {
+					logger.warn('Tagging repository as {}', tagName)
+					grgit.tag.add(name: tagName, message: extension.tagMessage)
+					toPush << tagName
 				}
-			}
-		}
-	}
 
-	private void addFallBackInferLogic(Project project, GrgitReleasePluginExtension extension) {
-		project.gradle.taskGraph.whenReady { graph ->
-			def inferTask = graph.allTasks.find { task ->
-				task.name =~ /ready(.+)VersionAs(.+)/
-			}
-			if (!inferTask) {
-				// the first untagged stage should be the lowest precedence given semver rules
-				def stage = extension.version.untaggedStages.find()
-				def scope = 'patch'
-				logger.info('No ready<scope>VersionAs<stage> task requested. Inferring as {} {} release.', stage, scope)
-				extension.version.infer(scope, stage)
-				logger.warn('Inferred verison as {}', extension.version)
+				logger.warn('Pushing changes in {} to {}', toPush, extension.remote)
+				grgit.push(remote: extension.remote, refsOrSpecs: toPush)
 			}
 		}
 	}
