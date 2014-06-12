@@ -5,20 +5,20 @@ buildscript {
 		maven { url 'http://dl.bintray.com/ajoberstar/temp-forks' }
 	}
 	dependencies {
-		classpath 'org.ajoberstar:gradle-ajoberstar:0.1.2'
+		classpath 'org.ajoberstar:gradle-ajoberstar:0.2.0'
 	}
 }
 
 apply plugin: 'groovy'
+apply plugin: 'maven-publish'
+apply plugin: 'bintray'
 apply plugin: 'ajoberstar'
 
 group = 'org.ajoberstar'
-description = 'Git plugins for Gradle'
-version = '0.9.0'
 
 ajoberstar {
 	friendlyName = 'Gradle Git Plugin'
-	description = 'Git plugin for Gradle'
+	description = 'Git plugins for Gradle'
 	bintrayRepo = 'gradle-plugins'
 	bintrayLabels = ['gradle', 'git', 'semver']
 	copyrightYears = '2012-2014'
