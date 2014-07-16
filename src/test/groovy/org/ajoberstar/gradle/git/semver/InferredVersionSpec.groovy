@@ -151,6 +151,26 @@ class InferredVersionSpec extends Specification {
 		'RB_0.2'      | 'major' | 'rc'        | '0.2.0'
 	}
 
+    def 'allows a non-releasable version if no changes since nearest version'() {
+        given:
+        grgit.checkout(branch: head)
+        def version = new InferredVersion()
+        version.useBuildMetadataForStage = { false }
+        version.allowRelease = { true }
+        version.grgit = grgit
+        when:
+        version.infer(scope, stage)
+        then:
+        version.toString() == expected
+        version.releasable
+        where:
+        head          | scope   | stage       | expected
+        'RB_0.2'      | 'patch' | 'dev'       | '0.2.1-dev.0'
+        'RB_0.2'      | 'patch' | 'final'     | '0.2.1'
+        'RB_0.2'      | 'minor' | 'milestone' | '0.3.0-milestone.1'
+        'RB_0.2'      | 'major' | 'rc'        | '1.0.0-rc.1'
+    }
+
 	private void commit() {
 		byte[] bytes = new byte[128]
 		random.nextBytes(bytes)
