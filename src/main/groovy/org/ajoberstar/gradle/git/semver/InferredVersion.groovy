@@ -59,6 +59,7 @@ class InferredVersion {
 	private static final Logger logger = LoggerFactory.getLogger(InferredVersion)
 	private static final SCOPE_PROP_NAME = 'release.scope'
 	private static final STAGE_PROP_NAME = 'release.stage'
+    static final String SNAPSHOT_STAGE = 'SNAPSHOT'
 
 	private final Project project
 	private Version inferredVersion = null
@@ -161,8 +162,7 @@ class InferredVersion {
 			if (stage == 'final') {
 				// do nothing
 			} else if (untaggedStages.contains(stage)) {
-				// use commit count
-				target = target.setPreReleaseVersion("${stage}.${nearest.distanceFromNormal}")
+				target = determineUntaggedVersion(target, nearest)
 			} else if (nearest.any.normalVersion == target.normalVersion && nearest.stage == stage) {
 				// increment pre-release
 				target = nearest.any.incrementPreReleaseVersion()
@@ -181,6 +181,29 @@ class InferredVersion {
 			inferredVersion = nearest.any
 		}
 	}
+
+    /**
+     * Adds SNAPSHOT stage to the list of untagged versions.
+     */
+    void addSnapshotStage() {
+        untaggedStages << SNAPSHOT_STAGE
+    }
+
+    /**
+     * Determines untagged version.
+     *
+     * @param target Target version
+     * @param nearestVersion Nearest version
+     * @return Created version
+     */
+    private Version determineUntaggedVersion(Version target, NearestVersion nearestVersion) {
+        if(stage == SNAPSHOT_STAGE) {
+            return target.setPreReleaseVersion(SNAPSHOT_STAGE)
+        }
+
+        // use commit count
+        target.setPreReleaseVersion("${stage}.${nearestVersion.distanceFromNormal}")
+    }
 
 	private Version inferNormal(Version previous, ChangeScope scope) {
 		switch (scope) {
