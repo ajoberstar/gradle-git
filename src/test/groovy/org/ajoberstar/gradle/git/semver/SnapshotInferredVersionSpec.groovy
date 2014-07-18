@@ -32,7 +32,7 @@ class SnapshotInferredVersionSpec extends GrgitSpec {
         grgit.checkout(branch: head)
         def version = new InferredVersion()
         version.useBuildMetadataForStage = { false }
-        version.addSnapshotStage()
+        version.snapshotStages << 'dev'
         version.grgit = grgit
 
         when:
@@ -44,7 +44,7 @@ class SnapshotInferredVersionSpec extends GrgitSpec {
 
         where:
         head          | scope   | stage       | expected
-        'mybranch'    | 'minor' | 'SNAPSHOT'  | '3.4.0-SNAPSHOT'
+        'mybranch'    | 'minor' | 'dev'       | '3.4.0-SNAPSHOT'
         'mybranch'    | 'minor' | 'milestone' | '3.4.0-milestone.1'
         'mybranch'    | 'minor' | 'rc'        | '3.4.0-rc.1'
         'mybranch'    | 'minor' | 'final'     | '3.4.0'

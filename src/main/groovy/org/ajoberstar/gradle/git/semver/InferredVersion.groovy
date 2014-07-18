@@ -90,6 +90,12 @@ class InferredVersion {
 	 */
 	SortedSet<String> taggedStages = ['milestone', 'rc'] as SortedSet
 
+    /**
+     * Valid states for versions that should get the tag SNAPSHOT.
+     * Defaults to ['dev'].
+     */
+    SortedSet<String> snapshotStages = [] as SortedSet
+
 	/**
 	 * Closure to determine whether build metadata should be included in the
 	 * inferred version. Should accept a single String argument for
@@ -161,8 +167,13 @@ class InferredVersion {
 			logger.debug('Inferred target normal version: {}', target)
 			if (stage == 'final') {
 				// do nothing
-			} else if (untaggedStages.contains(stage)) {
-				target = determineUntaggedVersion(target, nearest)
+			} else if (snapshotStages.contains(stage)) {
+                // use SNAPSHOT identifier
+                target = target.setPreReleaseVersion('SNAPSHOT')
+            }
+            else if (untaggedStages.contains(stage)) {
+                // use commit count
+                target = target.setPreReleaseVersion("${stage}.${nearest.distanceFromNormal}")
 			} else if (nearest.any.normalVersion == target.normalVersion && nearest.stage == stage) {
 				// increment pre-release
 				target = nearest.any.incrementPreReleaseVersion()
@@ -181,29 +192,6 @@ class InferredVersion {
 			inferredVersion = nearest.any
 		}
 	}
-
-    /**
-     * Adds SNAPSHOT stage to the list of untagged versions.
-     */
-    void addSnapshotStage() {
-        untaggedStages << SNAPSHOT_STAGE
-    }
-
-    /**
-     * Determines untagged version.
-     *
-     * @param target Target version
-     * @param nearestVersion Nearest version
-     * @return Created version
-     */
-    private Version determineUntaggedVersion(Version target, NearestVersion nearestVersion) {
-        if(stage == SNAPSHOT_STAGE) {
-            return target.setPreReleaseVersion(SNAPSHOT_STAGE)
-        }
-
-        // use commit count
-        target.setPreReleaseVersion("${stage}.${nearestVersion.distanceFromNormal}")
-    }
 
 	private Version inferNormal(Version previous, ChangeScope scope) {
 		switch (scope) {
