@@ -23,22 +23,22 @@ import spock.lang.Specification
 import java.security.SecureRandom
 
 class GrgitSpec extends Specification {
-    @TempDirectory(clean=true)
-    @Shared File repoDir
+	@TempDirectory(clean=true)
+	@Shared File repoDir
 
-    @Shared Grgit grgit
+	@Shared Grgit grgit
 
-    @Shared SecureRandom random = new SecureRandom()
+	@Shared SecureRandom random = new SecureRandom()
 
-    def setupSpec() {
-        grgit = Grgit.init(dir: repoDir)
-    }
+	def setupSpec() {
+		grgit = Grgit.init(dir: repoDir)
+	}
 
-    protected void commit() {
-        byte[] bytes = new byte[128]
-        random.nextBytes(bytes)
-        new File(grgit.repository.rootDir, '1.txt') << bytes
-        grgit.add(patterns: ['1.txt'])
-        grgit.commit(message: 'do')
-    }
+	protected void commit() {
+		byte[] bytes = new byte[128]
+		random.nextBytes(bytes)
+		new File(grgit.repository.rootDir, '1.txt') << bytes
+		grgit.add(patterns: ['1.txt'])
+		grgit.commit(message: 'do')
+	}
 }

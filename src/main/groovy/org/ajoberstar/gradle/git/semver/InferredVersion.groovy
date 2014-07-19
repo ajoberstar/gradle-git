@@ -59,7 +59,7 @@ class InferredVersion {
 	private static final Logger logger = LoggerFactory.getLogger(InferredVersion)
 	private static final SCOPE_PROP_NAME = 'release.scope'
 	private static final STAGE_PROP_NAME = 'release.stage'
-    static final String SNAPSHOT_STAGE = 'SNAPSHOT'
+	static final String SNAPSHOT_STAGE = 'SNAPSHOT'
 
 	private final Project project
 	private Version inferredVersion = null
@@ -90,11 +90,11 @@ class InferredVersion {
 	 */
 	SortedSet<String> taggedStages = ['milestone', 'rc'] as SortedSet
 
-    /**
-     * Valid states for versions that should get the tag SNAPSHOT.
-     * Defaults to ['dev'].
-     */
-    SortedSet<String> snapshotStages = [] as SortedSet
+	/**
+	 * Valid states for versions that should get the tag SNAPSHOT.
+	 * Defaults to ['dev'].
+	 */
+	SortedSet<String> snapshotStages = [] as SortedSet
 
 	/**
 	 * Closure to determine whether build metadata should be included in the
@@ -167,13 +167,13 @@ class InferredVersion {
 			logger.debug('Inferred target normal version: {}', target)
 			if (stage == 'final') {
 				// do nothing
-			} else if (snapshotStages.contains(stage)) {
-                // use SNAPSHOT identifier
-                target = target.setPreReleaseVersion('SNAPSHOT')
-            }
-            else if (untaggedStages.contains(stage)) {
-                // use commit count
-                target = target.setPreReleaseVersion("${stage}.${nearest.distanceFromNormal}")
+	        } else if (snapshotStages.contains(stage)) {
+				// use SNAPSHOT identifier
+				target = target.setPreReleaseVersion('SNAPSHOT')
+			}
+			else if (untaggedStages.contains(stage)) {
+				// use commit count
+				target = target.setPreReleaseVersion("${stage}.${nearest.distanceFromNormal}")
 			} else if (nearest.any.normalVersion == target.normalVersion && nearest.stage == stage) {
 				// increment pre-release
 				target = nearest.any.incrementPreReleaseVersion()
