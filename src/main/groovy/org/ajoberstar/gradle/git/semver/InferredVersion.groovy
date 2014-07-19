@@ -167,7 +167,7 @@ class InferredVersion {
 			logger.debug('Inferred target normal version: {}', target)
 			if (stage == 'final') {
 				// do nothing
-	        } else if (snapshotStages.contains(stage)) {
+			} else if (snapshotStages.contains(stage)) {
 				// use SNAPSHOT identifier
 				target = target.setPreReleaseVersion('SNAPSHOT')
 			}
