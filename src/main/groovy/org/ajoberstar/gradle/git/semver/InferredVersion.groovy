@@ -102,13 +102,13 @@ class InferredVersion {
 	 */
 	Closure<String> createBuildMetadata = { grgit.head().abbreviatedId }
 
-    /**
-     * Closure to allow for creating a release under certain conditions.
-     * The typical use case would be to release without any commits during
-     * development. Should return true or false. Defaults to returning true
-     * if there's at least one commit since {@code normal} reachable from HEAD.
-     */
-    Closure<Boolean> allowRelease = { nearestVersion.distanceFromAny > 0 }
+	/**
+	 * Closure to allow for creating a release under certain conditions.
+	 * The typical use case would be to release without any commits during
+	 * development. Should return true or false. Defaults to returning true
+	 * if there's at least one commit since {@code normal} reachable from HEAD.
+	 */
+	Closure<Boolean> allowRelease = { nearestVersion.distanceFromAny > 0 }
 
 	InferredVersion(Project project) {
 		this.project = project
