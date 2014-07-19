@@ -15,27 +15,10 @@
  */
 package org.ajoberstar.gradle.git.semver
 
-import java.security.SecureRandom
-
-import com.energizedwork.spock.extensions.TempDirectory
-
-import org.ajoberstar.grgit.Grgit
-
-import spock.lang.Shared
-import spock.lang.Specification
 import spock.lang.Unroll
 
-class InferredVersionSpec extends Specification {
-	@TempDirectory(clean=true)
-	@Shared File repoDir
-
-	@Shared Grgit grgit
-
-	@Shared SecureRandom random = new SecureRandom()
-
+class InferredVersionSpec extends GrgitSpec {
 	def setupSpec() {
-		grgit = Grgit.init(dir: repoDir)
-
 		commit()
 		commit()
 		grgit.branch.add(name: 'unreachable')
@@ -149,13 +132,5 @@ class InferredVersionSpec extends Specification {
 		'RB_0.2'      | 'patch' | 'final'     | '0.2.0'
 		'RB_0.2'      | 'minor' | 'milestone' | '0.2.0'
 		'RB_0.2'      | 'major' | 'rc'        | '0.2.0'
-	}
-
-	private void commit() {
-		byte[] bytes = new byte[128]
-		random.nextBytes(bytes)
-		new File(grgit.repository.rootDir, '1.txt') << bytes
-		grgit.add(patterns: ['1.txt'])
-		grgit.commit(message: 'do')
 	}
 }

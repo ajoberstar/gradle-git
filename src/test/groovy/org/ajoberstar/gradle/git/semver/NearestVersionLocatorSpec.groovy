@@ -15,29 +15,11 @@
  */
 package org.ajoberstar.gradle.git.semver
 
-import java.security.SecureRandom
-
-import com.energizedwork.spock.extensions.TempDirectory
-
 import com.github.zafarkhaja.semver.Version
-
-import org.ajoberstar.grgit.Grgit
-
-import spock.lang.Shared
-import spock.lang.Specification
 import spock.lang.Unroll
 
-class NearestVersionLocatorSpec extends Specification {
-	@TempDirectory(clean=true)
-	@Shared File repoDir
-
-	@Shared Grgit grgit
-
-	@Shared SecureRandom random = new SecureRandom()
-
+class NearestVersionLocatorSpec extends GrgitSpec {
 	def setupSpec() {
-		grgit = Grgit.init(dir: repoDir)
-
 		commit()
 		commit()
 		// grgit.branch.add(name: 'unreachable')
@@ -112,15 +94,6 @@ class NearestVersionLocatorSpec extends Specification {
 		'RB_1.0'      | '1.0.0'            | '1.0.0'                     | 0        | ''
 		'no-normal'   | '0.0.1-beta.3'     | '0.0.0'                     | 3        | 'beta'
 		'unreachable' | '0.0.0'            | '0.0.0'                     | 2        | ''
-	}
-
-	private void commit() {
-		byte[] bytes = new byte[128]
-		random.nextBytes(bytes)
-		new File(grgit.repository.rootDir, '1.txt') << bytes
-		grgit.add(patterns: ['1.txt'])
-		def commit = grgit.commit(message: 'do')
-		println "Created commit: ${commit.abbreviatedId}"
 	}
 
 	private void addBranch(String name) {
