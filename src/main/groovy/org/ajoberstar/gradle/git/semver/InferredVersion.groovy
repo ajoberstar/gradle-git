@@ -200,50 +200,6 @@ class InferredVersion {
 		}
 	}
 
-	Version getInferredVersion() {
-		if (inferredVersion) {
-			return inferredVersion
-		} else {
-			throw new IllegalStateException("Version has not been inferred.")
-		}
-	}
-
-	ChangeScope getScope() {
-		if (inferredVersion) {
-			return scope
-		} else {
-			throw new IllegalStateException("Version has not been inferred.")
-		}
-	}
-
-	String getStage() {
-		if (inferredVersion) {
-			return stage
-		} else {
-			throw new IllegalStateException("Version has not been inferred.")
-		}
-	}
-
-	boolean getReleasable() {
-		if (inferredVersion) {
-			return releasable
-		} else {
-			throw new IllegalStateException("Version has not been inferred.")
-		}
-	}
-
-	/**
-	 * The nearest version that was found in the repository.
-	 * @return the nearest version
-	 */
-	NearestVersion getNearest() {
-		if (inferredVersion) {
-			return nearestVersion
-		} else {
-			throw new IllegalStateException("Version has not been inferred.")
-		}
-	}
-
 	/**
 	 * Gets all stages considered valid by this object. Includes all
 	 * values from {@link #untaggedStages} and {@link taggedStages}, plus
