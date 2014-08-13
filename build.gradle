@@ -26,6 +26,11 @@ ajoberstar {
 
 sourceCompatibility = '1.7'
 
+configurations {
+	// use local groovy
+	all*.exclude group: 'org.codehaus.groovy'
+}
+
 repositories {
 	jcenter()
 	mavenCentral()
@@ -46,7 +51,7 @@ dependencies {
 
 	// testing
 	testCompile 'junit:junit:4.10'
-	testCompile('org.spockframework:spock-core:0.7-groovy-1.8') { exclude group: 'org.codehaus.groovy' }
+	testCompile 'org.spockframework:spock-core:0.7-groovy-2.0'
 	testCompile 'com.energizedwork:spock-extensions:1.0'
 }
 
