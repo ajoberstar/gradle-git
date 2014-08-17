@@ -16,7 +16,6 @@
 package org.ajoberstar.gradle.git.ghpages
 
 import org.ajoberstar.grgit.Grgit
-
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.Task
@@ -48,11 +47,20 @@ class GithubPagesPlugin implements Plugin<Project> {
 		publish.doLast {
 			extension.workingDir.deleteDir()
 			ext.repo = Grgit.clone(
-				uri: extension.repoUri,
-				refToCheckout: extension.targetBranch,
-				dir: extension.workingDir,
-				credentials: extension.credentials?.toGrgit()
+					uri: extension.repoUri,
+					refToCheckout: extension.targetBranch,
+					dir: extension.workingDir,
+					credentials: extension.credentials?.toGrgit()
 			)
+
+			def filesList = extension.workingDir.list({ dir, name ->
+				return !name.equals('.git')
+			})
+			println "removing:"
+			filesList.each {
+				println it
+			}
+			repo.rm(patterns: filesList, cached: false)
 			project.copy {
 				with extension.pages
 				into repo.repository.rootDir
