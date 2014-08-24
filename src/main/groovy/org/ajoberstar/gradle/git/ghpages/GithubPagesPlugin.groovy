@@ -44,6 +44,7 @@ class GithubPagesPlugin implements Plugin<Project> {
 	private void configureTasks(final Project project, final GithubPagesPluginExtension extension) {
 		Task publish = project.tasks.create(PUBLISH_TASK_NAME)
 		publish.description = 'Publishes all gh-pages changes to Github'
+
 		publish.doLast {
 			extension.workingDir.deleteDir()
 			ext.repo = Grgit.clone(
@@ -56,11 +57,7 @@ class GithubPagesPlugin implements Plugin<Project> {
 			def filesList = extension.workingDir.list({ dir, name ->
 				return !name.equals('.git')
 			})
-			println "removing:"
-			filesList.each {
-				println it
-			}
-			repo.rm(patterns: filesList, cached: false)
+			repo.remove(patterns: filesList)
 			project.copy {
 				with extension.pages
 				into repo.repository.rootDir
