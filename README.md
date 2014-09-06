@@ -335,6 +335,16 @@ githubPages {
 
 ## Release Notes
 
+**v0.10.0** *(not final yet)*
+
+* Primary goal of 0.10.0 is to get the plugin into the new [Gradle plugin portal](http://plugins.gradle.org).
+** **Breaking change:** Plugin ID's changed from `github-pages` to `org.ajoberstar.github-pages` and `grgit-release` to `org.ajoberstar.grgit-release`.
+** **Possibly breaking change:** Built against Gradle 2.1. This may break compatibility with earlier Gradle versions.
+* Allow custom logic for determining if a version is releasable. (#59, courtesy of [Benjamin Muschko](https://github.com/bmuschko))
+* No longer throwing `IllegalStateException` when getters on `InferredVersion` are used before the version is inferred.
+
+* **Breaking change:** Plugin ID's changed to qualified names for compa
+
 **v0.9.0**
 
 * Breaking change for the `grgit-release` plugin.
