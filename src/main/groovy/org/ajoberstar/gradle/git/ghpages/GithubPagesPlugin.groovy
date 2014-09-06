@@ -62,7 +62,6 @@ class GithubPagesPlugin implements Plugin<Project> {
 				with extension.pages
 				into repo.repository.rootDir
 			}
-			repo.add(patterns: ['.'], update: true)
 			repo.add(patterns: ['.'])
 			repo.commit(message: extension.commitMessage)
 			repo.push()
