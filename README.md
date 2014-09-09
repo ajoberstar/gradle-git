@@ -335,26 +335,29 @@ githubPages {
 
 ## Release Notes
 
-**v0.10.0** *(not final yet)*
+**v0.10.0**
 
-* Primary goal of 0.10.0 is to get the plugin into the new [Gradle plugin portal](http://plugins.gradle.org).
-** **Breaking change:** Plugin ID's changed from `github-pages` to `org.ajoberstar.github-pages` and `grgit-release` to `org.ajoberstar.grgit-release`.
-** **Possibly breaking change:** Built against Gradle 2.1. This may break compatibility with earlier Gradle versions.
+* Primary goal of this release is to get the plugin into the new [Gradle plugin portal](http://plugins.gradle.org).
+  * **Breaking change:** Plugin ID's changed from `github-pages` to `org.ajoberstar.github-pages` and `grgit-release` to `org.ajoberstar.grgit-release`.
+  * **Possibly breaking change:** Built against Gradle 2.1. This may break compatibility with earlier Gradle versions.
+* **Possibly breaking change:** `github-pages` will now do a full sync of the content. If you were relying on it leaving some of the files
+outside of your `githubPages.pages` definition alone, this will cause problems for you.
 * Allow custom logic for determining if a version is releasable. (#59, courtesy of [Benjamin Muschko](https://github.com/bmuschko))
 * No longer throwing `IllegalStateException` when getters on `InferredVersion` are used before the version is inferred.
 
-* **Breaking change:** Plugin ID's changed to qualified names for compa
+NOTE: I'm planning on completely rewriting the `grgit-release` plugin for the next release in order to provide more flexibility for
+people with other needs.
 
 **v0.9.0**
 
 * Breaking change for the `grgit-release` plugin.
-** The `ready<Scope>As<Stage>` and `release<Scope>As<Stage>` tasks were replaced
+  * The `ready<Scope>As<Stage>` and `release<Scope>As<Stage>` tasks were replaced
 by a `prepare` and a `release` task.
-** Scope and stage are now provided by project properties `release.scope` and
+  * Scope and stage are now provided by project properties `release.scope` and
 `release.stage`.
-** Version inference happens when `toString` is called, instead of when the task
+  * Version inference happens when `toString` is called, instead of when the task
 graph is ready.
-** These changes work around some eager evaluation of the version experienced
+  * These changes work around some eager evaluation of the version experienced
 with the `maven-publish` and some other plugins.
 
 **v0.8.0**
