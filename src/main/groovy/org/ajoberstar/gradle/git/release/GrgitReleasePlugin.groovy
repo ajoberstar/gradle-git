@@ -99,6 +99,8 @@ class GrgitReleasePlugin implements Plugin<Project> {
 					throw new IllegalStateException("Current branch is behind ${extension.remote}.")
 				}
 
+				// force inference if it hasn't happend yet
+				extension.version.toString()
 				if (!extension.version.releasable) {
 					throw new IllegalStateException("No changes since ${extension.version}. There is nothing to release.")
 				}
