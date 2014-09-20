@@ -5,9 +5,9 @@ A set of plugins to support Git in the Gradle build tool.
 [![Build Status](https://travis-ci.org/ajoberstar/gradle-git.png?branch=master)](https://travis-ci.org/ajoberstar/gradle-git)
 
 There are three primary use cases for these plugins:
-* Publishing to a Github Pages website.  The `github-pages` plugin adds support
+* Publishing to a Github Pages website.  The `org.ajoberstar.github-pages` plugin adds support
 for publishing static files to the `gh-pages` branch of a Git repository.
-* Managing your release process. The `grgit-release` plugin adds an opinionated
+* Managing your release process. The `org.ajoberstar.grgit-release` plugin adds an opinionated
 way to manage releases and comply with [Semantic Versioning](http://semver.org).
 * General Git actions.  This plugin JAR depends on, and makes available,
 [grgit](https://github.com/ajoberstar/grgit) which provides a Groovy API for
@@ -21,7 +21,7 @@ For more information see the documentation in the next sections.
 * [Groovydoc](http://ajoberstar.org/gradle-git/docs/groovydoc)
 
 Credit goes to [Peter Ledbrook](https://github.com/pledbrook) for the initial
-idea for the `github-pages` plugin.
+idea for the `org.ajoberstar.github-pages` plugin.
 
 Thanks to [Zafar Khaja](https://github.com/zafarkhaja) for the very helpful
 [java-semver](https://github.com/zafarkhaja/java-semver) library.
@@ -77,10 +77,10 @@ various authentication options.
 Methods that produce a `Grgit` instance, which includes `clone`, `init`, and `open`, all take a `Credentials` instance if
 you want to provide hardcoded credentials programmatically.
 
-## github-pages
+## org.ajoberstar.github-pages
 
 ```groovy
-apply plugin: 'github-pages'
+apply plugin: 'org.ajoberstar.github-pages'
 
 githubPages {
   repoUri = '...'
@@ -96,7 +96,7 @@ The plugin adds a single `publishGhPages` task that will clone the
 repository, copy in the files in the `pages` `CopySpec`, add all of
 the changes, commit, and push back to the remote.
 
-## grgit-release
+## org.ajoberstar.grgit-release
 
 ### Other Options for Gradle Release Plugins
 
@@ -109,9 +109,9 @@ the release and tagging it. Versions are generated dynamically based on current 
 * [stianh/gradle-release-plugin](https://github.com/stianh/gradle-release-plugin) - Similar approach (and created before)
 the `ari` plugin. However, as of `4/13/14` it hasn't had any commits in 9 months.
 
-### Approach of grgit-release
+### Approach of org.ajoberstar.grgit-release
 
-The `grgit-release` plugin is intended to be opinionated, and I am not trying to meet all needs. The core principles of
+The `org.ajoberstar.grgit-release` plugin is intended to be opinionated, and I am not trying to meet all needs. The core principles of
 this plugin are:
 
 * [Semantic versioning](http://semver.org) is the ideal way to version code (for most use cases).
@@ -138,7 +138,7 @@ you want the code built or published. Everything else has defaults, as noted
 below.
 
 ```groovy
-apply plugin: 'grgit-release'
+apply plugin: 'org.ajoberstar.grgit-release'
 
 import org.ajoberstar.grgit.*
 
