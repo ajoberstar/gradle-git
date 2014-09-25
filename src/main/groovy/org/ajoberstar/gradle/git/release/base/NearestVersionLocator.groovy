@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.ajoberstar.gradle.git.semver
+package org.ajoberstar.gradle.git.release.base
 
 import com.github.zafarkhaja.semver.GrammarException
 import com.github.zafarkhaja.semver.Version
@@ -21,8 +21,6 @@ import com.github.zafarkhaja.semver.util.UnexpectedElementTypeException
 
 import org.ajoberstar.grgit.Commit
 import org.ajoberstar.grgit.Grgit
-
-import org.eclipse.jgit.revwalk.RevWalk
 
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory

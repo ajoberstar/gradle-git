@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.ajoberstar.gradle.git.semver
+package org.ajoberstar.gradle.git.release.base
 
 import groovy.transform.Canonical
 
@@ -45,13 +45,4 @@ class NearestVersion {
 	 * The number of commits since {@code normal} reachable from HEAD.
 	 */
 	final int distanceFromNormal
-
-	/**
-	 * The pre-release stage of the {@code any} version.
-	 * @return the value to the left of the first dot (if any) in the {@code any}
-	 * version's preRelease segment
-	 */
-	String getStage() {
-		return any.preReleaseVersion.split('\\.', 2)[0]
-	}
 }

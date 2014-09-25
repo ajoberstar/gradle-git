@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.ajoberstar.gradle.git.semver
+package org.ajoberstar.gradle.git.release.base
 
 import java.security.SecureRandom
 
@@ -104,14 +104,13 @@ class NearestVersionLocatorSpec extends Specification {
 		nearest.any == Version.valueOf(any)
 		nearest.normal == Version.valueOf(normal)
 		nearest.distanceFromNormal == distance
-		nearest.stage == stage
 		where:
-		head          | any                | normal                      | distance | stage
-		'master'      | '1.1.0-rc.1+abcde' | '1.0.0'                     | 1        | 'rc'
-		'RB_0.1'      | '0.1.2-beta.1'     | '0.1.1+2010.01.01.12.00.00' | 7        | 'beta'
-		'RB_1.0'      | '1.0.0'            | '1.0.0'                     | 0        | ''
-		'no-normal'   | '0.0.1-beta.3'     | '0.0.0'                     | 3        | 'beta'
-		'unreachable' | '0.0.0'            | '0.0.0'                     | 2        | ''
+		head          | any                | normal                      | distance
+		'master'      | '1.1.0-rc.1+abcde' | '1.0.0'                     | 1
+		'RB_0.1'      | '0.1.2-beta.1'     | '0.1.1+2010.01.01.12.00.00' | 7
+		'RB_1.0'      | '1.0.0'            | '1.0.0'                     | 0
+		'no-normal'   | '0.0.1-beta.3'     | '0.0.0'                     | 3
+		'unreachable' | '0.0.0'            | '0.0.0'                     | 2
 	}
 
 	private void commit() {
