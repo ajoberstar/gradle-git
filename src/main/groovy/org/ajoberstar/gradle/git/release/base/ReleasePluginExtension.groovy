@@ -15,13 +15,15 @@
  */
 package org.ajoberstar.gradle.git.release.base
 
-import org.gradle.api.Project
-import org.gradle.api.GradleException
-import org.ajoberstar.gradle.git.release.base.VersionStrategy
 import org.ajoberstar.gradle.git.release.base.ReleaseVersion
 import org.ajoberstar.gradle.git.release.base.TagStrategy
-import org.ajoberstar.grgit.util.ConfigureUtil
+import org.ajoberstar.gradle.git.release.base.VersionStrategy
 import org.ajoberstar.grgit.Grgit
+import org.ajoberstar.grgit.util.ConfigureUtil
+
+import org.gradle.api.GradleException
+import org.gradle.api.Project
+
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 

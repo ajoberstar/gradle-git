@@ -15,8 +15,9 @@
  */
 package org.ajoberstar.gradle.git.release.base
 
-import org.gradle.api.Project
 import org.gradle.api.Plugin
+import org.gradle.api.Project
+
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 

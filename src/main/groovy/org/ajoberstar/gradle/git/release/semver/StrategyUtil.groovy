@@ -25,11 +25,11 @@ final class StrategyUtil {
 	}
 
 	static final PartialSemVerStrategy all(PartialSemVerStrategy... strategies) {
-		return new ApplyAllChainedPartialSemVerStrategy(strategies)
+		return new ApplyAllChainedPartialSemVerStrategy(strategies as List)
 	}
 
 	static final PartialSemVerStrategy one(PartialSemVerStrategy... strategies) {
-		return new ChooseOneChainedPartialSemVerStrategy(strategies)
+		return new ChooseOneChainedPartialSemVerStrategy(strategies as List)
 	}
 
 	static final int parseIntOrZero(String str) {

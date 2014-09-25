@@ -15,11 +15,12 @@
  */
 package org.ajoberstar.gradle.git.release.semver
 
-import groovy.transform.TupleConstructor
-
-@TupleConstructor
 final class ChooseOneChainedPartialSemVerStrategy implements PartialSemVerStrategy {
 	private final List<PartialSemVerStrategy> strategies
+
+	ChooseOneChainedPartialSemVerStrategy(List<PartialSemVerStrategy> strategies) {
+		this.strategies = strategies
+	}
 
 	@Override
 	SemVerStrategyState infer(SemVerStrategyState oldState) {

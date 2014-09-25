@@ -13,17 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.ajoberstar.gradle.git.release.semver
+package org.ajoberstar.gradle.git.release.opinion
 
-final class ClosureBackedPartialSemVerStrategy implements PartialSemVerStrategy {
-	private final Closure<String> behavior
+import spock.lang.Specification
 
-	ClosureBackedPartialSemVerStrategy(Closure<String> behavior) {
-		this.behavior = behavior
-	}
+class StrategiesSpec extends Specification {
 
-	@Override
-	SemVerStrategyState infer(SemVerStrategyState state) {
-		return behavior(state)
-	}
 }
