@@ -19,7 +19,6 @@ import groovy.transform.Immutable
 
 import com.github.zafarkhaja.semver.Version
 
-import org.ajoberstar.gradle.git.release.base.NearestVersion
 import org.ajoberstar.grgit.Branch
 import org.ajoberstar.grgit.Commit
 

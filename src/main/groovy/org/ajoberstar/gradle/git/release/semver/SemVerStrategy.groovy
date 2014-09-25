@@ -19,8 +19,6 @@ import groovy.transform.Immutable
 
 import com.github.zafarkhaja.semver.Version
 
-import org.ajoberstar.gradle.git.release.base.NearestVersion
-import org.ajoberstar.gradle.git.release.base.NearestVersionLocator
 import org.ajoberstar.gradle.git.release.base.ReleaseVersion
 import org.ajoberstar.gradle.git.release.base.VersionStrategy
 import org.ajoberstar.grgit.Grgit
