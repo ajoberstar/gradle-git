@@ -80,8 +80,8 @@ final class SemVerStrategy implements VersionStrategy {
 			nearestVersion: nearestVersion
 		)
 
-		Version version = new ApplyAllChainedPartialSemVerStrategy(
-			[normalStrategy, preReleaseStrategy, buildMetadataStrategy]).infer(state).toVersion()
+		Version version = StrategyUtil.all(
+			normalStrategy, preReleaseStrategy, buildMetadataStrategy).infer(state).toVersion()
 
 		logger.warn('Inferred version: {}', version)
 

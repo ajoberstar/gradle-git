@@ -39,4 +39,49 @@ final class StrategyUtil {
 			return 0
 		}
 	}
+
+	private static class ClosureBackedPartialSemVerStrategy implements PartialSemVerStrategy {
+		private final Closure<String> behavior
+
+		ClosureBackedPartialSemVerStrategy(Closure<String> behavior) {
+			this.behavior = behavior
+		}
+
+		@Override
+		SemVerStrategyState infer(SemVerStrategyState state) {
+			return behavior(state)
+		}
+	}
+
+	private static class ApplyAllChainedPartialSemVerStrategy implements PartialSemVerStrategy {
+		private final List<PartialSemVerStrategy> strategies
+
+		ApplyAllChainedPartialSemVerStrategy(List<PartialSemVerStrategy> strategies) {
+			this.strategies = strategies
+		}
+
+		@Override
+		SemVerStrategyState infer(SemVerStrategyState initialState) {
+			return strategies.inject(initialState) { state, strategy ->
+				strategy.infer(state)
+			}
+		}
+	}
+
+	private static class ChooseOneChainedPartialSemVerStrategy implements PartialSemVerStrategy {
+		private final List<PartialSemVerStrategy> strategies
+
+		ChooseOneChainedPartialSemVerStrategy(List<PartialSemVerStrategy> strategies) {
+			this.strategies = strategies
+		}
+
+		@Override
+		SemVerStrategyState infer(SemVerStrategyState oldState) {
+			def result = strategies.findResult { strategy ->
+				def newState = strategy.infer(oldState)
+				oldState == newState ? null : newState
+			}
+			return result ?: oldState
+		}
+	}
 }
