@@ -25,6 +25,7 @@ import org.ajoberstar.grgit.Branch
 import org.ajoberstar.grgit.BranchStatus
 import org.ajoberstar.grgit.service.BranchService
 import org.ajoberstar.gradle.git.release.base.ReleaseVersion
+import org.gradle.api.GradleException
 
 class SemVerStrategySpec extends Specification {
 	Project project = GroovyMock()
@@ -95,45 +96,29 @@ class SemVerStrategySpec extends Specification {
 		mockScope(scope)
 		mockStage(stage)
 		mockRepoClean(false)
-		NearestVersionLocator locator = Mock()
-		NearestVersion nearest = new NearestVersion(any: Version.valueOf(nearestAny))
-		locator.locate(grgit) >> nearest
-		PartialSemVerStrategy normal = Mock()
-		PartialSemVerStrategy preRelease = Mock()
-		PartialSemVerStrategy buildMetadata = Mock()
-
-		SemVerStrategyState initial = new SemVerStrategyState([
-			scopeFromProp: scope?.toUpperCase(),
-			stageFromProp: stage ?: 'and',
-			currentHead: null,
-			currentBranch: null,
-			repoDirty: true,
-			nearestVersion: nearest])
-		SemVerStrategyState afterNormal = initial.copyWith(inferredNormal: '1.2.3')
-		SemVerStrategyState afterPreRelease = afterNormal.copyWith(inferredPreRelease: 'beta.1')
-		SemVerStrategyState afterBuildMetadata = afterPreRelease.copyWith(inferredBuildMetadata: 'abc123')
-
-		1 * normal.infer(initial) >> afterNormal
-		1 * preRelease.infer(afterNormal) >> afterPreRelease
-		1 * buildMetadata.infer(afterPreRelease) >> afterBuildMetadata
-		0 * normal._
-		0 * preRelease._
-		0 * buildMetadata._
-
+		def nearest = new NearestVersion(any: Version.valueOf(nearestAny))
+		def locator = mockLocator(nearest)
+		def strategy = mockStrategy(scope, stage, nearest, createTag, enforcePrecedence)
 		expect:
-		new SemVerStrategy(
-			stages: ['one'] as SortedSet,
-			normalStrategy: normal,
-			preReleaseStrategy: preRelease,
-			buildMetadataStrategy: buildMetadata,
-			createTag: createTag,
-			enforcePrecedence: enforcePrecedence
-		).doInfer(project, grgit, locator) == new ReleaseVersion('1.2.3-beta.1+abc123', createTag)
+		strategy.doInfer(project, grgit, locator) == new ReleaseVersion('1.2.3-beta.1+abc123', createTag)
 		where:
 		scope   | stage | nearestAny | createTag | enforcePrecedence
+		'patch' | 'one' | '1.2.3'    | true      | false
 		'minor' | 'one' | '1.2.2'    | true      | true
-		'minor' | 'one' | '1.2.2'    | false     | true
-		'minor' | 'one' | '1.2.3'    | true      | false
+		'major' | 'one' | '1.2.2'    | false     | true
+		'patch' | null  | '1.2.2'    | false     | true
+	}
+
+	def 'infer fails if precedence enforced and violated'() {
+		given:
+		mockRepoClean(false)
+		def nearest = new NearestVersion(any: Version.valueOf('1.2.3'))
+		def locator = mockLocator(nearest)
+		def strategy = mockStrategy(null, 'and', nearest, false, true)
+		when:
+		strategy.doInfer(project, grgit, locator)
+		then:
+		thrown(GradleException)
 	}
 
 	private def mockScope(String scopeProp) {
@@ -160,5 +145,43 @@ class SemVerStrategySpec extends Specification {
 		(0..2) * grgit.getBranch() >> branchService
 		0 * branchService._
 		0 * grgit._
+	}
+
+	private def mockLocator(NearestVersion nearest) {
+		NearestVersionLocator locator = Mock()
+		locator.locate(grgit) >> nearest
+		return locator
+	}
+
+	private def mockStrategy(String scope, String stage, NearestVersion nearest, boolean createTag, boolean enforcePrecedence) {
+		PartialSemVerStrategy normal = Mock()
+		PartialSemVerStrategy preRelease = Mock()
+		PartialSemVerStrategy buildMetadata = Mock()
+		SemVerStrategyState initial = new SemVerStrategyState([
+			scopeFromProp: scope?.toUpperCase(),
+			stageFromProp: stage ?: 'and',
+			currentHead: null,
+			currentBranch: null,
+			repoDirty: true,
+			nearestVersion: nearest])
+		SemVerStrategyState afterNormal = initial.copyWith(inferredNormal: '1.2.3')
+		SemVerStrategyState afterPreRelease = afterNormal.copyWith(inferredPreRelease: 'beta.1')
+		SemVerStrategyState afterBuildMetadata = afterPreRelease.copyWith(inferredBuildMetadata: 'abc123')
+
+		1 * normal.infer(initial) >> afterNormal
+		1 * preRelease.infer(afterNormal) >> afterPreRelease
+		1 * buildMetadata.infer(afterPreRelease) >> afterBuildMetadata
+		0 * normal._
+		0 * preRelease._
+		0 * buildMetadata._
+
+		return new SemVerStrategy(
+			stages: ['one', 'and'] as SortedSet,
+			normalStrategy: normal,
+			preReleaseStrategy: preRelease,
+			buildMetadataStrategy: buildMetadata,
+			createTag: createTag,
+			enforcePrecedence: enforcePrecedence
+		)
 	}
 }

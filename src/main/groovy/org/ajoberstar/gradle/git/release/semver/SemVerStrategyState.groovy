@@ -16,6 +16,7 @@
 package org.ajoberstar.gradle.git.release.semver
 
 import groovy.transform.Immutable
+import groovy.transform.ToString
 
 import com.github.zafarkhaja.semver.Version
 
@@ -23,6 +24,7 @@ import org.ajoberstar.grgit.Branch
 import org.ajoberstar.grgit.Commit
 
 @Immutable(copyWith=true)
+@ToString(includeNames=true)
 final class SemVerStrategyState {
 	ChangeScope scopeFromProp
 	String stageFromProp
