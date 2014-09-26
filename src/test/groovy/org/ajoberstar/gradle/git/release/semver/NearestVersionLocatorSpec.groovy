@@ -16,8 +16,7 @@
 package org.ajoberstar.gradle.git.release.semver
 
 import java.security.SecureRandom
-
-import com.energizedwork.spock.extensions.TempDirectory
+import java.nio.file.Files
 
 import com.github.zafarkhaja.semver.Version
 
@@ -28,7 +27,6 @@ import spock.lang.Specification
 import spock.lang.Unroll
 
 class NearestVersionLocatorSpec extends Specification {
-	@TempDirectory(clean=true)
 	@Shared File repoDir
 
 	@Shared Grgit grgit
@@ -36,6 +34,7 @@ class NearestVersionLocatorSpec extends Specification {
 	@Shared SecureRandom random = new SecureRandom()
 
 	def setupSpec() {
+		repoDir = Files.createTempDirectory('repo').toFile()
 		grgit = Grgit.init(dir: repoDir)
 
 		commit()
@@ -93,6 +92,10 @@ class NearestVersionLocatorSpec extends Specification {
 		commit()
 		// grgit.tag.add(name: '1.1.0-rc.1+abcde')
 		addTag('1.1.0-rc.1+abcde')
+	}
+
+	def cleanupSpec() {
+		assert !repoDir.exists() || repoDir.deleteDir()
 	}
 
 	@Unroll('when on #head, locator finds normal #normal with distance #distance and nearest #any at #stage')
