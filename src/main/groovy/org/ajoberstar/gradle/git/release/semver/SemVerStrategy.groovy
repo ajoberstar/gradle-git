@@ -26,8 +26,12 @@ import org.ajoberstar.grgit.Grgit
 import org.gradle.api.GradleException
 import org.gradle.api.Project
 
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
+
 @Immutable(copyWith=true)
 final class SemVerStrategy implements VersionStrategy {
+	private static final Logger logger = LoggerFactory.getLogger(SemVerStrategy)
 	static final String SCOPE_PROP = 'release.scope'
 	static final String STAGE_PROP = 'release.stage'
 
@@ -46,7 +50,7 @@ final class SemVerStrategy implements VersionStrategy {
 	@Override
 	boolean selector(Project project, Grgit grgit) {
 		String stage = getPropertyOrNull(project, STAGE_PROP)
-		if (!stages.contains(stage)) {
+		if (stage == null || !stages.contains(stage)) {
 			logger.info('Skipping {} strategy because stage ({}) is not one of: {}', name, stage, stages)
 			return false
 		} else if (!allowDirtyRepo && !grgit.status().clean) {
@@ -93,6 +97,6 @@ final class SemVerStrategy implements VersionStrategy {
 	}
 
 	private String getPropertyOrNull(Project project, String name) {
-		return project.hasProperty(name) ? project[name] : null
+		return project.hasProperty(name) ? project.property(name) : null
 	}
 }
