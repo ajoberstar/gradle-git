@@ -17,12 +17,14 @@ package org.ajoberstar.gradle.git.release.semver
 
 import spock.lang.Specification
 
+import com.github.zafarkhaja.semver.Version
 import org.gradle.api.Project
 import org.ajoberstar.grgit.Grgit
 import org.ajoberstar.grgit.Status
 import org.ajoberstar.grgit.Branch
 import org.ajoberstar.grgit.BranchStatus
 import org.ajoberstar.grgit.service.BranchService
+import org.ajoberstar.gradle.git.release.base.ReleaseVersion
 
 class SemVerStrategySpec extends Specification {
 	Project project = GroovyMock()
@@ -80,7 +82,7 @@ class SemVerStrategySpec extends Specification {
 
 	def 'selector returns true if all criteria met'() {
 		given:
-		def strategy = new SemVerStrategy(stages: ['one'] as SortedSet, allowDirtyRepo: false, allowBranchBehind: false)
+		def strategy = new SemVerStrategy(stages: ['one', 'and'] as SortedSet, allowDirtyRepo: false, allowBranchBehind: false)
 		mockStage('one')
 		mockRepoClean(true)
 		mockBranchService(0)
@@ -88,10 +90,60 @@ class SemVerStrategySpec extends Specification {
 		strategy.selector(project, grgit)
 	}
 
+	def 'infer returns correct version'() {
+		given:
+		mockScope(scope)
+		mockStage(stage)
+		mockRepoClean(false)
+		NearestVersionLocator locator = Mock()
+		NearestVersion nearest = new NearestVersion(any: Version.valueOf(nearestAny))
+		locator.locate(grgit) >> nearest
+		PartialSemVerStrategy normal = Mock()
+		PartialSemVerStrategy preRelease = Mock()
+		PartialSemVerStrategy buildMetadata = Mock()
+
+		SemVerStrategyState initial = new SemVerStrategyState([
+			scopeFromProp: scope?.toUpperCase(),
+			stageFromProp: stage ?: 'and',
+			currentHead: null,
+			currentBranch: null,
+			repoDirty: true,
+			nearestVersion: nearest])
+		SemVerStrategyState afterNormal = initial.copyWith(inferredNormal: '1.2.3')
+		SemVerStrategyState afterPreRelease = afterNormal.copyWith(inferredPreRelease: 'beta.1')
+		SemVerStrategyState afterBuildMetadata = afterPreRelease.copyWith(inferredBuildMetadata: 'abc123')
+
+		1 * normal.infer(initial) >> afterNormal
+		1 * preRelease.infer(afterNormal) >> afterPreRelease
+		1 * buildMetadata.infer(afterPreRelease) >> afterBuildMetadata
+		0 * normal._
+		0 * preRelease._
+		0 * buildMetadata._
+
+		expect:
+		new SemVerStrategy(
+			stages: ['one'] as SortedSet,
+			normalStrategy: normal,
+			preReleaseStrategy: preRelease,
+			buildMetadataStrategy: buildMetadata,
+			createTag: createTag,
+			enforcePrecedence: enforcePrecedence
+		).doInfer(project, grgit, locator) == new ReleaseVersion('1.2.3-beta.1+abc123', createTag)
+		where:
+		scope   | stage | nearestAny | createTag | enforcePrecedence
+		'minor' | 'one' | '1.2.2'    | true      | true
+		'minor' | 'one' | '1.2.2'    | false     | true
+		'minor' | 'one' | '1.2.3'    | true      | false
+	}
+
+	private def mockScope(String scopeProp) {
+		(0..1) * project.hasProperty('release.scope') >> (scopeProp as boolean)
+		(0..1) * project.property('release.scope') >> scopeProp
+	}
+
 	private def mockStage(String stageProp) {
 		(0..1) * project.hasProperty('release.stage') >> (stageProp as boolean)
 		(0..1) * project.property('release.stage') >> stageProp
-		0 * project._
 	}
 
 	private def mockRepoClean(boolean isClean) {

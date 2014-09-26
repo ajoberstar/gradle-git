@@ -15,9 +15,8 @@
  */
 package org.ajoberstar.gradle.git.release.semver
 
-import com.github.zafarkhaja.semver.GrammarException
+import com.github.zafarkhaja.semver.ParseException
 import com.github.zafarkhaja.semver.Version
-import com.github.zafarkhaja.semver.util.UnexpectedElementTypeException
 
 import org.ajoberstar.grgit.Commit
 import org.ajoberstar.grgit.Grgit
@@ -38,12 +37,8 @@ import org.slf4j.LoggerFactory
  *
  * @since 0.8.0
  */
-final class NearestVersionLocator {
+class NearestVersionLocator {
 	private static final Logger logger = LoggerFactory.getLogger(NearestVersionLocator)
-
-	private NearestVersionLocator() {
-		throw new AssertionError('Cannot instantiate this class.')
-	}
 
 	/**
 	 * Locate the nearest version in the given repository
@@ -77,7 +72,7 @@ final class NearestVersionLocator {
 	 * Defaults to {@code HEAD}.
 	 * @return the version corresponding to the nearest tag
 	 */
-	static NearestVersion locate(Grgit grgit) {
+	NearestVersion locate(Grgit grgit) {
 		logger.debug('Locate beginning on branch: {}', grgit.branch.current.fullName)
 		Commit head = grgit.head()
 		List versionTags = grgit.tag.list().inject([]) { list, tag ->
@@ -127,19 +122,16 @@ final class NearestVersionLocator {
 		return new NearestVersion(anyVersion, normalVersion, distanceFromAny, distanceFromNormal)
 	}
 
-	protected static Version parseAsVersion(String name) {
+	protected Version parseAsVersion(String name) {
 		try {
 			return Version.valueOf(extractName(name))
-		} catch (GrammarException e) {
-			logger.error('Internal semver error.')
-			throw e
-		} catch (UnexpectedElementTypeException e) {
+		} catch (ParseException e) {
 			logger.debug('Invalid version string: {}', name)
 			return null
 		}
 	}
 
-	protected static String extractName(String tagName) {
+	protected String extractName(String tagName) {
 		if (tagName.charAt(0) == 'v') {
 			return tagName[1..-1]
 		} else {

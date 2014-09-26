@@ -16,6 +16,7 @@
 package org.ajoberstar.gradle.git.release.semver
 
 import groovy.transform.Immutable
+import groovy.transform.PackageScope
 
 import com.github.zafarkhaja.semver.Version
 
@@ -29,7 +30,7 @@ import org.gradle.api.Project
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
-@Immutable(copyWith=true)
+@Immutable(copyWith=true, knownImmutableClasses=[PartialSemVerStrategy])
 final class SemVerStrategy implements VersionStrategy {
 	private static final Logger logger = LoggerFactory.getLogger(SemVerStrategy)
 	static final String SCOPE_PROP = 'release.scope'
@@ -66,13 +67,18 @@ final class SemVerStrategy implements VersionStrategy {
 
 	@Override
 	ReleaseVersion infer(Project project, Grgit grgit) {
+		return infer(project, grgit, new NearestVersionLocator())
+	}
+
+	@PackageScope
+	ReleaseVersion doInfer(Project project, Grgit grgit, NearestVersionLocator locator) {
 		ChangeScope scope = getPropertyOrNull(project, SCOPE_PROP).with { scope ->
 			scope == null ? null : ChangeScope.valueOf(scope.toUpperCase())
 		}
 		String stage = getPropertyOrNull(project, STAGE_PROP) ?: stages.first()
 		logger.info('Beginning version inference using {} strategy and input scope ({}) and stage ({})', name, scope, stage)
 
-		NearestVersion nearestVersion = NearestVersionLocator.locate(grgit)
+		NearestVersion nearestVersion = locator.locate(grgit)
 		logger.debug('Located nearest version: {}', nearestVersion)
 
 		SemVerStrategyState state = new SemVerStrategyState(
@@ -93,7 +99,7 @@ final class SemVerStrategy implements VersionStrategy {
 			throw new GradleException("Inferred version (${version}) cannot be lower than nearest (${nearestVersion.any}). Required by selected strategy.")
 		}
 
-		return new ReleaseVersion(version, createTag)
+		return new ReleaseVersion(version.toString(), createTag)
 	}
 
 	private String getPropertyOrNull(Project project, String name) {

@@ -36,15 +36,9 @@ final class SemVerStrategyState {
 
 	Version toVersion() {
 		return new Version.Builder().with {
-			if (inferredNormal) {
-				normalVersion = inferredNormal
-			}
-			if (inferredPreRelease) {
-				preReleaseVersion = inferredPreRelease
-			}
-			if (inferredBuildMetadata) {
-				buildMetadata = inferredBuildMetadata
-			}
+			normalVersion = inferredNormal
+			preReleaseVersion = inferredPreRelease
+			buildMetadata =inferredBuildMetadata
 			build()
 		}
 	}

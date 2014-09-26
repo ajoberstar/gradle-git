@@ -15,7 +15,7 @@
  */
 package org.ajoberstar.gradle.git.release.semver
 
-import groovy.transform.Canonical
+import groovy.transform.Immutable
 
 import com.github.zafarkhaja.semver.Version
 
@@ -24,25 +24,25 @@ import com.github.zafarkhaja.semver.Version
  * will be returned for any
  * @since 0.8.0
  */
-@Canonical
+@Immutable(knownImmutableClasses=[Version])
 class NearestVersion {
 	/**
 	 * The nearest version that is tagged.
 	 */
-	final Version any
+	Version any
 
 	/**
 	 * The nearest normal (i.e. non-prerelease) version that is tagged.
 	 */
-	final Version normal
+	Version normal
 
 	/**
 	 * The number of commits since {@code any} reachable from HEAD.
 	 */
-	final int distanceFromAny
+	int distanceFromAny
 
 	/**
 	 * The number of commits since {@code normal} reachable from HEAD.
 	 */
-	final int distanceFromNormal
+	int distanceFromNormal
 }
