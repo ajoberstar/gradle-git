@@ -325,6 +325,22 @@ class StrategiesSpec extends Specification {
 		null    | 'rc'        | '1.0.0'       | '1.1.0-rc.4.dev.1'  | false     | '1.1.0-rc.5+5e9b2a1'
 	}
 
+	def 'Strategies.FINAL works as expected'() {
+		def project = mockProject(scope, stage)
+		def grgit = mockGrgit(repoDirty)
+		def locator = mockLocator(nearestNormal, nearestAny)
+		expect:
+		Strategies.FINAL.doInfer(project, grgit, locator) == new ReleaseVersion(expected, true)
+		where:
+		scope   | stage       | nearestNormal | nearestAny          | repoDirty | expected
+		null    | null        | '1.0.0'       | '1.0.0'             | false     | '1.0.1'
+		'PATCH' | null        | '1.0.0'       | '1.0.0'             | false     | '1.0.1'
+		'MINOR' | null        | '1.0.0'       | '1.0.0'             | false     | '1.1.0'
+		'MAJOR' | null        | '1.0.0'       | '1.0.0'             | false     | '2.0.0'
+		'MAJOR' | 'final'     | '1.0.0'       | '1.0.0'             | false     | '2.0.0'
+		'MINOR' | 'final'     | '1.0.0'       | '1.1.0-alpha.2'     | false     | '1.1.0'
+	}
+
 	def mockProject(String scope, String stage) {
 		Project project = Mock()
 
