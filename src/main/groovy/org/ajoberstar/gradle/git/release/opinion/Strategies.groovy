@@ -138,7 +138,7 @@ final class Strategies {
 
 	static final SemVerStrategy DEFAULT = new SemVerStrategy(
 		name: '',
-		stages: [],
+		stages: [] as SortedSet,
 		allowDirtyRepo: false,
 		allowBranchBehind: false,
 		normalStrategy: one(Normal.USE_SCOPE_PROP, Normal.USE_NEAREST_ANY, Normal.useScope(ChangeScope.PATCH)),
@@ -150,7 +150,7 @@ final class Strategies {
 
 	static final SemVerStrategy SNAPSHOT = DEFAULT.copyWith(
 		name: 'snapshot',
-		stages: ['SNAPSHOT'],
+		stages: ['SNAPSHOT'] as SortedSet,
 		allowDirtyRepo: true,
 		allowBranchBehind: true,
 		preReleaseStrategy: PreRelease.STAGE_FIXED,
@@ -160,7 +160,7 @@ final class Strategies {
 
 	static final SemVerStrategy DEVELOPMENT = DEFAULT.copyWith(
 		name: 'development',
-		stages: ['dev'],
+		stages: ['dev'] as SortedSet,
 		allowDirtyRepo: true,
 		allowBranchBehind: true,
 		preReleaseStrategy: all(PreRelease.STAGE_FLOAT, PreRelease.COUNT_COMMITS_SINCE_ANY, PreRelease.SHOW_UNCOMMITTED),
@@ -170,14 +170,14 @@ final class Strategies {
 
 	static final SemVerStrategy PRE_RELEASE = DEFAULT.copyWith(
 		name: 'pre-release',
-		stages: ['milestone', 'rc'],
+		stages: ['milestone', 'rc'] as SortedSet,
 		preReleaseStrategy: all(PreRelease.STAGE_FIXED, PreRelease.COUNT_INCREMENTED),
 		buildMetadataStrategy: BuildMetadata.COMMIT_ABBREVIATED_ID
 	)
 
 	static final SemVerStrategy FINAL = DEFAULT.copyWith(
 		name: 'final',
-		stages: ['final'],
+		stages: ['final'] as SortedSet,
 		preReleaseStrategy: PreRelease.NONE,
 		buildMetadataStrategy: BuildMetadata.NONE
 	)

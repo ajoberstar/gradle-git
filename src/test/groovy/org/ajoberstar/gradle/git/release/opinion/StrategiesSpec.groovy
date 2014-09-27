@@ -19,11 +19,16 @@ import spock.lang.Specification
 import spock.lang.Unroll
 import org.ajoberstar.grgit.Branch
 import org.ajoberstar.grgit.Commit
+import org.ajoberstar.grgit.Status
+import org.ajoberstar.grgit.Grgit
+import org.ajoberstar.gradle.git.release.base.ReleaseVersion
 import org.ajoberstar.gradle.git.release.semver.SemVerStrategyState
 import org.ajoberstar.gradle.git.release.semver.ChangeScope
 import org.ajoberstar.gradle.git.release.semver.NearestVersion
+import org.ajoberstar.gradle.git.release.semver.NearestVersionLocator
 import com.github.zafarkhaja.semver.Version
 import org.gradle.api.GradleException
+import org.gradle.api.Project
 
 class StrategiesSpec extends Specification {
 	SemVerStrategyState initialState = new SemVerStrategyState([:])
@@ -261,5 +266,61 @@ class StrategiesSpec extends Specification {
 		def metadata = newState.inferredBuildMetadata
 		metadata ==~ /\d{4}\.\d{2}\.\d{2}\.\d{2}\.\d{2}\.\d{2}/
 		newState == new SemVerStrategyState(inferredBuildMetadata: metadata)
+	}
+
+	def 'SNAPSHOT works as expected'() {
+		given:
+		def project = mockProject(scope, stage)
+		def grgit = mockGrgit(repoDirty)
+		def locator = mockLocator(nearestNormal, nearestAny)
+		expect:
+		Strategies.SNAPSHOT.doInfer(project, grgit, locator) == new ReleaseVersion(expected, false)
+		where:
+		scope   | stage      | nearestNormal | nearestAny   | repoDirty | expected
+		null    | null       | '1.0.0'       | '1.0.0'      | false     | '1.0.1-SNAPSHOT'
+		null    | null       | '1.0.0'       | '1.0.0'      | true      | '1.0.1-SNAPSHOT'
+		null    | 'SNAPSHOT' | '1.0.0'       | '1.1.0-beta' | true      | '1.1.0-SNAPSHOT'
+		null    | 'SNAPSHOT' | '1.0.0'       | '1.1.0-zed'  | true      | '1.1.0-SNAPSHOT'
+		'PATCH' | 'SNAPSHOT' | '1.0.0'       | '1.1.0-zed'  | true      | '1.0.1-SNAPSHOT'
+		'MINOR' | 'SNAPSHOT' | '1.0.0'       | '1.1.0-zed'  | true      | '1.1.0-SNAPSHOT'
+		'MAJOR' | 'SNAPSHOT' | '1.0.0'       | '1.1.0-zed'  | true      | '2.0.0-SNAPSHOT'
+	}
+
+	def mockProject(String scope, String stage) {
+		Project project = Mock()
+
+		project.hasProperty('release.scope') >> (scope as boolean)
+		project.property('release.scope') >> scope
+
+		project.hasProperty('release.stage') >> (stage as boolean)
+		project.property('release.stage') >> stage
+
+		return project
+	}
+
+	def mockGrgit(boolean repoDirty, String branchName = 'master') {
+		Grgit grgit = GroovyMock()
+
+		Status status = Mock()
+		status.clean >> !repoDirty
+		grgit.status() >> status
+
+		grgit.head() >> new Commit(id: '5e9b2a1e98b5670a90a9ed382a35f0d706d5736c')
+
+		Branch branch = new Branch(fullName: "refs/heads/${branchName}")
+		grgit.branch >> branch
+
+		return grgit
+	}
+
+	def mockLocator(String nearestNormal, String nearestAny) {
+		NearestVersionLocator locator = Mock()
+		locator.locate(_) >> new NearestVersion(
+			normal: Version.valueOf(nearestNormal),
+			distanceFromNormal: 5,
+			any: Version.valueOf(nearestAny),
+			distanceFromAny: 2
+		)
+		return locator
 	}
 }
