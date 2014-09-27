@@ -1,5 +1,6 @@
 org.ajoberstar.gradle.git.auth
 org.ajoberstar.gradle.git.ghpages
-org.ajoberstar.gradle.git.release
-org.ajoberstar.gradle.git.semver
+org.ajoberstar.gradle.git.release.base
+org.ajoberstar.gradle.git.release.opinion
+org.ajoberstar.gradle.git.release.semver
 org.ajoberstar.gradle.util
