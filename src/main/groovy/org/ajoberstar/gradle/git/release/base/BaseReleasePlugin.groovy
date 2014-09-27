@@ -34,10 +34,13 @@ class BaseReleasePlugin implements Plugin<Project> {
 		project.tasks.create(RELEASE_TASK_NAME) {
 			description = 'Releases this project.'
 			doLast {
+				// force version inference if it hasn't happened already
+				project.version.toString()
+
 				ext.grgit = extension.grgit
 				ext.toPush = [grgit.branch.current.fullName]
 
-				ext.tagName = extension.tagStrategy.maybeCreateTag(project.version)
+				ext.tagName = extension.tagStrategy.maybeCreateTag(grgit, project.version.inferredVersion)
 				if (tagName) {
 					toPush << tagName
 				}

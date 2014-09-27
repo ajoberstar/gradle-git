@@ -29,11 +29,11 @@ import org.slf4j.LoggerFactory
 
 class ReleasePluginExtension {
 	private static final Logger logger = LoggerFactory.getLogger(ReleasePluginExtension)
-	private final Project project
+	protected final Project project
 	private final Map<String, VersionStrategy> versionStrategies = [:]
 	final TagStrategy tagStrategy = new TagStrategy()
 
-	VersionStrategy defaultStrategy
+	VersionStrategy defaultVersionStrategy
 
 	Grgit grgit
 
@@ -66,15 +66,15 @@ class ReleasePluginExtension {
 			grgit.fetch(remote: remote)
 
 			VersionStrategy selectedStrategy = versionStrategies.find { strategy ->
-				strategy.select(project, grgit)
+				strategy.selector(project, grgit)
 			}
 
 			if (!selectedStrategy) {
-				if (defaultStrategy) {
-					logger.info('Falling back to default strategy: {}', defaultStrategy.name)
-					selectedStrategy = defaultStrategy
+				if (defaultVersionStrategy) {
+					logger.info('Falling back to default strategy: {}', defaultVersionStrategy.name)
+					selectedStrategy = defaultVersionStrategy
 				} else {
-					throw new GradleException('No strategies were selected and defaultStrategy is not set.')
+					throw new GradleException('No strategies were selected and defaultVersionStrategy is not set.')
 				}
 			}
 
