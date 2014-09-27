@@ -21,5 +21,28 @@ import org.gradle.api.Project
 class OpinionReleasePlugin implements Plugin<Project> {
 	void apply(Project project) {
 		project.plugins.apply('org.ajoberstar.release-base')
+
+		project.release {
+			versionStrategy Strategies.DEVELOPMENT
+			versionStrategy Strategies.PRE_RELEASE
+			versionStrategy Strategies.FINAL
+			defaultVersionStrategy = Strategies.DEVELOPMENT
+			tagStrategy {
+				generateTagMessage = { version ->
+					StringBuilder builder = new StringBuilder()
+					builder << 'Release of '
+					builder << version
+					builder << '\n\n'
+					grgit.log {
+						range "v${version.previousVersion}^{commit}", 'HEAD'
+					}.inject(builder) { bldr, commit ->
+						bldr << '- '
+						bldr << commit.shortMessage
+						bldr << '\n'
+					}
+					builder.toString()
+				}
+			}
+		}
 	}
 }

@@ -99,7 +99,7 @@ final class SemVerStrategy implements VersionStrategy {
 			throw new GradleException("Inferred version (${version}) cannot be lower than nearest (${nearestVersion.any}). Required by selected strategy.")
 		}
 
-		return new ReleaseVersion(version.toString(), createTag)
+		return new ReleaseVersion(version.toString(), nearestVersion.normal.toString(), createTag)
 	}
 
 	private String getPropertyOrNull(Project project, String name) {

@@ -20,5 +20,6 @@ import groovy.transform.Immutable
 @Immutable
 class ReleaseVersion {
 	String version
+	String previousVersion
 	boolean createTag
 }

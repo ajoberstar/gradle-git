@@ -96,11 +96,13 @@ class SemVerStrategySpec extends Specification {
 		mockScope(scope)
 		mockStage(stage)
 		mockRepoClean(false)
-		def nearest = new NearestVersion(any: Version.valueOf(nearestAny))
+		def nearest = new NearestVersion(
+			normal: Version.valueOf('1.2.2'),
+			any: Version.valueOf(nearestAny))
 		def locator = mockLocator(nearest)
 		def strategy = mockStrategy(scope, stage, nearest, createTag, enforcePrecedence)
 		expect:
-		strategy.doInfer(project, grgit, locator) == new ReleaseVersion('1.2.3-beta.1+abc123', createTag)
+		strategy.doInfer(project, grgit, locator) == new ReleaseVersion('1.2.3-beta.1+abc123', '1.2.2', createTag)
 		where:
 		scope   | stage | nearestAny | createTag | enforcePrecedence
 		'patch' | 'one' | '1.2.3'    | true      | false

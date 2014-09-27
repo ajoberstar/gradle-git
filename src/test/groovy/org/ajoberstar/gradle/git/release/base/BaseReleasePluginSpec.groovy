@@ -43,7 +43,7 @@ class BaseReleasePluginSpec extends Specification {
 			versionStrategy([
 				getName: { 'a' },
 				selector: {proj, repo2 -> true },
-				infer: {proj, repo2 -> new ReleaseVersion('1.2.3', true)}] as VersionStrategy)
+				infer: {proj, repo2 -> new ReleaseVersion('1.2.3', null, true)}] as VersionStrategy)
 			grgit = repo
 		}
 		when:
@@ -64,7 +64,7 @@ class BaseReleasePluginSpec extends Specification {
 			versionStrategy([
 				getName: { 'a' },
 				selector: {proj, repo2 -> true },
-				infer: {proj, repo2 -> new ReleaseVersion('1.2.3', false)}] as VersionStrategy)
+				infer: {proj, repo2 -> new ReleaseVersion('1.2.3', null, false)}] as VersionStrategy)
 			grgit = repo
 		}
 		when:

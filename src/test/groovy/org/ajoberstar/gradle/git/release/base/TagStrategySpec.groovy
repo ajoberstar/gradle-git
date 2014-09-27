@@ -29,7 +29,7 @@ class TagStrategySpec extends Specification {
 		1 * tag.add([name: 'v1.2.3', message: 'Release of 1.2.3'])
 		0 * tag._
 		expect:
-		new TagStrategy().maybeCreateTag(grgit, new ReleaseVersion('1.2.3', true)) == 'v1.2.3'
+		new TagStrategy().maybeCreateTag(grgit, new ReleaseVersion('1.2.3', null, true)) == 'v1.2.3'
 	}
 
 	def 'maybeCreateTag with version create tag false does not create a tag'() {
@@ -39,7 +39,7 @@ class TagStrategySpec extends Specification {
 		grgit.tag >> tag
 		0 * tag._
 		expect:
-		new TagStrategy().maybeCreateTag(grgit, new ReleaseVersion('1.2.3', false)) == null
+		new TagStrategy().maybeCreateTag(grgit, new ReleaseVersion('1.2.3', null, false)) == null
 	}
 
 	def 'maybeCreateTag with version create tag true and prefix name with v false will create a tag'() {
@@ -52,6 +52,6 @@ class TagStrategySpec extends Specification {
 		def strategy = new TagStrategy()
 		strategy.prefixNameWithV = false
 		expect:
-		strategy.maybeCreateTag(grgit, new ReleaseVersion('1.2.3', true)) == '1.2.3'
+		strategy.maybeCreateTag(grgit, new ReleaseVersion('1.2.3', null, true)) == '1.2.3'
 	}
 }
