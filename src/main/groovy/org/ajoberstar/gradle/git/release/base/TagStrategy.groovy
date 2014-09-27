@@ -18,6 +18,8 @@ package org.ajoberstar.gradle.git.release.base
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
+import org.ajoberstar.grgit.Grgit
+
 class TagStrategy {
 	private static final Logger logger = LoggerFactory.getLogger(TagStrategy)
 
@@ -26,10 +28,11 @@ class TagStrategy {
 	Closure generateMessage = { version -> "Release of ${version}" }
 
 
-	String maybeCreateTag(ReleaseVersion version) {
+	String maybeCreateTag(Grgit grgit, ReleaseVersion version) {
+		def versionStr = version.version
 		if (version.createTag) {
-			String name = prefixNameWithV ? "v${version}" : version
-			String message = generateMessage(version.version)
+			String name = prefixNameWithV ? "v${versionStr}" : versionStr
+			String message = generateMessage(versionStr)
 
 			logger.warn('Tagging repository as {}', name)
 			grgit.tag.add(name: name, message: message)
