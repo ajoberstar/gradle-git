@@ -20,7 +20,7 @@ final class StrategyUtil {
 		throw new AssertionError('Cannot instantiate this class.')
 	}
 
-	static final PartialSemVerStrategy closure(Closure behavior) {
+	static final PartialSemVerStrategy closure(Closure<SemVerStrategyState> behavior) {
 		return new ClosureBackedPartialSemVerStrategy(behavior)
 	}
 
@@ -40,10 +40,24 @@ final class StrategyUtil {
 		}
 	}
 
-	private static class ClosureBackedPartialSemVerStrategy implements PartialSemVerStrategy {
-		private final Closure<String> behavior
+	static final SemVerStrategyState incrementNormalFromScope(SemVerStrategyState state, ChangeScope scope) {
+		def oldNormal = state.nearestVersion.normal
+		switch (scope) {
+			case ChangeScope.MAJOR:
+				return state.copyWith(inferredNormal: oldNormal.incrementMajorVersion())
+			case ChangeScope.MINOR:
+				return state.copyWith(inferredNormal: oldNormal.incrementMinorVersion())
+			case ChangeScope.PATCH:
+				return state.copyWith(inferredNormal: oldNormal.incrementPatchVersion())
+			default:
+				return state
+		}
+	}
 
-		ClosureBackedPartialSemVerStrategy(Closure<String> behavior) {
+	private static class ClosureBackedPartialSemVerStrategy implements PartialSemVerStrategy {
+		private final Closure<SemVerStrategyState> behavior
+
+		ClosureBackedPartialSemVerStrategy(Closure<SemVerStrategyState> behavior) {
 			this.behavior = behavior
 		}
 

@@ -22,13 +22,14 @@ import java.util.regex.Pattern
 import org.ajoberstar.gradle.git.release.semver.ChangeScope
 import org.ajoberstar.gradle.git.release.semver.PartialSemVerStrategy
 import org.ajoberstar.gradle.git.release.semver.SemVerStrategy
+import org.ajoberstar.gradle.git.release.semver.SemVerStrategyState
 
 import org.gradle.api.GradleException
 
 final class Strategies {
 	static final class Normal {
 		static final PartialSemVerStrategy USE_SCOPE_PROP = closure { state ->
-			return useScope(state.scopeFromProp).infer(state)
+			return incrementNormalFromScope(state, state.scopeFromProp)
 		}
 
 		static final PartialSemVerStrategy USE_NEAREST_ANY = closure { state ->
@@ -40,9 +41,9 @@ final class Strategies {
 			}
 		}
 
-		static final PartialSemVerStrategy ENFORCE_BRANCH_MAJOR_X = fromBranchPattern(/^(\d+)\.x$/)
+		static final PartialSemVerStrategy ENFORCE_BRANCH_MAJOR_X = fromBranchPattern(~/^(\d+)\.x$/)
 
-		static final PartialSemVerStrategy ENFORCE_BRANCH_MAJOR_MINOR_X = fromBranchPattern(/^(\d+)\.(\d+)\.x$/)
+		static final PartialSemVerStrategy ENFORCE_BRANCH_MAJOR_MINOR_X = fromBranchPattern(~/^(\d+)\.(\d+)\.x$/)
 
 		static PartialSemVerStrategy fromBranchPattern(Pattern pattern) {
 			return closure { state ->
@@ -51,7 +52,7 @@ final class Strategies {
 					def major = m.groupCount() >= 1 ? parseIntOrZero(m[0][1]) : -1
 					def minor = m.groupCount() >= 2 ? parseIntOrZero(m[0][2]) : -1
 
-					def normal = nearestVersion.normal
+					def normal = state.nearestVersion.normal
 					def majorDiff = major - normal.majorVersion
 					def minorDiff = minor - normal.minorVersion
 
@@ -71,19 +72,7 @@ final class Strategies {
 		}
 
 		static PartialSemVerStrategy useScope(ChangeScope scope) {
-			return closure { state ->
-				def oldNormal = state.nearestVersion.normal
-				switch (state.scopeFromProp) {
-					case ChangeScope.MAJOR:
-						return state.copyWith(inferredNormal: oldNormal.incrementMajorVersion())
-					case ChangeScope.MINOR:
-						return state.copyWith(inferredNormal: oldNormal.incrementMinorVersion())
-					case ChangeScope.PATCH:
-						return state.copyWith(inferredNormal: oldNormal.incrementPatchVersion())
-					default:
-						return state
-				}
-			}
+			return closure { state -> incrementNormalFromScope(state, scope) }
 		}
 	}
 
