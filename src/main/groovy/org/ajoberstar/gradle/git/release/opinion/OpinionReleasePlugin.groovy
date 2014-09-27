@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.ajoberstar.gradle.git.release
+package org.ajoberstar.gradle.git.release.opinion
 
 import org.gradle.api.Plugin
 import org.gradle.api.Project
@@ -28,10 +28,10 @@ class OpinionReleasePlugin implements Plugin<Project> {
 			versionStrategy Strategies.FINAL
 			defaultVersionStrategy = Strategies.DEVELOPMENT
 			tagStrategy {
-				generateTagMessage = { version ->
+				generateMessage = { version ->
 					StringBuilder builder = new StringBuilder()
 					builder << 'Release of '
-					builder << version
+					builder << version.version
 					builder << '\n\n'
 					grgit.log {
 						range "v${version.previousVersion}^{commit}", 'HEAD'

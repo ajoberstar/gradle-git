@@ -25,14 +25,14 @@ class TagStrategy {
 
 	boolean prefixNameWithV = true
 
-	Closure generateMessage = { version -> "Release of ${version}" }
+	Closure generateMessage = { version -> "Release of ${version.version}" }
 
 
 	String maybeCreateTag(Grgit grgit, ReleaseVersion version) {
 		def versionStr = version.version
 		if (version.createTag) {
 			String name = prefixNameWithV ? "v${versionStr}" : versionStr
-			String message = generateMessage(versionStr)
+			String message = generateMessage(version)
 
 			logger.warn('Tagging repository as {}', name)
 			grgit.tag.add(name: name, message: message)

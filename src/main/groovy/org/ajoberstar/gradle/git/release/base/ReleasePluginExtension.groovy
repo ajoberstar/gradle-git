@@ -44,8 +44,8 @@ class ReleasePluginExtension {
 		project.version = new DelayedVersion()
 	}
 
-	Collection<VersionStrategy> getVersionStrategies() {
-		return versionStrategies.values().asImmutable()
+	List<VersionStrategy> getVersionStrategies() {
+		return versionStrategies.collect { key, value -> value }.asImmutable()
 	}
 
 	void versionStrategy(VersionStrategy strategy) {
