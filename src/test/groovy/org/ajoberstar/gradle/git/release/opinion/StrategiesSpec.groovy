@@ -286,6 +286,26 @@ class StrategiesSpec extends Specification {
 		'MAJOR' | 'SNAPSHOT' | '1.0.0'       | '1.1.0-zed'  | true      | '2.0.0-SNAPSHOT'
 	}
 
+	def 'DEVELOPMENT works as expected'() {
+		given:
+		def project = mockProject(scope, stage)
+		def grgit = mockGrgit(repoDirty)
+		def locator = mockLocator(nearestNormal, nearestAny)
+		expect:
+		Strategies.DEVELOPMENT.doInfer(project, grgit, locator) == new ReleaseVersion(expected, false)
+		where:
+		scope   | stage      | nearestNormal | nearestAny      | repoDirty | expected
+		null    | null       | '1.0.0'       | '1.0.0'         | false     | '1.0.1-dev.2+5e9b2a1'
+		null    | null       | '1.0.0'       | '1.0.0'         | true      | '1.0.1-dev.2.uncommitted+5e9b2a1'
+		null    | null       | '1.0.0'       | '1.1.0-alpha.1' | false     | '1.1.0-dev.2+5e9b2a1'
+		null    | null       | '1.0.0'       | '1.1.0-rc.3'    | false     | '1.1.0-rc.3.dev.2+5e9b2a1'
+		null    | null       | '1.0.0'       | '1.1.0-rc.3'    | true      | '1.1.0-rc.3.dev.2.uncommitted+5e9b2a1'
+		'PATCH' | 'dev'      | '1.0.0'       | '1.0.0'         | false     | '1.0.1-dev.2+5e9b2a1'
+		'MINOR' | 'dev'      | '1.0.0'       | '1.0.0'         | false     | '1.1.0-dev.2+5e9b2a1'
+		'MAJOR' | 'dev'      | '1.0.0'       | '1.0.0'         | false     | '2.0.0-dev.2+5e9b2a1'
+
+	}
+
 	def mockProject(String scope, String stage) {
 		Project project = Mock()
 
