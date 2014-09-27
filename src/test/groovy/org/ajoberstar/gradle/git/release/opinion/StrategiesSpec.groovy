@@ -18,6 +18,7 @@ package org.ajoberstar.gradle.git.release.opinion
 import spock.lang.Specification
 import spock.lang.Unroll
 import org.ajoberstar.grgit.Branch
+import org.ajoberstar.grgit.Commit
 import org.ajoberstar.gradle.git.release.semver.SemVerStrategyState
 import org.ajoberstar.gradle.git.release.semver.ChangeScope
 import org.ajoberstar.gradle.git.release.semver.NearestVersion
@@ -230,5 +231,35 @@ class StrategiesSpec extends Specification {
 		null              | true  | 'uncommitted'
 		'other'           | false | 'other'
 		'other'           | true  | 'other.uncommitted'
+	}
+
+	def 'BuildMetadata.NONE does nothing'() {
+		expect:
+		Strategies.BuildMetadata.NONE.infer(new SemVerStrategyState([:])) == new SemVerStrategyState([:])
+	}
+
+	def 'BuildMetadata.COMMIT_ABBREVIATED_ID uses current HEAD\'s abbreviated id'() {
+		given:
+		def initialState = new SemVerStrategyState(currentHead: new Commit(id: '5e9b2a1e98b5670a90a9ed382a35f0d706d5736c'))
+		expect:
+		Strategies.BuildMetadata.COMMIT_ABBREVIATED_ID.infer(initialState) ==
+			initialState.copyWith(inferredBuildMetadata: '5e9b2a1')
+	}
+
+	def 'BuildMetadata.COMMIT_FULL_ID uses current HEAD\'s abbreviated id'() {
+		given:
+		def id = '5e9b2a1e98b5670a90a9ed382a35f0d706d5736c'
+		def initialState = new SemVerStrategyState(currentHead: new Commit(id: id))
+		expect:
+		Strategies.BuildMetadata.COMMIT_FULL_ID.infer(initialState) ==
+			initialState.copyWith(inferredBuildMetadata: id)
+	}
+
+	def 'BuildMetadata.TIMESTAMP uses current time'() {
+		expect:
+		def newState = Strategies.BuildMetadata.TIMESTAMP.infer(new SemVerStrategyState([:]))
+		def metadata = newState.inferredBuildMetadata
+		metadata ==~ /\d{4}\.\d{2}\.\d{2}\.\d{2}\.\d{2}\.\d{2}/
+		newState == new SemVerStrategyState(inferredBuildMetadata: metadata)
 	}
 }
