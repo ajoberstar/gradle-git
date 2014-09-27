@@ -144,4 +144,91 @@ class StrategiesSpec extends Specification {
 		ChangeScope.MINOR | '1.3.0'
 		ChangeScope.MAJOR | '2.0.0'
 	}
+
+	def 'PreRelease.NONE does nothing'() {
+		expect:
+		Strategies.PreRelease.NONE.infer(new SemVerStrategyState([:])) == new SemVerStrategyState([:])
+	}
+
+	def 'PreRelease.STAGE_FIXED always replaces inferredPreRelease with stageFromProp'() {
+		given:
+		def initialState = new SemVerStrategyState(
+			stageFromProp: 'boom',
+			inferredPreRelease: initialPreRelease)
+		expect:
+		Strategies.PreRelease.STAGE_FIXED.infer(initialState) == initialState.copyWith(inferredPreRelease: 'boom')
+		where:
+		initialPreRelease << [null, 'other']
+	}
+
+	def 'PreRelease.STAGE_FLOAT will append the stageFromProp to the nearest any\'s pre release, if any, unless it has higher precedence'() {
+		given:
+		def initialState = new SemVerStrategyState(
+			stageFromProp: 'boom',
+			inferredPreRelease: 'other',
+			nearestVersion: new NearestVersion(any: Version.valueOf(nearest)))
+		expect:
+		Strategies.PreRelease.STAGE_FLOAT.infer(initialState) == initialState.copyWith(inferredPreRelease: expected)
+		where:
+		nearest                    | expected
+		'1.0.0'                    | 'boom'
+		'1.0.0-and.1'              | 'boom'
+		'1.0.0-cat.1'              | 'cat.1.boom'
+		'1.0.0-cat.something.else' | 'cat.something.else.boom'
+	}
+
+	def 'PreRelease.COUNT_INCREMENTED will increment the nearest any\'s pre release or set to 1 if not found'() {
+		given:
+		def initialState = new SemVerStrategyState(
+			inferredNormal: '1.1.0',
+			inferredPreRelease: initialPreRelease,
+			nearestVersion: new NearestVersion(
+				normal: Version.valueOf('1.0.0'),
+				any: Version.valueOf(nearestAny)))
+		expect:
+		Strategies.PreRelease.COUNT_INCREMENTED.infer(initialState) == initialState.copyWith(inferredPreRelease: expected)
+		where:
+		nearestAny           | initialPreRelease | expected
+		'1.0.0'              | null              | '1'
+		'1.0.0'              | 'other'           | 'other.1'
+		'1.0.1-beta.1'       | 'other'           | 'other.1'
+		'2.0.0-beta.1'       | 'other'           | 'other.1'
+		'1.1.0-beta.1'       | 'other'           | 'other.1'
+		'1.1.0-beta.1'       | 'beta'            | 'beta.2'
+		'1.1.0-beta.99'      | 'beta'            | 'beta.100'
+		'1.1.0-beta'         | 'beta'            | 'beta.1'
+		'1.1.0-beta.1'       | 'beta.1.alpha'    | 'beta.1.alpha.1'
+		'1.1.0-beta.1'       | 'beta.1.alpha'    | 'beta.1.alpha.1'
+		'1.1.0-beta.2.alpha' | 'beta'            | 'beta.2'
+	}
+
+	def 'PreRelease.COUNT_COMMITS_SINCE_ANY will append distanceFromAny'() {
+		given:
+		def initialState = new SemVerStrategyState(
+			inferredPreRelease: initialPreRelease,
+			nearestVersion: new NearestVersion(distanceFromAny: distance))
+		expect:
+		Strategies.PreRelease.COUNT_COMMITS_SINCE_ANY.infer(initialState) == initialState.copyWith(inferredPreRelease: expected)
+		where:
+		initialPreRelease | distance | expected
+		null              | 0        | '0'
+		null              | 54       | '54'
+		'other'           | 0        | 'other.0'
+		'other'           | 54       | 'other.54'
+	}
+
+	def 'PreRelease.SHOW_UNCOMMITTED appends uncommitted only if repo is dirty'() {
+		given:
+		def initialState = new SemVerStrategyState(
+			inferredPreRelease: initialPreRelease,
+			repoDirty: dirty)
+		expect:
+		Strategies.PreRelease.SHOW_UNCOMMITTED.infer(initialState) == initialState.copyWith(inferredPreRelease: expected)
+		where:
+		initialPreRelease | dirty | expected
+		null              | false | null
+		null              | true  | 'uncommitted'
+		'other'           | false | 'other'
+		'other'           | true  | 'other.uncommitted'
+	}
 }

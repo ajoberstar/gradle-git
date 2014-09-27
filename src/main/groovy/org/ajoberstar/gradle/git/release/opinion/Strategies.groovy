@@ -79,10 +79,10 @@ final class Strategies {
 	static final class PreRelease {
 		static final PartialSemVerStrategy NONE = closure { state -> state }
 
-		static final PartialSemVerStrategy STAGE_FIXED = closure { state -> strategies.copyWith(inferredPreRelease: state.stageFromProp)}
+		static final PartialSemVerStrategy STAGE_FIXED = closure { state -> state.copyWith(inferredPreRelease: state.stageFromProp)}
 
 		static final PartialSemVerStrategy STAGE_FLOAT = closure { state ->
-			def nearestPreRelease = nearestVersion.any.preReleaseVersion
+			def nearestPreRelease = state.nearestVersion.any.preReleaseVersion
 			if (nearestPreRelease != null && nearestPreRelease > state.stageFromProp) {
 				state.copyWith(inferredPreRelease: "${nearestPreRelease}.${state.stageFromProp}")
 			} else {
@@ -92,14 +92,14 @@ final class Strategies {
 
 		static final PartialSemVerStrategy COUNT_INCREMENTED = closure { state ->
 			def nearest = state.nearestVersion
-			def currentPreIdents = state.inferredPreRelease ? state.inferredPreRelease.split('\\.') : []
-			if (nearest.any == nearest.normal || nearest.any.normalVersion != nearest.normal) {
+			def currentPreIdents = state.inferredPreRelease ? state.inferredPreRelease.split('\\.') as List : []
+			if (nearest.any == nearest.normal || nearest.any.normalVersion != state.inferredNormal) {
 				currentPreIdents << '1'
 			} else {
 				def nearestPreIdents = nearest.any.preReleaseVersion.split('\\.')
 				if (nearestPreIdents.size() <= currentPreIdents.size()) {
 					currentPreIdents << '1'
-				} else if (currentPreIdents == nearestPreIdents[0..currentPreIdents.size()]) {
+				} else if (currentPreIdents == nearestPreIdents[0..(currentPreIdents.size() - 1)]) {
 					def count = parseIntOrZero(nearestPreIdents[currentPreIdents.size()])
 					if (count == 0 || nearestPreIdents.size() == currentPreIdents.size() + 1) {
 						currentPreIdents << Integer.toString(count + 1)
