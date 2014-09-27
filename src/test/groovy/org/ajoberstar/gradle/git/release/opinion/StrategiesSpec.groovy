@@ -205,7 +205,7 @@ class StrategiesSpec extends Specification {
 		'1.1.0-beta'         | 'beta'            | 'beta.1'
 		'1.1.0-beta.1'       | 'beta.1.alpha'    | 'beta.1.alpha.1'
 		'1.1.0-beta.1'       | 'beta.1.alpha'    | 'beta.1.alpha.1'
-		'1.1.0-beta.2.alpha' | 'beta'            | 'beta.2'
+		'1.1.0-beta.2.alpha' | 'beta'            | 'beta.3'
 	}
 
 	def 'PreRelease.COUNT_COMMITS_SINCE_ANY will append distanceFromAny'() {
@@ -303,7 +303,26 @@ class StrategiesSpec extends Specification {
 		'PATCH' | 'dev'      | '1.0.0'       | '1.0.0'         | false     | '1.0.1-dev.2+5e9b2a1'
 		'MINOR' | 'dev'      | '1.0.0'       | '1.0.0'         | false     | '1.1.0-dev.2+5e9b2a1'
 		'MAJOR' | 'dev'      | '1.0.0'       | '1.0.0'         | false     | '2.0.0-dev.2+5e9b2a1'
+	}
 
+	def 'PRE_RELEASE works as expected'() {
+		def project = mockProject(scope, stage)
+		def grgit = mockGrgit(repoDirty)
+		def locator = mockLocator(nearestNormal, nearestAny)
+		expect:
+		Strategies.PRE_RELEASE.doInfer(project, grgit, locator) == new ReleaseVersion(expected, true)
+		where:
+		scope   | stage       | nearestNormal | nearestAny          | repoDirty | expected
+		null    | null        | '1.0.0'       | '1.0.0'             | false     | '1.0.1-milestone.1+5e9b2a1'
+		null    | 'milestone' | '1.0.0'       | '1.0.0'             | false     | '1.0.1-milestone.1+5e9b2a1'
+		null    | 'rc'        | '1.0.0'       | '1.0.0'             | false     | '1.0.1-rc.1+5e9b2a1'
+		'PATCH' | 'milestone' | '1.0.0'       | '1.0.0'             | false     | '1.0.1-milestone.1+5e9b2a1'
+		'MINOR' | 'milestone' | '1.0.0'       | '1.0.0'             | false     | '1.1.0-milestone.1+5e9b2a1'
+		'MAJOR' | 'milestone' | '1.0.0'       | '1.0.0'             | false     | '2.0.0-milestone.1+5e9b2a1'
+		null    | 'rc'        | '1.0.0'       | '1.1.0-milestone.1' | false     | '1.1.0-rc.1+5e9b2a1'
+		null    | 'milestone' | '1.0.0'       | '1.1.0-milestone.1' | false     | '1.1.0-milestone.2+5e9b2a1'
+		null    | 'rc'        | '1.0.0'       | '1.1.0-rc'          | false     | '1.1.0-rc.1+5e9b2a1'
+		null    | 'rc'        | '1.0.0'       | '1.1.0-rc.4.dev.1'  | false     | '1.1.0-rc.5+5e9b2a1'
 	}
 
 	def mockProject(String scope, String stage) {

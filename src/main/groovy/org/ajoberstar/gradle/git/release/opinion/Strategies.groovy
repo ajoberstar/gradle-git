@@ -101,11 +101,7 @@ final class Strategies {
 					currentPreIdents << '1'
 				} else if (currentPreIdents == nearestPreIdents[0..(currentPreIdents.size() - 1)]) {
 					def count = parseIntOrZero(nearestPreIdents[currentPreIdents.size()])
-					if (count == 0 || nearestPreIdents.size() == currentPreIdents.size() + 1) {
-						currentPreIdents << Integer.toString(count + 1)
-					} else {
-						currentPreIdents << Integer.toString(count)
-					}
+					currentPreIdents << Integer.toString(count + 1)
 				} else {
 					currentPreIdents << '1'
 				}
