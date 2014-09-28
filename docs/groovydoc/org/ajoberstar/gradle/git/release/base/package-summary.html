@@ -2,7 +2,7 @@
 <html>
 <head>
 
-<title>org.ajoberstar.gradle.git.release.base (gradle-git 0.11.0-milestone.1+7d44943 API)</title>
+<title>org.ajoberstar.gradle.git.release.base (gradle-git 0.10.2-dev.24+ff98d26 API)</title>
 <meta name="keywords" content="org.ajoberstar.gradle.git.release.base package">
 <meta http-equiv="Content-Type" content="text/html; charset=windows-1252">
 <link rel ="stylesheet" TYPE="text/css" HREF="../../../../../../stylesheet.css" title="Style">
@@ -11,7 +11,7 @@
 <script type="text/javascript">
 function windowTitle()
 {
-    parent.document.title="org.ajoberstar.gradle.git.release.base (gradle-git 0.11.0-milestone.1+7d44943 API)";
+    parent.document.title="org.ajoberstar.gradle.git.release.base (gradle-git 0.10.2-dev.24+ff98d26 API)";
 }
 </script>
 <noscript>
@@ -52,7 +52,15 @@ function windowTitle()
 </div>
 
 <div class="header">
-    <h2 title="" class="title"></h2>
+    <h2 title=" The core structure of gradle-git's flavor of release behavior. The code
+ provided in this package can be used on its own, as long as users provide
+ their own implementation of <TT>VersionStrategy</TT>.
+ 
+" class="title"> The core structure of gradle-git's flavor of release behavior. The code
+ provided in this package can be used on its own, as long as users provide
+ their own implementation of <TT>VersionStrategy</TT>.
+ 
+</h2>
 </div>
 
 <div class="contentContainer">
@@ -74,7 +82,7 @@ function windowTitle()
                                     VersionStrategy
                                 </a></strong>
                             </td>
-                            <td></td>
+                            <td>Strategy to infer a version from the project's and Git repository's state.</td>
                         </tr>
 
                     </tbody>
@@ -102,7 +110,8 @@ function windowTitle()
                                     BaseReleasePlugin
                                 </a></strong>
                             </td>
-                            <td></td>
+                            <td>Plugin providing the base structure of gradle-git's flavor of release
+ behavior. </td>
                         </tr>
 <tr class="altColor">
                             <td class="colOne">
@@ -110,7 +119,7 @@ function windowTitle()
                                     ReleasePluginExtension
                                 </a></strong>
                             </td>
-                            <td></td>
+                            <td>Extension providing configuration options for gradle-git's release plugins.</td>
                         </tr>
 <tr class="altColor">
                             <td class="colOne">
@@ -118,7 +127,8 @@ function windowTitle()
                                     ReleaseVersion
                                 </a></strong>
                             </td>
-                            <td></td>
+                            <td>Represents an inferred version and any related metadata to be used after the
+ inference.</td>
                         </tr>
 <tr class="altColor">
                             <td class="colOne">
@@ -126,7 +136,7 @@ function windowTitle()
                                     TagStrategy
                                 </a></strong>
                             </td>
-                            <td></td>
+                            <td>Strategy for creating a Git tag associated with a release.</td>
                         </tr>
 
                     </tbody>
