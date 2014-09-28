@@ -18,6 +18,7 @@ package org.ajoberstar.gradle.git.release.opinion
 import spock.lang.Specification
 import spock.lang.Unroll
 import org.ajoberstar.grgit.Branch
+import org.ajoberstar.grgit.service.BranchService
 import org.ajoberstar.grgit.Commit
 import org.ajoberstar.grgit.Status
 import org.ajoberstar.grgit.Grgit
@@ -362,7 +363,8 @@ class StrategiesSpec extends Specification {
 
 		grgit.head() >> new Commit(id: '5e9b2a1e98b5670a90a9ed382a35f0d706d5736c')
 
-		Branch branch = new Branch(fullName: "refs/heads/${branchName}")
+		BranchService branch = GroovyMock()
+		branch.current >> new Branch(fullName: "refs/heads/${branchName}")
 		grgit.branch >> branch
 
 		return grgit

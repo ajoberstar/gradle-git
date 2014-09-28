@@ -96,6 +96,7 @@ class SemVerStrategySpec extends Specification {
 		mockScope(scope)
 		mockStage(stage)
 		mockRepoClean(false)
+		mockBranchService(0)
 		def nearest = new NearestVersion(
 			normal: Version.valueOf('1.2.2'),
 			any: Version.valueOf(nearestAny))
@@ -114,6 +115,7 @@ class SemVerStrategySpec extends Specification {
 	def 'infer fails if precedence enforced and violated'() {
 		given:
 		mockRepoClean(false)
+		mockBranchService(0)
 		def nearest = new NearestVersion(any: Version.valueOf('1.2.3'))
 		def locator = mockLocator(nearest)
 		def strategy = mockStrategy(null, 'and', nearest, false, true)
@@ -146,7 +148,6 @@ class SemVerStrategySpec extends Specification {
 		(0..1) * branchService.current >> new Branch(fullName: 'refs/heads/master')
 		(0..2) * grgit.getBranch() >> branchService
 		0 * branchService._
-		0 * grgit._
 	}
 
 	private def mockLocator(NearestVersion nearest) {
@@ -163,7 +164,7 @@ class SemVerStrategySpec extends Specification {
 			scopeFromProp: scope?.toUpperCase(),
 			stageFromProp: stage ?: 'and',
 			currentHead: null,
-			currentBranch: null,
+			currentBranch: new Branch(fullName: 'refs/heads/master'),
 			repoDirty: true,
 			nearestVersion: nearest])
 		SemVerStrategyState afterNormal = initial.copyWith(inferredNormal: '1.2.3')

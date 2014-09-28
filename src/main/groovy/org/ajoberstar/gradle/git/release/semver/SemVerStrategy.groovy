@@ -125,7 +125,7 @@ final class SemVerStrategy implements VersionStrategy {
 	 */
 	@Override
 	ReleaseVersion infer(Project project, Grgit grgit) {
-		return infer(project, grgit, new NearestVersionLocator())
+		return doInfer(project, grgit, new NearestVersionLocator())
 	}
 
 	@PackageScope
@@ -143,7 +143,7 @@ final class SemVerStrategy implements VersionStrategy {
 			scopeFromProp: scope,
 			stageFromProp: stage,
 			currentHead: grgit.head(),
-			currentBranch: grgit.branch(),
+			currentBranch: grgit.branch.current,
 			repoDirty: !grgit.status().clean,
 			nearestVersion: nearestVersion
 		)
