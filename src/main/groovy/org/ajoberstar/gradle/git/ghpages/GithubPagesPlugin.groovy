@@ -58,7 +58,9 @@ class GithubPagesPlugin implements Plugin<Project> {
 			def filesList = extension.workingDir.list({ dir, name ->
 				return !name.equals('.git')
 			})
-			repo.remove(patterns: filesList)
+			if (filesList) {
+				repo.remove(patterns: filesList)
+			}
 			project.copy {
 				with extension.pages
 				into repo.repository.rootDir
