@@ -292,14 +292,13 @@ final class Strategies {
 	/**
 	 * Provides "milestone" and "rc" stages that can only be used in clean repos, that are up to date with their
 	 * tracke branch, and will enforce precedence. The pre-release component will always be set to the stage
-	 * with an incremented count to disambiguate successive releases of the same stage. The abbreviated ID of the
-	 * HEAD will be used as build metadata.
+	 * with an incremented count to disambiguate successive releases of the same stage. No build metadata component will
+	 * be added.
 	 */
 	static final SemVerStrategy PRE_RELEASE = DEFAULT.copyWith(
 		name: 'pre-release',
 		stages: ['milestone', 'rc'] as SortedSet,
-		preReleaseStrategy: all(PreRelease.STAGE_FIXED, PreRelease.COUNT_INCREMENTED),
-		buildMetadataStrategy: BuildMetadata.COMMIT_ABBREVIATED_ID
+		preReleaseStrategy: all(PreRelease.STAGE_FIXED, PreRelease.COUNT_INCREMENTED)
 	)
 
 	/**
@@ -309,8 +308,6 @@ final class Strategies {
 	 */
 	static final SemVerStrategy FINAL = DEFAULT.copyWith(
 		name: 'final',
-		stages: ['final'] as SortedSet,
-		preReleaseStrategy: PreRelease.NONE,
-		buildMetadataStrategy: BuildMetadata.NONE
+		stages: ['final'] as SortedSet
 	)
 }

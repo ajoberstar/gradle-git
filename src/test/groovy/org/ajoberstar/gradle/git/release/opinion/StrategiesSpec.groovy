@@ -313,16 +313,16 @@ class StrategiesSpec extends Specification {
 		Strategies.PRE_RELEASE.doInfer(project, grgit, locator) == new ReleaseVersion(expected, nearestNormal, true)
 		where:
 		scope   | stage       | nearestNormal | nearestAny          | repoDirty | expected
-		null    | null        | '1.0.0'       | '1.0.0'             | false     | '1.0.1-milestone.1+5e9b2a1'
-		null    | 'milestone' | '1.0.0'       | '1.0.0'             | false     | '1.0.1-milestone.1+5e9b2a1'
-		null    | 'rc'        | '1.0.0'       | '1.0.0'             | false     | '1.0.1-rc.1+5e9b2a1'
-		'PATCH' | 'milestone' | '1.0.0'       | '1.0.0'             | false     | '1.0.1-milestone.1+5e9b2a1'
-		'MINOR' | 'milestone' | '1.0.0'       | '1.0.0'             | false     | '1.1.0-milestone.1+5e9b2a1'
-		'MAJOR' | 'milestone' | '1.0.0'       | '1.0.0'             | false     | '2.0.0-milestone.1+5e9b2a1'
-		null    | 'rc'        | '1.0.0'       | '1.1.0-milestone.1' | false     | '1.1.0-rc.1+5e9b2a1'
-		null    | 'milestone' | '1.0.0'       | '1.1.0-milestone.1' | false     | '1.1.0-milestone.2+5e9b2a1'
-		null    | 'rc'        | '1.0.0'       | '1.1.0-rc'          | false     | '1.1.0-rc.1+5e9b2a1'
-		null    | 'rc'        | '1.0.0'       | '1.1.0-rc.4.dev.1'  | false     | '1.1.0-rc.5+5e9b2a1'
+		null    | null        | '1.0.0'       | '1.0.0'             | false     | '1.0.1-milestone.1'
+		null    | 'milestone' | '1.0.0'       | '1.0.0'             | false     | '1.0.1-milestone.1'
+		null    | 'rc'        | '1.0.0'       | '1.0.0'             | false     | '1.0.1-rc.1'
+		'PATCH' | 'milestone' | '1.0.0'       | '1.0.0'             | false     | '1.0.1-milestone.1'
+		'MINOR' | 'milestone' | '1.0.0'       | '1.0.0'             | false     | '1.1.0-milestone.1'
+		'MAJOR' | 'milestone' | '1.0.0'       | '1.0.0'             | false     | '2.0.0-milestone.1'
+		null    | 'rc'        | '1.0.0'       | '1.1.0-milestone.1' | false     | '1.1.0-rc.1'
+		null    | 'milestone' | '1.0.0'       | '1.1.0-milestone.1' | false     | '1.1.0-milestone.2'
+		null    | 'rc'        | '1.0.0'       | '1.1.0-rc'          | false     | '1.1.0-rc.1'
+		null    | 'rc'        | '1.0.0'       | '1.1.0-rc.4.dev.1'  | false     | '1.1.0-rc.5'
 	}
 
 	def 'Strategies.FINAL works as expected'() {
