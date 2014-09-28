@@ -23,6 +23,9 @@ import com.github.zafarkhaja.semver.Version
 import org.ajoberstar.grgit.Branch
 import org.ajoberstar.grgit.Commit
 
+/**
+ * Working state used by {@link PartialSemVerStrategy}.
+ */
 @Immutable(copyWith=true)
 @ToString(includeNames=true)
 final class SemVerStrategyState {

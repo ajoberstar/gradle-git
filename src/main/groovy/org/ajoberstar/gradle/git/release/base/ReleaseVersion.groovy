@@ -17,9 +17,22 @@ package org.ajoberstar.gradle.git.release.base
 
 import groovy.transform.Immutable
 
+/**
+ * Represents an inferred version and any related metadata to be used after the
+ * inference.
+ */
 @Immutable
 class ReleaseVersion {
+	/**
+	 * The version that should be used by the project.
+	 */
 	String version
+	/**
+	 * The latest version, as determined by the strategy's logic.
+	 */
 	String previousVersion
+	/**
+	 * Whether or not to create a tag for the release.
+	 */
 	boolean createTag
 }

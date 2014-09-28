@@ -18,6 +18,30 @@ package org.ajoberstar.gradle.git.release.opinion
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 
+/**
+ * Plugin providing the base structure of gradle-git's flavor of release
+ * behavior. The plugin can be applied using the {@code org.ajoberstar.release-base} id.
+ *
+ * <p>
+ * The plugin applies the {@code org.ajoberstar.release-base} plugin and configures it to
+ * use the following strategies (in order):
+ * </p>
+ *
+ * <ul>
+ *   <li>{@link Strategies#DEVELOPMENT} (also set as the default)</li>
+ *   <li>{@link Strategies#PRE_RELEASE}</li>
+ *   <li>{@link Strategies#FINAL}</li>
+ * </ul>
+ *
+ * <p>
+ * Additionally it configures the tag strategy to generate a message from
+ * the short messages of the commits since the previous version.
+ * </p>
+ *
+ * @see org.ajoberstar.gradle.git.release.opinion.Strategies
+ * @see org.ajoberstar.gradle.git.release.base.BaseReleasePlugin
+ * @see <a href="https://github.com/ajoberstar/gradle-git/wiki/org.ajoberstar.release-opinion">Wiki Doc</a>
+ */
 class OpinionReleasePlugin implements Plugin<Project> {
 	void apply(Project project) {
 		project.plugins.apply('org.ajoberstar.release-base')

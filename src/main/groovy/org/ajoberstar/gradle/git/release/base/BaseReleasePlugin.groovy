@@ -21,6 +21,18 @@ import org.gradle.api.Project
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
+/**
+ * Plugin providing the base structure of gradle-git's flavor of release
+ * behavior. The plugin can be applied using the {@code org.ajoberstar.release-base} id.
+ *
+ * <p>
+ * The plugin adds the {@link ReleasePluginExtension} and a {@code release} task.
+ * </p>
+ *
+ * @see org.ajoberstar.gradle.git.release.opinion.Strategies
+ * @see org.ajoberstar.gradle.git.release.opinion.OpinionReleasePlugin
+ * @see <a href="https://github.com/ajoberstar/gradle-git/wiki/org.ajoberstar.release-base">Wiki Doc</a>
+ */
 class BaseReleasePlugin implements Plugin<Project> {
 	private static final Logger logger = LoggerFactory.getLogger(BaseReleasePlugin)
 	private static final String RELEASE_TASK_NAME = 'release'

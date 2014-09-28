@@ -26,12 +26,38 @@ import org.ajoberstar.gradle.git.release.semver.SemVerStrategyState
 
 import org.gradle.api.GradleException
 
+/**
+ * Opinionated sample strategies. These can either be used as-is or as an
+ * example for others.
+ * @see org.ajoberstar.gradle.git.release.base.VersionStrategy
+ * @see org.ajoberstar.gradle.git.release.semver.SemVerStrategy
+ * @see org.ajoberstar.gradle.git.release.semver.SemVerStrategyState
+ * @see org.ajoberstar.gradle.git.release.semver.PartialSemVerStrategy
+ */
 final class Strategies {
+	/**
+	 * Sample strategies that infer the normal component of a version.
+	 */
 	static final class Normal {
+		/**
+		 * Increments the nearest normal version using the scope specified
+		 * in the {@link SemVerStrategyState#scopeFromProp}.
+		 */
 		static final PartialSemVerStrategy USE_SCOPE_PROP = closure { state ->
 			return incrementNormalFromScope(state, state.scopeFromProp)
 		}
 
+		/**
+		 * If the nearest any is different from the nearest normal, sets the
+		 * normal component to the nearest any's normal component. Otherwise
+		 * do nothing.
+		 *
+		 * <p>
+		 * For example, if the nearest any is {@code 1.2.3-alpha.1} and the
+		 * nearest normal is {@code 1.2.2}, this will infer the normal
+		 * component as {@code 1.2.3}.
+		 * </p>
+		 */
 		static final PartialSemVerStrategy USE_NEAREST_ANY = closure { state ->
 			def nearest = state.nearestVersion
 			if (nearest.any == nearest.normal) {
@@ -41,10 +67,48 @@ final class Strategies {
 			}
 		}
 
+		/**
+		 * Enforces that the normal version complies with the current branch's major version.
+		 * If the branch is not in the format {@code #.x} (e.g. {@code 2.x}), this will do
+		 * nothing.
+		 *
+		 * <ul>
+		 *   <li>If the current branch doesn't match the pattern do nothing.</li>
+		 *   <li>If the the nearest normal already complies with the branch name.</li>
+		 *   <li>If the major component can be incremented to comply with the branch, do so.</li>
+		 *   <li>Otherwise fail, because the version can't comply with the branch.</li>
+		 * </ul>
+		 */
 		static final PartialSemVerStrategy ENFORCE_BRANCH_MAJOR_X = fromBranchPattern(~/^(\d+)\.x$/)
 
+		/**
+		 * Enforces that the normal version complies with the current branch's major version.
+		 * If the branch is not in the format {@code #.#.x} (e.g. {@code 2.3.x}), this will do
+		 * nothing.
+		 *
+		 * <ul>
+		 *   <li>If the current branch doesn't match the pattern do nothing.</li>
+		 *   <li>If the the nearest normal already complies with the branch name.</li>
+		 *   <li>If the major component can be incremented to comply with the branch, do so.</li>
+		 *   <li>If the minor component can be incremented to comply with the branch, do so.</li>
+		 *   <li>Otherwise fail, because the version can't comply with the branch.</li>
+		 * </ul>
+		 */
 		static final PartialSemVerStrategy ENFORCE_BRANCH_MAJOR_MINOR_X = fromBranchPattern(~/^(\d+)\.(\d+)\.x$/)
 
+		/**
+		 * Uses the specified pattern to enforce that versions inferred on this branch
+		 * comply. Patterns should have 1 or 2 capturing groups representing the
+		 * major and, optionally, the minor component of the version.
+		 *
+		 * <ul>
+		 *   <li>If the current branch doesn't match the pattern do nothing.</li>
+		 *   <li>If the the nearest normal already complies with the branch name.</li>
+		 *   <li>If the major component can be incremented to comply with the branch, do so.</li>
+		 *   <li>If the minor component can be incremented to comply with the branch, do so.</li>
+		 *   <li>Otherwise fail, because the version can't comply with the branch.</li>
+		 * </ul>
+		 */
 		static PartialSemVerStrategy fromBranchPattern(Pattern pattern) {
 			return closure { state ->
 				def m = state.currentBranch.name =~ pattern
@@ -71,16 +135,34 @@ final class Strategies {
 			}
 		}
 
+		/**
+		 * Always use the scope provided to increment the normal component.
+		 */
 		static PartialSemVerStrategy useScope(ChangeScope scope) {
 			return closure { state -> incrementNormalFromScope(state, scope) }
 		}
 	}
 
+	/**
+	 * Sample strategies that infer the pre-release component of a version.
+	 */
 	static final class PreRelease {
+		/**
+		 * Do not modify the pre-release component.
+		 */
 		static final PartialSemVerStrategy NONE = closure { state -> state }
 
+		/**
+		 * Sets the pre-release component to the value of {@link SemVerStrategyState#stageFromProp}.
+		 */
 		static final PartialSemVerStrategy STAGE_FIXED = closure { state -> state.copyWith(inferredPreRelease: state.stageFromProp)}
 
+		/**
+		 * If the value of {@link SemVerStrategyState#stageFromProp} has a higher or the same precedence than
+		 * the nearest any's pre-release component, set the pre-release component to
+		 * {@link SemVerStrategyState#scopeFromProp}. If not, append the {@link SemVerStrategyState#scopeFromProp}
+		 * to the nearest any's pre-release.
+		 */
 		static final PartialSemVerStrategy STAGE_FLOAT = closure { state ->
 			def nearestPreRelease = state.nearestVersion.any.preReleaseVersion
 			if (nearestPreRelease != null && nearestPreRelease > state.stageFromProp) {
@@ -90,6 +172,11 @@ final class Strategies {
 			}
 		}
 
+		/**
+		 * If the nearest any's pre-release component starts with the so far inferred pre-release component,
+		 * increment the count of the nearest any and append it to the so far inferred pre-release
+		 * component. Otherwise append 1 to the so far inferred pre-release component.
+		 */
 		static final PartialSemVerStrategy COUNT_INCREMENTED = closure { state ->
 			def nearest = state.nearestVersion
 			def currentPreIdents = state.inferredPreRelease ? state.inferredPreRelease.split('\\.') as List : []
@@ -109,12 +196,18 @@ final class Strategies {
 			return state.copyWith(inferredPreRelease: currentPreIdents.join('.'))
 		}
 
+		/**
+		 * Append the count of commits since the nearest any to the so far inferred pre-release component.
+		 */
 		static final PartialSemVerStrategy COUNT_COMMITS_SINCE_ANY = closure { state ->
 			def count = state.nearestVersion.distanceFromAny
 			def inferred = state.inferredPreRelease ? "${state.inferredPreRelease}.${count}" : "${count}"
 			return state.copyWith(inferredPreRelease: inferred)
 		}
 
+		/**
+		 * If the repo has uncommitted changes append "uncommitted" to the so far inferred pre-release component.
+		 */
 		static final PartialSemVerStrategy SHOW_UNCOMMITTED = closure { state ->
 			if (state.repoDirty) {
 				def inferred = state.inferredPreRelease ? "${state.inferredPreRelease}.uncommitted" : 'uncommitted'
@@ -125,13 +218,33 @@ final class Strategies {
 		}
 	}
 
+	/**
+	 * Sample strategies that infer the build metadata component of a version.
+	 */
 	static final class BuildMetadata {
+		/**
+		 * Do not modify the build metadata.
+		 */
 		static final PartialSemVerStrategy NONE = closure { state -> state }
+		/**
+		 * Set the build metadata to the abbreviated ID of the current HEAD.
+		 */
 		static final PartialSemVerStrategy COMMIT_ABBREVIATED_ID = closure { state -> state.copyWith(inferredBuildMetadata: state.currentHead.abbreviatedId) }
+		/**
+		 * Set the build metadata to the full ID of the current HEAD.
+		 */
 		static final PartialSemVerStrategy COMMIT_FULL_ID = closure { state -> state.copyWith(inferredBuildMetadata: state.currentHead.id) }
+		/**
+		 * Set the build metadata to the current timestamp in {@code YYYY.MM.DD.HH.MM.SS} format.
+		 */
 		static final PartialSemVerStrategy TIMESTAMP = closure { state -> state.copyWith(inferredBuildMetadata: new Date().format('yyyy.MM.dd.hh.mm.ss')) }
 	}
 
+	/**
+	 * Provides opinionated defaults for a strategy. The primary behavior is for the normal component.
+	 * If the {@code release.scope} property is set, use it. Or if the nearest any's normal component is different
+	 * than the nearest normal version, use it. Or, if nothing else, use PATCH scope.
+	 */
 	static final SemVerStrategy DEFAULT = new SemVerStrategy(
 		name: '',
 		stages: [] as SortedSet,
@@ -144,6 +257,11 @@ final class Strategies {
 		enforcePrecedence: true
 	)
 
+	/**
+	 * Provides a single "SNAPSHOT" stage that can be used in dirty repos, if the branch is behind its remote,
+	 * and will not enforce precedence. The pre-release compoment will always be "SNAPSHOT" and no build
+	 * metadata will be used. Tags will not be created for these versions.
+	 */
 	static final SemVerStrategy SNAPSHOT = DEFAULT.copyWith(
 		name: 'snapshot',
 		stages: ['SNAPSHOT'] as SortedSet,
@@ -154,6 +272,13 @@ final class Strategies {
 		enforcePrecedence: false
 	)
 
+	/**
+	 * Provides a single "dev" stage that can be used in dirty repos, if the branch is behind its remote, but
+	 * will enforce precedence. If this strategy is used after a nearest any with a higher precedence pre-release
+	 * component (e.g. "rc.1"), the dev component will be appended rather than replace. The commit count since
+	 * the nearest any will be used to disambiguate versions and the pre-release component will note if the
+	 * repository is dirty. The abbreviated ID of the HEAD will be used as build metadata.
+	 */
 	static final SemVerStrategy DEVELOPMENT = DEFAULT.copyWith(
 		name: 'development',
 		stages: ['dev'] as SortedSet,
@@ -164,6 +289,12 @@ final class Strategies {
 		createTag: false
 	)
 
+	/**
+	 * Provides "milestone" and "rc" stages that can only be used in clean repos, that are up to date with their
+	 * tracke branch, and will enforce precedence. The pre-release component will always be set to the stage
+	 * with an incremented count to disambiguate successive releases of the same stage. The abbreviated ID of the
+	 * HEAD will be used as build metadata.
+	 */
 	static final SemVerStrategy PRE_RELEASE = DEFAULT.copyWith(
 		name: 'pre-release',
 		stages: ['milestone', 'rc'] as SortedSet,
@@ -171,6 +302,11 @@ final class Strategies {
 		buildMetadataStrategy: BuildMetadata.COMMIT_ABBREVIATED_ID
 	)
 
+	/**
+	 * Provides a single "final" stage that can only be used in clean repos, that are up to date with their
+	 * tracked branch, and will enforce precedence. The pre-release and build metadata components will always
+	 * be empty.
+	 */
 	static final SemVerStrategy FINAL = DEFAULT.copyWith(
 		name: 'final',
 		stages: ['final'] as SortedSet,

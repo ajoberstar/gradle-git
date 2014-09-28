@@ -30,24 +30,76 @@ import org.gradle.api.Project
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
+/**
+ * Strategy to infer versions that comply with Semantic Versioning.
+ * @see PartialSemVerStrategy
+ * @see SemVerStrategyState
+ * @see <a href="https://github.com/ajoberstar/gradle-git/wiki/SemVer%20Support">Wiki Doc</a>
+ */
 @Immutable(copyWith=true, knownImmutableClasses=[PartialSemVerStrategy])
 final class SemVerStrategy implements VersionStrategy {
 	private static final Logger logger = LoggerFactory.getLogger(SemVerStrategy)
 	static final String SCOPE_PROP = 'release.scope'
 	static final String STAGE_PROP = 'release.stage'
 
+	/**
+	 * The name of the strategy.
+	 */
 	String name
+
+	/**
+	 * The stages supported by this strategy.
+	 */
 	SortedSet<String> stages
+
+	/**
+	 * Whether or not this strategy can be used if the repo has uncommited changes.
+	 */
 	boolean allowDirtyRepo
+
+	/**
+	 * Whether or not this strategy can be used if the current branch is behind its tracked counterpart.
+	 */
 	boolean allowBranchBehind
 
+	/**
+	 * The strategy used to infer the normal component of the version. There is no enforcement that
+	 * this strategy only modify that part of the state.
+	 */
 	PartialSemVerStrategy normalStrategy
+
+	/**
+	 * The strategy used to infer the pre-release component of the version. There is no enforcement that
+	 * this strategy only modify that part of the state.
+	 */
 	PartialSemVerStrategy preReleaseStrategy
+
+	/**
+	 * The strategy used to infer the build metadata component of the version. There is no enforcement that
+	 * this strategy only modify that part of the state.
+	 */
 	PartialSemVerStrategy buildMetadataStrategy
 
+	/**
+	 * Whether or not to create tags for versions inferred by this strategy.
+	 */
 	boolean createTag
+
+	/**
+	 * Whether or not to enforce that versions inferred by this strategy are of higher precedence
+	 * than the nearest any.
+	 */
 	boolean enforcePrecedence
 
+	/**
+	 * Determines whether this strategy should be used to infer the version.
+	 * <ul>
+	 * <li>Return {@code false}, if the {@code release.stage} is not one listed in the {@code stages} property.</li>
+	 * <li>Return {@code false}, if the repository has uncommitted changes and {@code allowDirtyRepo} is {@code false}.</li>
+	 * <li>Return {@code false}, if the current branch is behind its tracked counterpart and {@code allowBranchBehind} is {@code false}.</li>
+	 * <li>Return {@code true}, otherwise.</li>
+	 * </ul>
+	 */
 	@Override
 	boolean selector(Project project, Grgit grgit) {
 		String stage = getPropertyOrNull(project, STAGE_PROP)
@@ -65,6 +117,12 @@ final class SemVerStrategy implements VersionStrategy {
 		}
 	}
 
+	/**
+	 * Infers the version to use for this build. Uses the normal, pre-release, and build metadata
+	 * strategies in order to infer the version. If the {@code release.stage} is not set, uses the
+	 * first value in the {@code stages} set (i.e. the one with the lowest precedence). After inferring
+	 * the version precedence will be enforced, if required by this strategy.
+	 */
 	@Override
 	ReleaseVersion infer(Project project, Grgit grgit) {
 		return infer(project, grgit, new NearestVersionLocator())

@@ -15,6 +15,14 @@
  */
 package org.ajoberstar.gradle.git.release.semver
 
+/**
+ * Strategy to infer portions of a semantic version.
+ * @see SemVerStrategy
+ */
 interface PartialSemVerStrategy {
+	/**
+	 * Infers a portion of a semantic version and returns the new state
+	 * to be used as inference continues.
+	 */
 	SemVerStrategyState infer(SemVerStrategyState state)
 }

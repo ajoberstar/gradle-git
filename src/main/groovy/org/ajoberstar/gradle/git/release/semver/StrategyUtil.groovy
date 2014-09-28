@@ -15,23 +15,40 @@
  */
 package org.ajoberstar.gradle.git.release.semver
 
+/**
+ * Utility class to more easily create {@link PartialSemVerStrategy} instances.
+ */
 final class StrategyUtil {
 	private StrategyUtil() {
 		throw new AssertionError('Cannot instantiate this class.')
 	}
 
+	/**
+	 * Creates a strategy backed by the given closure. It should accept and return
+	 * a {@link SemVerStrategyState}.
+	 */
 	static final PartialSemVerStrategy closure(Closure<SemVerStrategyState> behavior) {
 		return new ClosureBackedPartialSemVerStrategy(behavior)
 	}
 
+	/**
+	 * Creates a strategy that applies all of the given strategies in order.
+	 */
 	static final PartialSemVerStrategy all(PartialSemVerStrategy... strategies) {
 		return new ApplyAllChainedPartialSemVerStrategy(strategies as List)
 	}
 
+	/**
+	 * Creates a strategy that applies each strategy in order, until one changes
+	 * the state, which is then returned.
+	 */
 	static final PartialSemVerStrategy one(PartialSemVerStrategy... strategies) {
 		return new ChooseOneChainedPartialSemVerStrategy(strategies as List)
 	}
 
+	/**
+	 * Returns the int value of a string or returns 0 if it cannot be parsed.
+	 */
 	static final int parseIntOrZero(String str) {
 		try {
 			return Integer.parseInt(str)
@@ -40,6 +57,9 @@ final class StrategyUtil {
 		}
 	}
 
+	/**
+	 * Increments the nearest normal version using the specified scope.
+	 */
 	static final SemVerStrategyState incrementNormalFromScope(SemVerStrategyState state, ChangeScope scope) {
 		def oldNormal = state.nearestVersion.normal
 		switch (scope) {
