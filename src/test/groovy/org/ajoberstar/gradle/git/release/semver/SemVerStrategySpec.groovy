@@ -112,6 +112,16 @@ class SemVerStrategySpec extends Specification {
 		'patch' | null  | '1.2.2'    | false     | true
 	}
 
+	def 'infer fails if stage is not listed in stages property'() {
+		given:
+		mockStage('other')
+		def strategy = new SemVerStrategy(stages: ['one'] as SortedSet)
+		when:
+		strategy.doInfer(project, grgit, null)
+		then:
+		thrown(GradleException)
+	}
+
 	def 'infer fails if precedence enforced and violated'() {
 		given:
 		mockRepoClean(false)

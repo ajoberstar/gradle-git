@@ -134,6 +134,9 @@ final class SemVerStrategy implements VersionStrategy {
 			scope == null ? null : ChangeScope.valueOf(scope.toUpperCase())
 		}
 		String stage = getPropertyOrNull(project, STAGE_PROP) ?: stages.first()
+		if (!stages.contains(stage)) {
+			throw new GradleException("Stage ${stage} is not one of ${stages} allowed for strategy ${name}.")
+		}
 		logger.info('Beginning version inference using {} strategy and input scope ({}) and stage ({})', name, scope, stage)
 
 		NearestVersion nearestVersion = locator.locate(grgit)
