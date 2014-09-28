@@ -3,6 +3,8 @@
 A set of plugins to support Git in the Gradle build tool.
 
 [![Build Status](https://travis-ci.org/ajoberstar/gradle-git.png?branch=master)](https://travis-ci.org/ajoberstar/gradle-git)
+[![Maintainer Status](http://stillmaintained.com/ajoberstar/gradle-git.png)](http://stillmaintained.com/ajoberstar/gradle-git)
+[![Release](http://img.shields.io/github/release/ajoberstar/gradle-git.svg)](https://github.com/ajoberstar/gradle-git/releases/latest)
 
 The three primary use cases are:
 
