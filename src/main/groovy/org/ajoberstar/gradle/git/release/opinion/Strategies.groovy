@@ -257,9 +257,9 @@ final class Strategies {
 	)
 
 	/**
-	 * Provides a single "SNAPSHOT" stage that can be used in dirty repos, if the branch is behind its remote,
-	 * and will not enforce precedence. The pre-release compoment will always be "SNAPSHOT" and no build
-	 * metadata will be used. Tags will not be created for these versions.
+	 * Provides a single "SNAPSHOT" stage that can be used in dirty repos and will
+	 * not enforce precedence. The pre-release compoment will always be "SNAPSHOT"
+	 * and no build metadata will be used. Tags will not be created for these versions.
 	 */
 	static final SemVerStrategy SNAPSHOT = DEFAULT.copyWith(
 		name: 'snapshot',
@@ -271,11 +271,13 @@ final class Strategies {
 	)
 
 	/**
-	 * Provides a single "dev" stage that can be used in dirty repos, if the branch is behind its remote, but
-	 * will enforce precedence. If this strategy is used after a nearest any with a higher precedence pre-release
-	 * component (e.g. "rc.1"), the dev component will be appended rather than replace. The commit count since
-	 * the nearest any will be used to disambiguate versions and the pre-release component will note if the
-	 * repository is dirty. The abbreviated ID of the HEAD will be used as build metadata.
+	 * Provides a single "dev" stage that can be used in dirty repos but will
+	 * enforce precedence. If this strategy is used after a nearest any with a
+	 * higher precedence pre-release component (e.g. "rc.1"), the dev component
+	 * will be appended rather than replace. The commit count since the nearest
+	 * any will be used to disambiguate versions and the pre-release component
+	 * will note if the repository is dirty. The abbreviated ID of the HEAD will
+	 * be used as build metadata.
 	 */
 	static final SemVerStrategy DEVELOPMENT = DEFAULT.copyWith(
 		name: 'development',
@@ -287,10 +289,10 @@ final class Strategies {
 	)
 
 	/**
-	 * Provides "milestone" and "rc" stages that can only be used in clean repos, that are up to date with their
-	 * tracke branch, and will enforce precedence. The pre-release component will always be set to the stage
-	 * with an incremented count to disambiguate successive releases of the same stage. No build metadata component will
-	 * be added.
+	 * Provides "milestone" and "rc" stages that can only be used in clean repos
+	 * and will enforce precedence. The pre-release component will always be set
+	 * to the stage with an incremented count to disambiguate successive
+	 * releases of the same stage. No build metadata component will be added.
 	 */
 	static final SemVerStrategy PRE_RELEASE = DEFAULT.copyWith(
 		name: 'pre-release',
@@ -299,9 +301,9 @@ final class Strategies {
 	)
 
 	/**
-	 * Provides a single "final" stage that can only be used in clean repos, that are up to date with their
-	 * tracked branch, and will enforce precedence. The pre-release and build metadata components will always
-	 * be empty.
+	 * Provides a single "final" stage that can only be used in clean repos and
+	 * will enforce precedence. The pre-release and build metadata components
+	 * will always be empty.
 	 */
 	static final SemVerStrategy FINAL = DEFAULT.copyWith(
 		name: 'final',
