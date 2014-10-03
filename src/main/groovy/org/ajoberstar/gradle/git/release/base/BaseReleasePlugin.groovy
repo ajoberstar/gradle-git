@@ -15,6 +15,7 @@
  */
 package org.ajoberstar.gradle.git.release.base
 
+import org.gradle.api.GradleException
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 
@@ -35,16 +36,41 @@ import org.slf4j.LoggerFactory
  */
 class BaseReleasePlugin implements Plugin<Project> {
 	private static final Logger logger = LoggerFactory.getLogger(BaseReleasePlugin)
+	private static final String PREPARE_TASK_NAME = 'prepare'
 	private static final String RELEASE_TASK_NAME = 'release'
 
 	void apply(Project project) {
 		def extension = project.extensions.create('release', ReleasePluginExtension, project)
+		addPrepareTask(project, extension)
 		addReleaseTask(project, extension)
+	}
+
+	private void addPrepareTask(Project project, ReleasePluginExtension extension) {
+		project.tasks.create(PREPARE_TASK_NAME) {
+			description = 'Verifies that the project could be released.'
+			doLast {
+				ext.grgit = extension.grgit
+
+				logger.info('Fetching changes from remote: {}', extension.remote)
+				grgit.fetch(remote: extension.remote)
+
+				if (grgit.branch.status(branch: grgit.branch.current.fullName).behindCount > 0) {
+					throw new GradleException('Current branch is behind the tracked branch. Cannot release.')
+				}
+			}
+		}
+
+		project.tasks.all { task ->
+			if (name != PREPARE_TASK_NAME) {
+				task.shouldRunAfter PREPARE_TASK_NAME
+			}
+		}
 	}
 
 	private void addReleaseTask(Project project, ReleasePluginExtension extension) {
 		project.tasks.create(RELEASE_TASK_NAME) {
 			description = 'Releases this project.'
+			dependsOn PREPARE_TASK_NAME
 			doLast {
 				// force version inference if it hasn't happened already
 				project.version.toString()

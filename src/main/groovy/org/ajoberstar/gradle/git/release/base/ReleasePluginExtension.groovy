@@ -98,10 +98,6 @@ class ReleasePluginExtension {
 		ReleaseVersion inferredVersion
 
 		private void infer() {
-			// TODO: Should this happen every time?
-			logger.info('Fetching changes from remote: {}', remote)
-			grgit.fetch(remote: remote)
-
 			VersionStrategy selectedStrategy = versionStrategies.find { strategy ->
 				strategy.selector(project, grgit)
 			}

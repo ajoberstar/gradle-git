@@ -44,49 +44,29 @@ class SemVerStrategySpec extends Specification {
 
 	def 'selector returns false if repo is dirty and not allowed to be'() {
 		given:
-		def strategy = new SemVerStrategy(stages: ['one'] as SortedSet, allowDirtyRepo: false, allowBranchBehind: false)
+		def strategy = new SemVerStrategy(stages: ['one'] as SortedSet, allowDirtyRepo: false)
 		mockStage('one')
 		mockRepoClean(false)
-		expect:
-		!strategy.selector(project, grgit)
-	}
-
-	def 'selector returns false if branch behind its tracked branch and not allowed to be'() {
-		given:
-		def strategy = new SemVerStrategy(stages: ['one'] as SortedSet, allowDirtyRepo: false, allowBranchBehind: false)
-		mockStage('one')
-		mockRepoClean(true)
-		mockBranchService(2)
 		expect:
 		!strategy.selector(project, grgit)
 	}
 
 	def 'selector returns true if repo is dirty and allowed and other criteria met'() {
 		given:
-		def strategy = new SemVerStrategy(stages: ['one'] as SortedSet, allowDirtyRepo: true, allowBranchBehind: false)
+		def strategy = new SemVerStrategy(stages: ['one'] as SortedSet, allowDirtyRepo: true)
 		mockStage('one')
 		mockRepoClean(false)
-		mockBranchService(0)
-		expect:
-		strategy.selector(project, grgit)
-	}
-
-	def 'selector returns true if branch is behind and allowed to be and other criteria met'() {
-		given:
-		def strategy = new SemVerStrategy(stages: ['one'] as SortedSet, allowDirtyRepo: false, allowBranchBehind: true)
-		mockStage('one')
-		mockRepoClean(true)
-		mockBranchService(2)
+		mockBranchService()
 		expect:
 		strategy.selector(project, grgit)
 	}
 
 	def 'selector returns true if all criteria met'() {
 		given:
-		def strategy = new SemVerStrategy(stages: ['one', 'and'] as SortedSet, allowDirtyRepo: false, allowBranchBehind: false)
+		def strategy = new SemVerStrategy(stages: ['one', 'and'] as SortedSet, allowDirtyRepo: false)
 		mockStage('one')
 		mockRepoClean(true)
-		mockBranchService(0)
+		mockBranchService()
 		expect:
 		strategy.selector(project, grgit)
 	}
@@ -96,7 +76,7 @@ class SemVerStrategySpec extends Specification {
 		mockScope(scope)
 		mockStage(stage)
 		mockRepoClean(false)
-		mockBranchService(0)
+		mockBranchService()
 		def nearest = new NearestVersion(
 			normal: Version.valueOf('1.2.2'),
 			any: Version.valueOf(nearestAny))
@@ -125,7 +105,7 @@ class SemVerStrategySpec extends Specification {
 	def 'infer fails if precedence enforced and violated'() {
 		given:
 		mockRepoClean(false)
-		mockBranchService(0)
+		mockBranchService()
 		def nearest = new NearestVersion(any: Version.valueOf('1.2.3'))
 		def locator = mockLocator(nearest)
 		def strategy = mockStrategy(null, 'and', nearest, false, true)
@@ -152,9 +132,8 @@ class SemVerStrategySpec extends Specification {
 		0 * status._
 	}
 
-	private def mockBranchService(int behindCount) {
+	private def mockBranchService() {
 		BranchService branchService = GroovyMock()
-		(0..1) * branchService.status(_) >> new BranchStatus(behindCount: behindCount)
 		(0..1) * branchService.current >> new Branch(fullName: 'refs/heads/master')
 		(0..2) * grgit.getBranch() >> branchService
 		0 * branchService._

@@ -58,11 +58,6 @@ final class SemVerStrategy implements VersionStrategy {
 	boolean allowDirtyRepo
 
 	/**
-	 * Whether or not this strategy can be used if the current branch is behind its tracked counterpart.
-	 */
-	boolean allowBranchBehind
-
-	/**
 	 * The strategy used to infer the normal component of the version. There is no enforcement that
 	 * this strategy only modify that part of the state.
 	 */
@@ -96,7 +91,6 @@ final class SemVerStrategy implements VersionStrategy {
 	 * <ul>
 	 * <li>Return {@code false}, if the {@code release.stage} is not one listed in the {@code stages} property.</li>
 	 * <li>Return {@code false}, if the repository has uncommitted changes and {@code allowDirtyRepo} is {@code false}.</li>
-	 * <li>Return {@code false}, if the current branch is behind its tracked counterpart and {@code allowBranchBehind} is {@code false}.</li>
 	 * <li>Return {@code true}, otherwise.</li>
 	 * </ul>
 	 */
@@ -108,9 +102,6 @@ final class SemVerStrategy implements VersionStrategy {
 			return false
 		} else if (!allowDirtyRepo && !grgit.status().clean) {
 			logger.info('Skipping {} strategy because repo is dirty.', name)
-			return false
-		} else if (!allowBranchBehind && grgit.branch.status(branch: grgit.branch.current.fullName).behindCount > 0) {
-			logger.info('Skipping {} strategy because current branch is behind tracked branch.', name)
 			return false
 		} else {
 			return true

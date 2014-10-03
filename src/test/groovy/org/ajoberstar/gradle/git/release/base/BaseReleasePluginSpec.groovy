@@ -19,8 +19,10 @@ import spock.lang.Specification
 
 import org.ajoberstar.grgit.Grgit
 import org.ajoberstar.grgit.Branch
+import org.ajoberstar.grgit.BranchStatus
 import org.ajoberstar.grgit.service.BranchService
 import org.ajoberstar.grgit.service.TagService
+import org.gradle.api.GradleException
 import org.gradle.api.Project
 import org.gradle.testfixtures.ProjectBuilder
 
@@ -29,6 +31,42 @@ class BaseReleasePluginSpec extends Specification {
 
 	def setup() {
 		project.plugins.apply('org.ajoberstar.release-base')
+	}
+
+	def 'prepare task succeeds if branch is up to date'() {
+		given:
+		Grgit repo = GroovyMock()
+		BranchService branch = GroovyMock()
+		repo.branch >> branch
+		branch.current >> new Branch(fullName: 'refs/heads/master')
+		branch.status([branch: 'refs/heads/master']) >> new BranchStatus(behindCount: 0)
+
+		project.release {
+			grgit = repo
+		}
+		when:
+		project.tasks.prepare.execute()
+		then:
+		notThrown(GradleException)
+		1 * repo.fetch([remote: 'origin'])
+	}
+
+	def 'prepare task fails if branch is behind'() {
+		given:
+		Grgit repo = GroovyMock()
+		BranchService branch = GroovyMock()
+		repo.branch >> branch
+		branch.current >> new Branch(fullName: 'refs/heads/master')
+		branch.status([branch: 'refs/heads/master']) >> new BranchStatus(behindCount: 2)
+
+		project.release {
+			grgit = repo
+		}
+		when:
+		project.tasks.prepare.execute()
+		then:
+		thrown(GradleException)
+		1 * repo.fetch([remote: 'origin'])
 	}
 
 	def 'release task pushes branch and tag if created'() {
