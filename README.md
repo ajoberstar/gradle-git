@@ -13,7 +13,7 @@ The three primary use cases are:
 
 ## Documentation:
 
-* [Wiki](https://github.com/ajoberstar/gradle-git/wiki)
+* [Wiki](https://github.com/ajoberstar/gradle-git/wiki) ([Release Notes](https://github.com/ajoberstar/gradle-git/wiki/Release%20Notes))
 * [Javadoc](http://ajoberstar.org/gradle-git/docs/javadoc)
 * [Groovydoc](http://ajoberstar.org/gradle-git/docs/groovydoc)
 
