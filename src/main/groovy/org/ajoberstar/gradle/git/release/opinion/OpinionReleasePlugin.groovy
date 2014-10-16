@@ -15,6 +15,9 @@
  */
 package org.ajoberstar.gradle.git.release.opinion
 
+import org.ajoberstar.grgit.Grgit
+import org.ajoberstar.grgit.exception.GrgitException
+
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 
@@ -57,9 +60,16 @@ class OpinionReleasePlugin implements Plugin<Project> {
 					builder << 'Release of '
 					builder << version.version
 					builder << '\n\n'
-					grgit.log {
-						range "v${version.previousVersion}^{commit}", 'HEAD'
-					}.inject(builder) { bldr, commit ->
+
+					String previousVersion = "v${version.previousVersion}^{commit}"
+					List excludes = []
+					if (tagExists(grgit, previousVersion)) {
+						excludes << previousVersion
+					}
+					grgit.log(
+						includes: ['HEAD'],
+						excludes: excludes
+					).inject(builder) { bldr, commit ->
 						bldr << '- '
 						bldr << commit.shortMessage
 						bldr << '\n'
@@ -67,6 +77,15 @@ class OpinionReleasePlugin implements Plugin<Project> {
 					builder.toString()
 				}
 			}
+		}
+	}
+
+	private boolean tagExists(Grgit grgit, String revStr) {
+		try {
+			grgit.resolveCommit(revStr)
+			return true
+		} catch (GrgitException e) {
+			return false
 		}
 	}
 }

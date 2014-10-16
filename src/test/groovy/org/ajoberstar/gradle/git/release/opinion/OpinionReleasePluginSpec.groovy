@@ -19,6 +19,7 @@ import spock.lang.Specification
 
 import org.ajoberstar.grgit.Grgit
 import org.ajoberstar.grgit.Commit
+import org.ajoberstar.grgit.exception.GrgitException
 import org.ajoberstar.grgit.service.BranchService
 import org.ajoberstar.grgit.service.TagService
 import org.gradle.api.Project
@@ -27,6 +28,7 @@ import org.ajoberstar.gradle.git.release.base.ReleaseVersion
 
 class OpinionReleasePluginSpec extends Specification {
 	Project project = ProjectBuilder.builder().build()
+	ReleaseVersion version = new ReleaseVersion(version: '1.2.3', previousVersion: '1.2.2')
 
 	def 'plugin adds correct strategies'() {
 		given:
@@ -36,22 +38,43 @@ class OpinionReleasePluginSpec extends Specification {
 		project.release.defaultVersionStrategy == Strategies.DEVELOPMENT
 	}
 
-	def 'plugin sets correct tag strategy'() {
+	def 'plugin tag strategy creates correct message if previous tag exists'() {
 		given:
 		project.plugins.apply('org.ajoberstar.release-opinion')
 		Grgit grgit = GroovyMock()
 		project.release.grgit = grgit
-		grgit.log(_) >> [
+		1 * grgit.resolveCommit('v1.2.2^{commit}') >> new Commit(shortMessage: 'Commit 1')
+		1 * grgit.log([includes: ['HEAD'], excludes: ['v1.2.2^{commit}']]) >> [
+			new Commit(shortMessage: 'Commit 2'),
+			new Commit(shortMessage: 'Next commit')]
+		0 * grgit._
+		expect:
+		project.release.tagStrategy.generateMessage(version).trim() == '''
+Release of 1.2.3
+
+- Commit 2
+- Next commit
+'''.trim()
+	}
+
+	def 'plugin tag strategy creates correct message if previous tag does not exist'() {
+		given:
+		project.plugins.apply('org.ajoberstar.release-opinion')
+		Grgit grgit = GroovyMock()
+		project.release.grgit = grgit
+		1 * grgit.resolveCommit('v1.2.2^{commit}') >> { throw new GrgitException('fail') }
+		1 * grgit.log([includes: ['HEAD'], excludes: []]) >> [
 			new Commit(shortMessage: 'Commit 1'),
 			new Commit(shortMessage: 'Commit 2'),
 			new Commit(shortMessage: 'Next commit')]
+		0 * grgit._
 		expect:
-		project.release.tagStrategy.generateMessage(new ReleaseVersion(version: '1.2.3')) == '''\
+		project.release.tagStrategy.generateMessage(version).trim() == '''
 Release of 1.2.3
 
 - Commit 1
 - Commit 2
 - Next commit
-'''
+'''.trim()
 	}
 }
