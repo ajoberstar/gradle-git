@@ -105,6 +105,22 @@ class StrategiesSpec extends Specification {
 		'3.1.2' | null
 	}
 
+	def 'Normal.ENFORCE_GITFLOW_BRANCH_MAJOR_X correctly increments version to comply with branch'() {
+		given:
+		def initialState = new SemVerStrategyState(
+			nearestVersion: new NearestVersion(normal: Version.valueOf(nearest)),
+			currentBranch: new Branch(fullName: "refs/heads/${branch}"))
+		expect:
+		Strategies.Normal.ENFORCE_GITFLOW_BRANCH_MAJOR_X.infer(initialState) ==
+			initialState.copyWith(inferredNormal: inferred)
+		where:
+		branch        | nearest | inferred
+		'release/3.x' | '2.0.0' | '3.0.0'
+		'release-3.x' | '2.3.4' | '3.0.0'
+		'release-3.x' | '3.0.0' | null
+		'release/3.x' | '3.1.0' | null
+	}
+
 	def 'Normal.ENFORCE_BRANCH_MAJOR_MINOR_X fails if nearest normal can\'t be incremented to something that complies with branch'() {
 		given:
 		def initialState = new SemVerStrategyState(
@@ -137,6 +153,22 @@ class StrategiesSpec extends Specification {
 		'3.2.x' | '3.1.2' | '3.2.0'
 		'3.2.x' | '3.2.0' | null
 		'3.2.x' | '3.2.1' | null
+	}
+
+	def 'Normal.ENFORCE_GITFLOW_BRANCH_MAJOR_MINOR_X correctly increments version to comply with branch'() {
+		given:
+		def initialState = new SemVerStrategyState(
+			nearestVersion: new NearestVersion(normal: Version.valueOf(nearest)),
+			currentBranch: new Branch(fullName: "refs/heads/${branch}"))
+		expect:
+		Strategies.Normal.ENFORCE_GITFLOW_BRANCH_MAJOR_MINOR_X.infer(initialState) ==
+			initialState.copyWith(inferredNormal: inferred)
+		where:
+		branch          | nearest | inferred
+		'release/3.0.x' | '2.0.0' | '3.0.0'
+		'release-3.0.x' | '3.0.0' | null
+		'release-3.2.x' | '3.1.2' | '3.2.0'
+		'release/3.2.x' | '3.2.1' | null
 	}
 
 	def 'Normal.useScope correctly increments normal'() {

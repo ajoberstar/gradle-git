@@ -83,6 +83,20 @@ final class Strategies {
 
 		/**
 		 * Enforces that the normal version complies with the current branch's major version.
+		 * If the branch is not in the format {@code release/#.x} (e.g. {@code release/2.x}) or 
+		 * {@code release-#.x} (e.g. {@code release-3.x}, this will do nothing.
+		 *
+		 * <ul>
+		 *   <li>If the current branch doesn't match the pattern do nothing.</li>
+		 *   <li>If the the nearest normal already complies with the branch name.</li>
+		 *   <li>If the major component can be incremented to comply with the branch, do so.</li>
+		 *   <li>Otherwise fail, because the version can't comply with the branch.</li>
+		 * </ul>
+		 */
+		static final PartialSemVerStrategy ENFORCE_GITFLOW_BRANCH_MAJOR_X = fromBranchPattern(~/^release(?:\/|-)(\d+)\.x$/)
+
+		/**
+		 * Enforces that the normal version complies with the current branch's major version.
 		 * If the branch is not in the format {@code #.#.x} (e.g. {@code 2.3.x}), this will do
 		 * nothing.
 		 *
@@ -95,6 +109,20 @@ final class Strategies {
 		 * </ul>
 		 */
 		static final PartialSemVerStrategy ENFORCE_BRANCH_MAJOR_MINOR_X = fromBranchPattern(~/^(\d+)\.(\d+)\.x$/)
+
+		/**
+		 * Enforces that the normal version complies with the current branch's major version.
+		 * If the branch is not in the format {@code release/#.#.x} (e.g. {@code release/2.3.x}) or 
+		 * {@code release-#.#.x} (e.g. {@code release-3.11.x}, this will do nothing.
+		 *
+		 * <ul>
+		 *   <li>If the current branch doesn't match the pattern do nothing.</li>
+		 *   <li>If the the nearest normal already complies with the branch name.</li>
+		 *   <li>If the major component can be incremented to comply with the branch, do so.</li>
+		 *   <li>Otherwise fail, because the version can't comply with the branch.</li>
+		 * </ul>
+		 */
+		static final PartialSemVerStrategy ENFORCE_GITFLOW_BRANCH_MAJOR_MINOR_X = fromBranchPattern(~/^release(?:\/|-)(\d+)\.(\d+)\.x$/)
 
 		/**
 		 * Uses the specified pattern to enforce that versions inferred on this branch
