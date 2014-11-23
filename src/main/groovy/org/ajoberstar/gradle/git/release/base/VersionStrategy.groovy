@@ -45,7 +45,8 @@ interface VersionStrategy {
 	 * Infers the project version from the repository.
 	 * @param project the project the version should be inferred for
 	 * @param grgit the repository the version should be inferred from
+	 * @param tagPrefix if non-null, only tags with that prefix are considered valid candidates
 	 * @return the inferred version
 	 */
-	ReleaseVersion infer(Project project, Grgit grgit)
+	ReleaseVersion infer(Project project, Grgit grgit, String tagPrefix)
 }

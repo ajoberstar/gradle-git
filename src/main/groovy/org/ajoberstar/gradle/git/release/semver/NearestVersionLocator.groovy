@@ -40,7 +40,16 @@ import org.slf4j.LoggerFactory
 class NearestVersionLocator {
 	private static final Logger logger = LoggerFactory.getLogger(NearestVersionLocator)
 
-	/**
+	private String tagPrefix;
+
+	NearestVersionLocator() {
+		this(null)
+	}
+
+	NearestVersionLocator(String tagPrefix) {
+		this.tagPrefix = tagPrefix;
+	}
+/**
 	 * Locate the nearest version in the given repository
 	 * starting from the current HEAD.
 	 *
@@ -124,7 +133,8 @@ class NearestVersionLocator {
 
 	protected Version parseAsVersion(String name) {
 		try {
-			return Version.valueOf(extractName(name))
+			def extracted = extractName(name)
+			return extracted != null ? Version.valueOf(extracted) : null;
 		} catch (ParseException e) {
 			logger.debug('Invalid version string: {}', name)
 			return null
@@ -132,10 +142,18 @@ class NearestVersionLocator {
 	}
 
 	protected String extractName(String tagName) {
-		if (tagName.charAt(0) == 'v') {
-			return tagName[1..-1]
+		if (tagPrefix != null ) {
+			if (tagName.startsWith(tagPrefix)) {
+				return tagName[tagPrefix.length()..-1]
+			} else {
+				return null;
+			}
 		} else {
-			return tagName
+			if (tagName.charAt(0) == 'v') {
+				return tagName[1..-1]
+			} else {
+				return tagName
+			}
 		}
 	}
 }

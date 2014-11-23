@@ -115,8 +115,8 @@ final class SemVerStrategy implements VersionStrategy {
 	 * the version precedence will be enforced, if required by this strategy.
 	 */
 	@Override
-	ReleaseVersion infer(Project project, Grgit grgit) {
-		return doInfer(project, grgit, new NearestVersionLocator())
+	ReleaseVersion infer(Project project, Grgit grgit, String tagPrefix) {
+		return doInfer(project, grgit, new NearestVersionLocator(tagPrefix))
 	}
 
 	@PackageScope

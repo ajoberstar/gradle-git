@@ -111,7 +111,7 @@ class ReleasePluginExtension {
 				}
 			}
 
-			inferredVersion = selectedStrategy.infer(project, grgit)
+			inferredVersion = selectedStrategy.infer(project, grgit, tagStrategy.tagPrefix)
 		}
 
 		@Override

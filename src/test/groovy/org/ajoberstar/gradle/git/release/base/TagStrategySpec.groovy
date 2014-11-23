@@ -54,4 +54,17 @@ class TagStrategySpec extends Specification {
 		expect:
 		strategy.maybeCreateTag(grgit, new ReleaseVersion('1.2.3', null, true)) == '1.2.3'
 	}
+
+	def 'maybeCreateTag with version create tag true and tagPrefix will create a tag'() {
+		given:
+		Grgit grgit = GroovyMock()
+		TagService tag = GroovyMock()
+		grgit.tag >> tag
+		1 * tag.add([name: 'projecta-1.2.3', message: 'Release of 1.2.3'])
+		0 * tag._
+		def strategy = new TagStrategy()
+		strategy.tagPrefix = 'projecta-'
+		expect:
+		strategy.maybeCreateTag(grgit, new ReleaseVersion('1.2.3', null, true)) == 'projecta-1.2.3'
+	}
 }
