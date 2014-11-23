@@ -33,6 +33,13 @@ class TagStrategy {
 	boolean prefixNameWithV = true
 
 	/**
+	 * If non-null, the tag prefix will be used when creating a tag.
+	 * Also, only tags with that prefix will be considered when resolving nearest versions.
+	 * The existence of a tagPrefix excludes the use if {@code prefixNameWithV}
+	 */
+	String tagPrefix
+
+	/**
 	 * Closure taking a {@link ReleaseVersion} as an argument and returning
 	 * a string to be used as the tag's message.
 	 */
@@ -46,10 +53,15 @@ class TagStrategy {
 	 * @param version the version to create the tag for
 	 * @return the name of the tag created, or {@code null} if it wasn't
 	 */
-	String maybeCreateTag(Grgit grgit, ReleaseVersion version) {
+	String maybeCreateTag(Grgit grgit, ReleaseVersion version ) {
 		def versionStr = version.version
 		if (version.createTag) {
-			String name = prefixNameWithV ? "v${versionStr}" : versionStr
+			String name
+			if (tagPrefix != null) {
+				name="${tagPrefix}${versionStr}"
+			} else {
+				name = prefixNameWithV ? "v${versionStr}" : versionStr
+			}
 			String message = generateMessage(version)
 
 			logger.warn('Tagging repository as {}', name)

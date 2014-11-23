@@ -39,6 +39,7 @@ class NearestVersionLocatorSpec extends Specification {
 
 		commit()
 		commit()
+		addTag('project-0.1.0')
 		// grgit.branch.add(name: 'unreachable')
 		addBranch('unreachable')
 
@@ -57,6 +58,8 @@ class NearestVersionLocatorSpec extends Specification {
 		addBranch('RB_0.1')
 
 		commit()
+		addTag('project-1.0.0')
+
 		commit()
 		// grgit.tag.add(name: '0.2.0')
 		addTag('0.2.0')
@@ -70,7 +73,7 @@ class NearestVersionLocatorSpec extends Specification {
 
 		commit()
 		commit()
-		commit()
+ 		commit()
 		commit()
 		// grgit.tag.add(name: 'v0.1.2-beta.1')
 		addTag('v0.1.2-beta.1')
@@ -82,16 +85,28 @@ class NearestVersionLocatorSpec extends Specification {
 		// grgit.checkout(branch: 'master')
 		checkout('master')
 
+		addBranch("project-1.1.x")
+		commit()
+		checkout("project-1.1.x")
+		commit()
+		addTag("project-1.1.0-rc.1")
+		commit()
+
+		checkout('master')
+		addTag('project-1.2.0')
+
 		commit()
 		// grgit.tag.add(name: 'v1.0.0')
 		addTag('v1.0.0')
 		addTag('v1.0.0-rc.3')
+		addTag('project-1.2.1-rc.1+asdf')
 		// grgit.branch.add(name: 'RB_1.0')
 		addBranch('RB_1.0')
 
 		commit()
 		// grgit.tag.add(name: '1.1.0-rc.1+abcde')
 		addTag('1.1.0-rc.1+abcde')
+
 	}
 
 	def cleanupSpec() {
@@ -114,6 +129,27 @@ class NearestVersionLocatorSpec extends Specification {
 		'RB_1.0'      | '1.0.0'            | '1.0.0'                     | 0
 		'no-normal'   | '0.0.1-beta.3'     | '0.0.0'                     | 3
 		'unreachable' | '0.0.0'            | '0.0.0'                     | 2
+	}
+
+	@Unroll('when on #head, using prefix #prefix, locator finds normal #normal with distance #distance and nearest #any at #stage')
+	def 'locator returns correct value with prefix'() {
+		given:
+		grgit.checkout(branch: head)
+		expect:
+		def nearest = new NearestVersionLocator(prefix).locate(grgit)
+		nearest.any == Version.valueOf(any)
+		nearest.normal == Version.valueOf(normal)
+		nearest.distanceFromNormal == distance
+		where:
+		head                 | prefix     |   any              | normal                      | distance
+		'master'             | null       | '1.1.0-rc.1+abcde' | '1.0.0'                     | 1
+		'RB_0.1'             | null       | '0.1.2-beta.1'     | '0.1.1+2010.01.01.12.00.00' | 7
+		'RB_1.0'             | null       | '1.0.0'            | '1.0.0'                     | 0
+		'no-normal'          | null       | '0.0.1-beta.3'     | '0.0.0'                     | 3
+		'unreachable'        | null       | '0.0.0'            | '0.0.0'                     | 2
+		'project-1.0.0'      | 'project-' | '1.0.0'            | '1.0.0'                     | 0
+		'master'             | 'project-' | '1.2.1-rc.1+asdf'  | '1.2.0'                     | 2
+		'project-1.1.x'      | 'project-' | '1.1.0-rc.1'       | '1.0.0'                     | 3
 	}
 
 	private void commit() {

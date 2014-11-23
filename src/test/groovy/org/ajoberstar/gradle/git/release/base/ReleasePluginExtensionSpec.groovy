@@ -32,11 +32,11 @@ class ReleasePluginExtensionSpec extends Specification {
 		extension.versionStrategy([
 			getName: { 'b' },
 			selector: { proj, grgit -> false },
-			infer: { proj, grgit -> new ReleaseVersion('1.0.0', null, true) }] as VersionStrategy)
+			infer: { proj, grgit, tagPrefix -> new ReleaseVersion('1.0.0', null, true) }] as VersionStrategy)
 		extension.defaultVersionStrategy = [
 			getName: { 'a' },
 			selector: { proj, grgit -> false },
-			infer: { proj, grgit -> new ReleaseVersion('1.2.3', null, true) }] as VersionStrategy
+			infer: { proj, grgit, tagPrefix -> new ReleaseVersion('1.2.3', null, true) }] as VersionStrategy
 		expect:
 		project.version.toString() == '1.2.3'
 	}
@@ -48,11 +48,11 @@ class ReleasePluginExtensionSpec extends Specification {
 		extension.versionStrategy([
 			getName: { 'b' },
 			selector: { proj, grgit -> false },
-			infer: { proj, grgit -> new ReleaseVersion('1.0.0', null, true) }] as VersionStrategy)
+			infer: { proj, grgit, tagPrefix -> new ReleaseVersion('1.0.0', null, true) }] as VersionStrategy)
 		extension.versionStrategy([
 			getName: { 'a' },
 			selector: { proj, grgit -> true },
-			infer: { proj, grgit -> new ReleaseVersion('1.2.3', null, true) }] as VersionStrategy)
+			infer: { proj, grgit, tagPrefix -> new ReleaseVersion('1.2.3', null, true) }] as VersionStrategy)
 		expect:
 		project.version.toString() == '1.2.3'
 	}
@@ -64,11 +64,11 @@ class ReleasePluginExtensionSpec extends Specification {
 		extension.versionStrategy([
 			getName: { 'b' },
 			selector: { proj, grgit -> true },
-			infer: { proj, grgit -> new ReleaseVersion('1.0.0', null, true) }] as VersionStrategy)
+			infer: { proj, grgit, tagPrefix -> new ReleaseVersion('1.0.0', null, true) }] as VersionStrategy)
 		extension.versionStrategy([
 			getName: { 'a' },
 			selector: { proj, grgit -> true },
-			infer: { proj, grgit -> new ReleaseVersion('1.2.3', null, true) }] as VersionStrategy)
+			infer: { proj, grgit, tagPrefix -> new ReleaseVersion('1.2.3', null, true) }] as VersionStrategy)
 		expect:
 		project.version.toString() == '1.0.0'
 	}
@@ -80,11 +80,11 @@ class ReleasePluginExtensionSpec extends Specification {
 		extension.versionStrategy([
 			getName: { 'b' },
 			selector: { proj, grgit -> false },
-			infer: { proj, grgit -> new ReleaseVersion('1.0.0', null, true) }] as VersionStrategy)
+			infer: { proj, grgit, tagPrefix -> new ReleaseVersion('1.0.0', null, true) }] as VersionStrategy)
 		extension.versionStrategy([
 			getName: { 'a' },
 			selector: { proj, grgit -> false },
-			infer: { proj, grgit -> new ReleaseVersion('1.2.3', null, true) }] as VersionStrategy)
+			infer: { proj, grgit, tagPrefix -> new ReleaseVersion('1.2.3', null, true) }] as VersionStrategy)
 		when:
 		project.version.toString()
 		then:
