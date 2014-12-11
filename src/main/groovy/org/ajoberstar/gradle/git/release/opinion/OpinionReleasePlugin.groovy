@@ -15,6 +15,7 @@
  */
 package org.ajoberstar.gradle.git.release.opinion
 
+import org.ajoberstar.gradle.git.semver.RebuildVersionStrategy
 import org.ajoberstar.grgit.Grgit
 import org.ajoberstar.grgit.exception.GrgitException
 
@@ -31,6 +32,7 @@ import org.gradle.api.Project
  * </p>
  *
  * <ul>
+ *   <li>{@link RebuildVersionStrategy}</li>
  *   <li>{@link Strategies#DEVELOPMENT} (also set as the default)</li>
  *   <li>{@link Strategies#PRE_RELEASE}</li>
  *   <li>{@link Strategies#FINAL}</li>
@@ -50,6 +52,7 @@ class OpinionReleasePlugin implements Plugin<Project> {
 		project.plugins.apply('org.ajoberstar.release-base')
 
 		project.release {
+			versionStrategy(new RebuildVersionStrategy())
 			versionStrategy Strategies.DEVELOPMENT
 			versionStrategy Strategies.PRE_RELEASE
 			versionStrategy Strategies.FINAL
