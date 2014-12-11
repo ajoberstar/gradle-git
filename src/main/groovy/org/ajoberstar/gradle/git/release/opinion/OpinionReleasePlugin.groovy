@@ -52,7 +52,7 @@ class OpinionReleasePlugin implements Plugin<Project> {
 		project.plugins.apply('org.ajoberstar.release-base')
 
 		project.release {
-			versionStrategy(new RebuildVersionStrategy())
+			versionStrategy RebuildVersionStrategy.INSTANCE
 			versionStrategy Strategies.DEVELOPMENT
 			versionStrategy Strategies.PRE_RELEASE
 			versionStrategy Strategies.FINAL

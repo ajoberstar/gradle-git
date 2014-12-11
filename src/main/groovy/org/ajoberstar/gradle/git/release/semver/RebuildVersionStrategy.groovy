@@ -23,6 +23,12 @@ import org.ajoberstar.grgit.Grgit
 import org.gradle.api.Project
 
 class RebuildVersionStrategy implements VersionStrategy {
+	public static final RebuildVersionStrategy INSTANCE = new RebuildVersionStrategy()
+
+	private RebuildVersionStrategy() {
+		// just hiding the constructor
+	}
+
 	@Override
 	String getName() {
 		return 'rebuild'

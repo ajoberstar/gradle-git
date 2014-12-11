@@ -16,6 +16,7 @@
 package org.ajoberstar.gradle.git.release.opinion
 
 import org.ajoberstar.gradle.git.release.base.ReleaseVersion
+import org.ajoberstar.gradle.git.release.semver.RebuildVersionStrategy
 import org.ajoberstar.grgit.Commit
 import org.ajoberstar.grgit.Grgit
 import org.ajoberstar.grgit.exception.GrgitException
@@ -33,7 +34,7 @@ class OpinionReleasePluginSpec extends Specification {
 		given:
 		project.plugins.apply('org.ajoberstar.release-opinion')
 		expect:
-		project.release.versionStrategies == [Strategies.DEVELOPMENT, Strategies.PRE_RELEASE, Strategies.FINAL]
+		project.release.versionStrategies == [RebuildVersionStrategy.INSTANCE, Strategies.DEVELOPMENT, Strategies.PRE_RELEASE, Strategies.FINAL]
 		project.release.defaultVersionStrategy == Strategies.DEVELOPMENT
 	}
 
