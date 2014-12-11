@@ -15,7 +15,6 @@
  */
 package org.ajoberstar.gradle.git.release.semver
 
-import com.github.zafarkhaja.semver.ParseException
 import com.github.zafarkhaja.semver.Version
 
 import org.ajoberstar.grgit.Commit
@@ -76,7 +75,7 @@ class NearestVersionLocator {
 		logger.debug('Locate beginning on branch: {}', grgit.branch.current.fullName)
 		Commit head = grgit.head()
 		List versionTags = grgit.tag.list().inject([]) { list, tag ->
-			Version version = parseAsVersion(tag.name)
+			Version version = TagUtil.parseAsVersion(tag)
 			logger.debug('Tag {} ({}) parsed as {} version.', tag.name, tag.commit.abbreviatedId, version)
 			if (version) {
 				def data
@@ -120,22 +119,5 @@ class NearestVersionLocator {
 		int distanceFromNormal = normal ? normal.distance : grgit.log(includes: [head.id]).size()
 
 		return new NearestVersion(anyVersion, normalVersion, distanceFromAny, distanceFromNormal)
-	}
-
-	protected Version parseAsVersion(String name) {
-		try {
-			return Version.valueOf(extractName(name))
-		} catch (ParseException e) {
-			logger.debug('Invalid version string: {}', name)
-			return null
-		}
-	}
-
-	protected String extractName(String tagName) {
-		if (tagName.charAt(0) == 'v') {
-			return tagName[1..-1]
-		} else {
-			return tagName
-		}
 	}
 }

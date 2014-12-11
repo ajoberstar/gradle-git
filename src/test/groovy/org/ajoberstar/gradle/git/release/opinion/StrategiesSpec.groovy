@@ -15,21 +15,24 @@
  */
 package org.ajoberstar.gradle.git.release.opinion
 
-import spock.lang.Specification
-import spock.lang.Unroll
-import org.ajoberstar.grgit.Branch
-import org.ajoberstar.grgit.service.BranchService
-import org.ajoberstar.grgit.Commit
-import org.ajoberstar.grgit.Status
-import org.ajoberstar.grgit.Grgit
+import com.github.zafarkhaja.semver.Version
+
 import org.ajoberstar.gradle.git.release.base.ReleaseVersion
-import org.ajoberstar.gradle.git.release.semver.SemVerStrategyState
 import org.ajoberstar.gradle.git.release.semver.ChangeScope
 import org.ajoberstar.gradle.git.release.semver.NearestVersion
 import org.ajoberstar.gradle.git.release.semver.NearestVersionLocator
-import com.github.zafarkhaja.semver.Version
+import org.ajoberstar.gradle.git.release.semver.SemVerStrategyState
+import org.ajoberstar.grgit.Branch
+import org.ajoberstar.grgit.Commit
+import org.ajoberstar.grgit.Grgit
+import org.ajoberstar.grgit.Status
+import org.ajoberstar.grgit.service.BranchService
+
 import org.gradle.api.GradleException
 import org.gradle.api.Project
+
+import spock.lang.Specification
+import spock.lang.Unroll
 
 class StrategiesSpec extends Specification {
 	SemVerStrategyState initialState = new SemVerStrategyState([:])

@@ -15,8 +15,8 @@
  */
 package org.ajoberstar.gradle.git.release.semver
 
-import java.security.SecureRandom
 import java.nio.file.Files
+import java.security.SecureRandom
 
 import com.github.zafarkhaja.semver.Version
 

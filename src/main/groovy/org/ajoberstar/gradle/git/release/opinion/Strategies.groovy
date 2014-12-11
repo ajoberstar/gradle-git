@@ -22,7 +22,6 @@ import java.util.regex.Pattern
 import org.ajoberstar.gradle.git.release.semver.ChangeScope
 import org.ajoberstar.gradle.git.release.semver.PartialSemVerStrategy
 import org.ajoberstar.gradle.git.release.semver.SemVerStrategy
-import org.ajoberstar.gradle.git.release.semver.SemVerStrategyState
 
 import org.gradle.api.GradleException
 

@@ -15,17 +15,18 @@
  */
 package org.ajoberstar.gradle.git.release.semver
 
-import spock.lang.Specification
-
 import com.github.zafarkhaja.semver.Version
-import org.gradle.api.Project
+
+import org.ajoberstar.gradle.git.release.base.ReleaseVersion
+import org.ajoberstar.grgit.Branch
 import org.ajoberstar.grgit.Grgit
 import org.ajoberstar.grgit.Status
-import org.ajoberstar.grgit.Branch
-import org.ajoberstar.grgit.BranchStatus
 import org.ajoberstar.grgit.service.BranchService
-import org.ajoberstar.gradle.git.release.base.ReleaseVersion
+
 import org.gradle.api.GradleException
+import org.gradle.api.Project
+
+import spock.lang.Specification
 
 class SemVerStrategySpec extends Specification {
 	Project project = GroovyMock()

@@ -15,10 +15,10 @@
  */
 package org.ajoberstar.gradle.git.release.base
 
+import org.ajoberstar.grgit.Grgit
+
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-
-import org.ajoberstar.grgit.Grgit
 
 /**
  * Strategy for creating a Git tag associated with a release.

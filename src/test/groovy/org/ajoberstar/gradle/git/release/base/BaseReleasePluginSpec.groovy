@@ -15,16 +15,17 @@
  */
 package org.ajoberstar.gradle.git.release.base
 
-import spock.lang.Specification
-
-import org.ajoberstar.grgit.Grgit
 import org.ajoberstar.grgit.Branch
 import org.ajoberstar.grgit.BranchStatus
+import org.ajoberstar.grgit.Grgit
 import org.ajoberstar.grgit.service.BranchService
 import org.ajoberstar.grgit.service.TagService
+
 import org.gradle.api.GradleException
 import org.gradle.api.Project
 import org.gradle.testfixtures.ProjectBuilder
+
+import spock.lang.Specification
 
 class BaseReleasePluginSpec extends Specification {
 	Project project = ProjectBuilder.builder().build()

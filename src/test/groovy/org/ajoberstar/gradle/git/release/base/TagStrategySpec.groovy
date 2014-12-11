@@ -15,10 +15,10 @@
  */
 package org.ajoberstar.gradle.git.release.base
 
-import spock.lang.Specification
-
 import org.ajoberstar.grgit.Grgit
 import org.ajoberstar.grgit.service.TagService
+
+import spock.lang.Specification
 
 class TagStrategySpec extends Specification {
 	def 'maybeCreateTag with version create tag true will create a tag'() {

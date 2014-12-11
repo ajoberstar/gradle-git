@@ -15,16 +15,15 @@
  */
 package org.ajoberstar.gradle.git.release.opinion
 
-import spock.lang.Specification
-
-import org.ajoberstar.grgit.Grgit
+import org.ajoberstar.gradle.git.release.base.ReleaseVersion
 import org.ajoberstar.grgit.Commit
+import org.ajoberstar.grgit.Grgit
 import org.ajoberstar.grgit.exception.GrgitException
-import org.ajoberstar.grgit.service.BranchService
-import org.ajoberstar.grgit.service.TagService
+
 import org.gradle.api.Project
 import org.gradle.testfixtures.ProjectBuilder
-import org.ajoberstar.gradle.git.release.base.ReleaseVersion
+
+import spock.lang.Specification
 
 class OpinionReleasePluginSpec extends Specification {
 	Project project = ProjectBuilder.builder().build()

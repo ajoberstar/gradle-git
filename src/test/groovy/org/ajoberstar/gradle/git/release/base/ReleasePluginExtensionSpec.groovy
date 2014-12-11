@@ -15,13 +15,13 @@
  */
 package org.ajoberstar.gradle.git.release.base
 
-import spock.lang.Specification
-
 import org.ajoberstar.grgit.Grgit
-import org.ajoberstar.grgit.service.TagService
-import org.gradle.api.Project
+
 import org.gradle.api.GradleException
+import org.gradle.api.Project
 import org.gradle.testfixtures.ProjectBuilder
+
+import spock.lang.Specification
 
 class ReleasePluginExtensionSpec extends Specification {
 	def 'infers default version if selector returns false for all'() {
