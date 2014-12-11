@@ -15,7 +15,7 @@
  */
 package org.ajoberstar.gradle.git.release.opinion
 
-import org.ajoberstar.gradle.git.semver.RebuildVersionStrategy
+import org.ajoberstar.gradle.git.release.semver.RebuildVersionStrategy
 import org.ajoberstar.grgit.Grgit
 import org.ajoberstar.grgit.exception.GrgitException
 
