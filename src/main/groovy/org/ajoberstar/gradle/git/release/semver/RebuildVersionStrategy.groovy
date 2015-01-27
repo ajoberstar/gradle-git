@@ -22,6 +22,10 @@ import org.ajoberstar.grgit.Grgit
 
 import org.gradle.api.Project
 
+/**
+ * Strategy that infers the version based on the tag on the current
+ * HEAD.
+ */
 class RebuildVersionStrategy implements VersionStrategy {
 	public static final RebuildVersionStrategy INSTANCE = new RebuildVersionStrategy()
 
@@ -34,6 +38,14 @@ class RebuildVersionStrategy implements VersionStrategy {
 		return 'rebuild'
 	}
 
+	/**
+	 * Determines whether this strategy should be used to infer the version.
+	 * <ul>
+	 * <li>Return {@code false}, if any project properties starting with "release." are set.</li>
+	 * <li>Return {@code false}, if there aren't any tags on the current HEAD that can be parsed as a version.</li>
+	 * <li>Return {@code true}, otherwise.</li>
+	 * </ul>
+	 */
 	@Override
 	boolean selector(Project project, Grgit grgit) {
 		return grgit.status().clean &&
@@ -41,6 +53,10 @@ class RebuildVersionStrategy implements VersionStrategy {
 			getHeadVersion(grgit)
 	}
 
+	/**
+	 * Infers the version based on the version tag on the current HEAD with the
+	 * highest precendence.
+	 */
 	@Override
 	ReleaseVersion infer(Project project, Grgit grgit) {
 		String version = getHeadVersion(grgit)

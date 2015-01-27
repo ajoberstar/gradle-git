@@ -20,6 +20,9 @@ import com.github.zafarkhaja.semver.Version
 
 import org.ajoberstar.grgit.Tag
 
+import groovy.transform.PackageScope
+
+@PackageScope
 final class TagUtil {
 	private TagUtil() {
 		throw new AssertionError('Cannot instantiate this class.')
