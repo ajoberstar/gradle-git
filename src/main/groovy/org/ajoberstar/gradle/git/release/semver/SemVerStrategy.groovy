@@ -145,7 +145,7 @@ final class SemVerStrategy implements VersionStrategy {
 		Version version = StrategyUtil.all(
 			normalStrategy, preReleaseStrategy, buildMetadataStrategy).infer(state).toVersion()
 
-		logger.warn('Inferred version: {}', version)
+		logger.warn('Inferred project: {}, version: {}', project.name, version)
 
 		if (enforcePrecedence && version < nearestVersion.any) {
 			throw new GradleException("Inferred version (${version}) cannot be lower than nearest (${nearestVersion.any}). Required by selected strategy.")
