@@ -1,8 +1,8 @@
 plugins {
 	id 'groovy'
 	id 'maven-publish'
-	id 'com.jfrog.bintray' version '1.0'
-	id 'org.ajoberstar.defaults' version '0.5.0'
+	id 'com.jfrog.bintray' version '1.1'
+	id 'org.ajoberstar.defaults' version '0.5.1'
 }
 
 group = 'org.ajoberstar'
@@ -42,7 +42,7 @@ dependencies {
 	compile gradleApi()
 
 	// grgit
-	compile 'org.ajoberstar:grgit:0.4.0'
+	compile 'org.ajoberstar:grgit:1.0.0-rc.2'
 
 	// semver
 	compile 'com.github.zafarkhaja:java-semver:0.8.0'
