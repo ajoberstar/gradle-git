@@ -129,7 +129,7 @@ class NearestVersionLocatorSpec extends Specification {
 		def currentHead = grgit.head()
 		def currentBranch = grgit.branch.current
 		def newBranch = grgit.branch.add(name: name)
-		def atCommit = grgit.resolveCommit(newBranch.fullName)
+		def atCommit = grgit.resolve.toCommit(newBranch.fullName)
 		println "Added new branch ${name} at ${atCommit.abbreviatedId}"
 		assert currentBranch == grgit.branch.current
 		assert currentHead == atCommit
@@ -138,7 +138,7 @@ class NearestVersionLocatorSpec extends Specification {
 	private void addTag(String name) {
 		def currentHead = grgit.head()
 		def newTag = grgit.tag.add(name: name)
-		def atCommit = grgit.resolveCommit(newTag.fullName)
+		def atCommit = grgit.resolve.toCommit(newTag.fullName)
 		println "Added new tag ${name} at ${atCommit.abbreviatedId}"
 		assert currentHead == atCommit
 	}
@@ -146,7 +146,7 @@ class NearestVersionLocatorSpec extends Specification {
 	private void checkout(String name) {
 		def currentHead = grgit.head()
 		grgit.checkout(branch: name)
-		def atCommit = grgit.resolveCommit(name)
+		def atCommit = grgit.resolve.toCommit(name)
 		def newHead = grgit.head()
 		println "Checkout out ${name}, which is at ${atCommit.abbreviatedId}"
 		assert currentHead != grgit.head()
