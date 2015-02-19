@@ -85,7 +85,7 @@ class OpinionReleasePlugin implements Plugin<Project> {
 
 	private boolean tagExists(Grgit grgit, String revStr) {
 		try {
-			grgit.resolveCommit(revStr)
+			grgit.resolve.toCommit(revStr)
 			return true
 		} catch (GrgitException e) {
 			return false

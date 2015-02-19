@@ -20,6 +20,7 @@ import org.ajoberstar.gradle.git.release.semver.RebuildVersionStrategy
 import org.ajoberstar.grgit.Commit
 import org.ajoberstar.grgit.Grgit
 import org.ajoberstar.grgit.exception.GrgitException
+import org.ajoberstar.grgit.service.ResolveService
 
 import org.gradle.api.Project
 import org.gradle.testfixtures.ProjectBuilder
@@ -43,7 +44,9 @@ class OpinionReleasePluginSpec extends Specification {
 		project.plugins.apply('org.ajoberstar.release-opinion')
 		Grgit grgit = GroovyMock()
 		project.release.grgit = grgit
-		1 * grgit.resolveCommit('v1.2.2^{commit}') >> new Commit(shortMessage: 'Commit 1')
+		ResolveService resolve = Mock()
+		(1.._) * grgit.resolve >> resolve
+		1 * resolve.toCommit('v1.2.2^{commit}') >> new Commit(shortMessage: 'Commit 1')
 		1 * grgit.log([includes: ['HEAD'], excludes: ['v1.2.2^{commit}']]) >> [
 			new Commit(shortMessage: 'Commit 2'),
 			new Commit(shortMessage: 'Next commit')]
@@ -62,7 +65,9 @@ Release of 1.2.3
 		project.plugins.apply('org.ajoberstar.release-opinion')
 		Grgit grgit = GroovyMock()
 		project.release.grgit = grgit
-		1 * grgit.resolveCommit('v1.2.2^{commit}') >> { throw new GrgitException('fail') }
+		ResolveService resolve = Mock()
+		(1.._) * grgit.resolve >> resolve
+		1 * grgit.resolve.toCommit('v1.2.2^{commit}') >> { throw new GrgitException('fail') }
 		1 * grgit.log([includes: ['HEAD'], excludes: []]) >> [
 			new Commit(shortMessage: 'Commit 1'),
 			new Commit(shortMessage: 'Commit 2'),
