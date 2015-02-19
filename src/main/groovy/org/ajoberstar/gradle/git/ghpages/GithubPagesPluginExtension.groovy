@@ -55,6 +55,12 @@ class GithubPagesPluginExtension implements AuthenticationSupported {
 	 */
 	Object workingPath = "${project.buildDir}/ghpages"
 
+    /**
+     * Whether to delete existing files in the branch, replacing the
+     * entire contents. Defaults to {@code true}.
+     */
+    boolean deleteExistingFiles = true
+
 	/**
 	 * The message used when committing changes to Github pages branch.
 	 * Defaults to 'Publish of Github pages from Gradle.'.
