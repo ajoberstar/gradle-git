@@ -382,7 +382,7 @@ class StrategiesSpec extends Specification {
 		def grgit = mockGrgit(repoDirty)
 		def locator = mockLocator(nearestNormal, nearestAny)
 		expect:
-		Strategies.PRE_RELEASE.doInfer(project, grgit, locator) == new ReleaseVersion(expected, nearestNormal, true)
+		Strategies.PRE_RELEASE_ALPHA_BETA.doInfer(project, grgit, locator) == new ReleaseVersion(expected, nearestNormal, true)
 		where:
 		scope   | stage       | nearestNormal | nearestAny          | repoDirty | expected
 		null    | null        | '1.0.0'       | '1.0.0'             | false     | '1.0.1-alpha.1'
