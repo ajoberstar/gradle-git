@@ -82,7 +82,7 @@ final class Strategies {
 
 		/**
 		 * Enforces that the normal version complies with the current branch's major version.
-		 * If the branch is not in the format {@code release/#.x} (e.g. {@code release/2.x}) or 
+		 * If the branch is not in the format {@code release/#.x} (e.g. {@code release/2.x}) or
 		 * {@code release-#.x} (e.g. {@code release-3.x}, this will do nothing.
 		 *
 		 * <ul>
@@ -111,7 +111,7 @@ final class Strategies {
 
 		/**
 		 * Enforces that the normal version complies with the current branch's major version.
-		 * If the branch is not in the format {@code release/#.#.x} (e.g. {@code release/2.3.x}) or 
+		 * If the branch is not in the format {@code release/#.#.x} (e.g. {@code release/2.3.x}) or
 		 * {@code release-#.#.x} (e.g. {@code release-3.11.x}, this will do nothing.
 		 *
 		 * <ul>
@@ -335,5 +335,16 @@ final class Strategies {
 	static final SemVerStrategy FINAL = DEFAULT.copyWith(
 		name: 'final',
 		stages: ['final'] as SortedSet
+	)
+
+	/**
+	 * Provides "alpha", "beta" and "rc" stages that can only be used in clean repos
+	 * and will enforce precedence. The pre-release-alpha-beta component will always be set
+	 * to the stage with an incremented count to disambiguate successive
+	 * releases of the same stage. No build metadata component will be added.
+	 */
+	static final SemVerStrategy PRE_RELEASE_ALPHA_BETA = PRE_RELEASE.copyWith(
+		name: 'pre-release-alpha-beta',
+		stages: ['alpha', 'beta', 'rc'] as SortedSet
 	)
 }
