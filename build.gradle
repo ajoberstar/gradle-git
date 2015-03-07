@@ -49,7 +49,7 @@ dependencies {
 
 	// testing
 	testCompile 'junit:junit:4.10'
-	testCompile 'org.spockframework:spock-core:1.0-groovy-2.3-SNAPSHOT'
+	testCompile 'org.spockframework:spock-core:1.1-groovy-2.3-SNAPSHOT'
 	testRuntime 'cglib:cglib-nodep:3.1'
 }
 
