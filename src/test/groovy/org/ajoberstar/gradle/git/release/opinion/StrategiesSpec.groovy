@@ -377,6 +377,30 @@ class StrategiesSpec extends Specification {
 		'MINOR' | 'final'     | '1.0.0'       | '1.1.0-alpha.2'     | false     | '1.1.0'
 	}
 
+	def 'PRE_RELEASE_ALPHA_BETA works as expected'() {
+		def project = mockProject(scope, stage)
+		def grgit = mockGrgit(repoDirty)
+		def locator = mockLocator(nearestNormal, nearestAny)
+		expect:
+		Strategies.PRE_RELEASE.doInfer(project, grgit, locator) == new ReleaseVersion(expected, nearestNormal, true)
+		where:
+		scope   | stage       | nearestNormal | nearestAny          | repoDirty | expected
+		null    | null        | '1.0.0'       | '1.0.0'             | false     | '1.0.1-alpha.1'
+		null    | 'alpha'     | '1.0.0'       | '1.0.0'             | false     | '1.0.1-alpha.1'
+		null    | 'beta'      | '1.0.0'       | '1.0.0'             | false     | '1.0.1-beta.1'
+		null    | 'rc'        | '1.0.0'       | '1.0.0'             | false     | '1.0.1-rc.1'
+		'PATCH' | 'alpha'     | '1.0.0'       | '1.0.0'             | false     | '1.0.1-alpha.1'
+		'MINOR' | 'alpha'     | '1.0.0'       | '1.0.0'             | false     | '1.1.0-alpha.1'
+		'MAJOR' | 'alpha'     | '1.0.0'       | '1.0.0'             | false     | '2.0.0-alpha.1'
+		'PATCH' | 'beta'      | '1.0.0'       | '1.0.0'             | false     | '1.0.1-beta.1'
+		'MINOR' | 'beta'      | '1.0.0'       | '1.0.0'             | false     | '1.1.0-beta.1'
+		'MAJOR' | 'beta'      | '1.0.0'       | '1.0.0'             | false     | '2.0.0-beta.1'
+		null    | 'rc'        | '1.0.0'       | '1.1.0-beta.1'      | false     | '1.1.0-rc.1'
+		null    | 'beta'      | '1.0.0'       | '1.1.0-beta.1'      | false     | '1.1.0-beta.2'
+		null    | 'rc'        | '1.0.0'       | '1.1.0-rc'          | false     | '1.1.0-rc.1'
+		null    | 'rc'        | '1.0.0'       | '1.1.0-rc.4.dev.1'  | false     | '1.1.0-rc.5'
+	}
+
 	def mockProject(String scope, String stage) {
 		Project project = Mock()
 
