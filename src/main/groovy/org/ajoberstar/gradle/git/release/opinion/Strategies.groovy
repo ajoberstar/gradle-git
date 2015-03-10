@@ -319,12 +319,27 @@ final class Strategies {
 	 * Provides "milestone" and "rc" stages that can only be used in clean repos
 	 * and will enforce precedence. The pre-release component will always be set
 	 * to the stage with an incremented count to disambiguate successive
-	 * releases of the same stage. No build metadata component will be added.
+	 * releases of the same stage. No build metadata component will be added. Please
+	 * note that this strategy uses the same name as {@code PRE_RELEASE_ALPHA_BETA}
+	 * so it cannot be used at the same time.
 	 */
 	static final SemVerStrategy PRE_RELEASE = DEFAULT.copyWith(
 		name: 'pre-release',
 		stages: ['milestone', 'rc'] as SortedSet,
 		preReleaseStrategy: all(PreRelease.STAGE_FIXED, PreRelease.COUNT_INCREMENTED)
+	)
+
+	/**
+	 * Provides "alpha", "beta" and "rc" stages that can only be used in clean repos
+	 * and will enforce precedence. The pre-release-alpha-beta component will always be set
+	 * to the stage with an incremented count to disambiguate successive
+	 * releases of the same stage. No build metadata component will be added. Please note
+	 * that this strategy uses the same name as {@code PRE_RELEASE} so it cannot be used
+	 * at the same time.
+	 */
+	static final SemVerStrategy PRE_RELEASE_ALPHA_BETA = PRE_RELEASE.copyWith(
+		name: 'pre-release',
+		stages: ['alpha', 'beta', 'rc'] as SortedSet
 	)
 
 	/**
@@ -335,16 +350,5 @@ final class Strategies {
 	static final SemVerStrategy FINAL = DEFAULT.copyWith(
 		name: 'final',
 		stages: ['final'] as SortedSet
-	)
-
-	/**
-	 * Provides "alpha", "beta" and "rc" stages that can only be used in clean repos
-	 * and will enforce precedence. The pre-release-alpha-beta component will always be set
-	 * to the stage with an incremented count to disambiguate successive
-	 * releases of the same stage. No build metadata component will be added.
-	 */
-	static final SemVerStrategy PRE_RELEASE_ALPHA_BETA = PRE_RELEASE.copyWith(
-		name: 'pre-release-alpha-beta',
-		stages: ['alpha', 'beta', 'rc'] as SortedSet
 	)
 }

@@ -30,8 +30,6 @@ configurations {
 
 repositories {
 	jcenter()
-	mavenCentral()
-	maven { url = 'https://oss.sonatype.org/content/repositories/snapshots' }
 }
 
 dependencies {
@@ -42,14 +40,14 @@ dependencies {
 	compile gradleApi()
 
 	// grgit
-	compile 'org.ajoberstar:grgit:1.0.0-rc.2'
+	compile 'org.ajoberstar:grgit:1.0.0'
 
 	// semver
 	compile 'com.github.zafarkhaja:java-semver:0.8.0'
 
 	// testing
-	testCompile 'junit:junit:4.10'
-	testCompile 'org.spockframework:spock-core:1.1-groovy-2.3-SNAPSHOT'
+	testCompile 'junit:junit:4.12'
+	testCompile 'org.spockframework:spock-core:1.0-groovy-2.3'
 	testRuntime 'cglib:cglib-nodep:3.1'
 }
 
