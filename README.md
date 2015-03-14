@@ -1,3 +1,4 @@
+[![Stories in Ready](https://badge.waffle.io/ajoberstar/gradle-git.png?label=ready&title=Ready)](https://waffle.io/ajoberstar/gradle-git)
 # gradle-git
 
 A set of plugins to support Git in the Gradle build tool.
