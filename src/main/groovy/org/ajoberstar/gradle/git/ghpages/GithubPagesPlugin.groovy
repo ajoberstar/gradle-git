@@ -16,7 +16,6 @@
 package org.ajoberstar.gradle.git.ghpages
 
 import org.ajoberstar.grgit.Grgit
-
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.Task
@@ -26,6 +25,7 @@ import org.gradle.api.Task
  * @since 0.1.0
  */
 class GithubPagesPlugin implements Plugin<Project> {
+	static final String PREPARE_TASK_NAME = 'prepareGhPages'
 	static final String PUBLISH_TASK_NAME = 'publishGhPages'
 
 	/**
@@ -43,31 +43,47 @@ class GithubPagesPlugin implements Plugin<Project> {
 	 * @param extension the plugin extension
 	 */
 	private void configureTasks(final Project project, final GithubPagesPluginExtension extension) {
-		Task publish = project.tasks.create(PUBLISH_TASK_NAME)
-		publish.description = 'Publishes all gh-pages changes to Github'
+		Task prepare = createPrepareTask(project, extension)
+		Task publish = createPublishTask(project, extension)
+		publish.dependsOn(prepare)
+	}
 
-		publish.doLast {
-			extension.workingDir.deleteDir()
-			ext.repo = Grgit.clone(
-					uri: extension.repoUri,
-					refToCheckout: extension.targetBranch,
-					dir: extension.workingDir,
-					credentials: extension.credentials?.toGrgit()
-			)
+	private Task createPrepareTask(Project project, GithubPagesPluginExtension extension) {
+		return project.tasks.create(PREPARE_TASK_NAME) {
+			description = 'Prepare the gh-pages changes locally'
+			doLast {
+				extension.workingDir.deleteDir()
+				ext.repo = Grgit.clone(
+						uri: extension.repoUri,
+						refToCheckout: extension.targetBranch,
+						dir: extension.workingDir,
+						credentials: extension.credentials?.toGrgit()
+				)
 
-			def filesList = extension.workingDir.list({ dir, name ->
-				return !name.equals('.git')
-			})
-			if (filesList && extension.deleteExistingFiles) {
-				repo.remove(patterns: filesList)
+				def filesList = extension.workingDir.list({ dir, name ->
+					return !name.equals('.git')
+				})
+				if (filesList && extension.deleteExistingFiles) {
+					repo.remove(patterns: filesList)
+				}
+				project.copy {
+					with extension.pages
+					into repo.repository.rootDir
+				}
 			}
-			project.copy {
-				with extension.pages
-				into repo.repository.rootDir
+		}
+	}
+
+	private Task createPublishTask(Project project, GithubPagesPluginExtension extension) {
+		return project.tasks.create(PUBLISH_TASK_NAME) {
+			description = 'Publishes all gh-pages changes to Github'
+			doLast {
+				project.tasks."${PREPARE_TASK_NAME}".repo.with {
+					add(patterns: ['.'])
+					commit(message: extension.commitMessage)
+					push()
+				}
 			}
-			repo.add(patterns: ['.'])
-			repo.commit(message: extension.commitMessage)
-			repo.push()
 		}
 	}
 }
