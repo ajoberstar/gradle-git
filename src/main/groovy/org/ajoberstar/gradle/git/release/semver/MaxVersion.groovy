@@ -16,36 +16,23 @@
 package org.ajoberstar.gradle.git.release.semver
 
 import groovy.transform.Immutable
-import groovy.transform.ToString
 
 import com.github.zafarkhaja.semver.Version
 
-import org.ajoberstar.grgit.Branch
-import org.ajoberstar.grgit.Commit
-
 /**
- * Working state used by {@link PartialSemVerStrategy}.
+ * Max version tags found in the repository. The version 0.0.0
+ * will be returned for any
+ * @since x.y.z
  */
-@Immutable(copyWith=true)
-@ToString(includeNames=true)
-final class SemVerStrategyState {
-	ChangeScope scopeFromProp
-	String stageFromProp
-	Commit currentHead
-	Branch currentBranch
-	boolean repoDirty
-	NearestVersion nearestVersion
-	MaxVersion maxVersion
-	String inferredNormal
-	String inferredPreRelease
-	String inferredBuildMetadata
+@Immutable(knownImmutableClasses=[Version])
+class MaxVersion {
+	/**
+	 * The max version that is tagged.
+	 */
+	Version any
 
-	Version toVersion() {
-		return new Version.Builder().with {
-			normalVersion = inferredNormal
-			preReleaseVersion = inferredPreRelease
-			buildMetadata =inferredBuildMetadata
-			build()
-		}
-	}
+	/**
+	 * The max normal (i.e. non-prerelease) version that is tagged.
+	 */
+	Version normal
 }

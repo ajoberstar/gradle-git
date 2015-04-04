@@ -116,11 +116,15 @@ final class SemVerStrategy implements VersionStrategy {
 	 */
 	@Override
 	ReleaseVersion infer(Project project, Grgit grgit) {
-		return doInfer(project, grgit, new NearestVersionLocator())
+		return doInfer(project, grgit,
+			new NearestVersionLocator(),
+			new MaxVersionLocator())
 	}
 
 	@PackageScope
-	ReleaseVersion doInfer(Project project, Grgit grgit, NearestVersionLocator locator) {
+	ReleaseVersion doInfer(Project project, Grgit grgit,
+		NearestVersionLocator locator,
+		MaxVersionLocator maxLocator = null) {
 		ChangeScope scope = getPropertyOrNull(project, SCOPE_PROP).with { scope ->
 			scope == null ? null : ChangeScope.valueOf(scope.toUpperCase())
 		}
@@ -133,13 +137,20 @@ final class SemVerStrategy implements VersionStrategy {
 		NearestVersion nearestVersion = locator.locate(grgit)
 		logger.debug('Located nearest version: {}', nearestVersion)
 
+		MaxVersion maxVersion
+
+		if (maxLocator) {
+			maxVersion = maxLocator.locate(grgit)
+		}
+
 		SemVerStrategyState state = new SemVerStrategyState(
 			scopeFromProp: scope,
 			stageFromProp: stage,
 			currentHead: grgit.head(),
 			currentBranch: grgit.branch.current,
 			repoDirty: !grgit.status().clean,
-			nearestVersion: nearestVersion
+			nearestVersion: nearestVersion,
+			maxVersion: maxVersion
 		)
 
 		Version version = StrategyUtil.all(
