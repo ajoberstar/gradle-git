@@ -1,4 +1,5 @@
 org.ajoberstar.gradle.git.auth
+org.ajoberstar.gradle.git.base
 org.ajoberstar.gradle.git.ghpages
 org.ajoberstar.gradle.git.release.base
 org.ajoberstar.gradle.git.release.opinion
