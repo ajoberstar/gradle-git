@@ -56,7 +56,7 @@ class GithubPagesPluginExtensionSpec extends Specification {
 
 	def 'WorkingDir is based on workingPath'() {
 		def ext = new GithubPagesPluginExtension(project)
-		ext.workingPath = "${project.buildDir}/some-path"
+		ext.workingPath = "${project.buildDir}${File.separator}some-path"
 
 		when:
 		def workingDir = ext.getWorkingDir()
