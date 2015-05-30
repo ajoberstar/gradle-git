@@ -20,13 +20,12 @@ import org.gradle.api.Project
 
 /**
  * Plugin providing access to a Grgit instance for your repo.
- * Defaults to using the root projects directory.
+ * Defaults to looking up the correct repo directory.
  * @since 1.2.0
  */
 class GrgitPlugin implements Plugin<Project> {
 	@Override
 	void apply(Project project) {
-		def ext = project.extensions.create('grgit', GrgitExtension)
-		ext.dir = project.rootDir
+		project.extensions.create('grgit', GrgitExtension)
 	}
 }
