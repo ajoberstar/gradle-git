@@ -82,4 +82,16 @@ class GithubPagesPluginSpec extends Specification {
 		'prepareGhPages' || 'Prepare the gh-pages changes locally'
 		'publishGhPages' || 'Publishes all gh-pages changes to Github'
 	}
+
+	def '[prepareGhPages] depends on tasks add to the pages spec from'() {
+		project.plugins.apply(PLUGIN_NAME)
+		project.plugins.apply('java')
+		when:
+		project.githubPages.pages {
+			from project.tasks.javadoc
+		}
+		def task = project.tasks.findByName('prepareGhPages')
+		then:
+		task.taskDependencies.getDependencies(task).find { it.name == 'javadoc' }
+	}
 }

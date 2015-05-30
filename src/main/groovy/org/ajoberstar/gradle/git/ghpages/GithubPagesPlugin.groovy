@@ -19,6 +19,7 @@ import org.ajoberstar.grgit.Grgit
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.Task
+import org.gradle.api.tasks.Copy
 
 /**
  * Plugin to enable publishing to gh-pages branch of Github.
@@ -49,9 +50,12 @@ class GithubPagesPlugin implements Plugin<Project> {
 	}
 
 	private Task createPrepareTask(Project project, GithubPagesPluginExtension extension) {
-		return project.tasks.create(PREPARE_TASK_NAME) {
+		Task task = project.tasks.create(PREPARE_TASK_NAME, Copy)
+		task.with {
 			description = 'Prepare the gh-pages changes locally'
-			doLast {
+			with extension.pages
+			into { extension.workingDir }
+			doFirst {
 				extension.workingDir.deleteDir()
 				ext.repo = Grgit.clone(
 						uri: extension.repoUri,
@@ -66,12 +70,9 @@ class GithubPagesPlugin implements Plugin<Project> {
 				if (filesList && extension.deleteExistingFiles) {
 					repo.remove(patterns: filesList)
 				}
-				project.copy {
-					with extension.pages
-					into repo.repository.rootDir
-				}
 			}
 		}
+		return task
 	}
 
 	private Task createPublishTask(Project project, GithubPagesPluginExtension extension) {
