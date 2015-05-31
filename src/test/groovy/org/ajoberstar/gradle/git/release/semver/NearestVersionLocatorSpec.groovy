@@ -39,58 +39,45 @@ class NearestVersionLocatorSpec extends Specification {
 
 		commit()
 		commit()
-		// grgit.branch.add(name: 'unreachable')
 		addBranch('unreachable')
 
 		commit()
-		// grgit.tag.add(name: '0.0.1-beta.3')
 		addTag('0.0.1-beta.3')
-		// grgit.branch.add(name: 'no-normal')
 		addBranch('no-normal')
 
 		commit()
-		// grgit.tag.add(name: '0.1.0')
 		addTag('0.1.0')
 
 		commit()
-		// grgit.branch.add(name: 'RB_0.1')
 		addBranch('RB_0.1')
 
 		commit()
 		commit()
-		// grgit.tag.add(name: '0.2.0')
 		addTag('0.2.0')
 
-		// grgit.checkout(branch: 'RB_0.1')
 		checkout('RB_0.1')
 
 		commit()
-		// grgit.tag.add(name: 'v0.1.1+2010.01.01.12.00.00')
 		addTag('v0.1.1+2010.01.01.12.00.00')
 
 		commit()
 		commit()
 		commit()
 		commit()
-		// grgit.tag.add(name: 'v0.1.2-beta.1')
 		addTag('v0.1.2-beta.1')
 		addTag('v0.1.2-alpha.1')
 
 		commit()
 		commit()
 		commit()
-		// grgit.checkout(branch: 'master')
 		checkout('master')
 
 		commit()
-		// grgit.tag.add(name: 'v1.0.0')
 		addTag('v1.0.0')
 		addTag('v1.0.0-rc.3')
-		// grgit.branch.add(name: 'RB_1.0')
 		addBranch('RB_1.0')
 
 		commit()
-		// grgit.tag.add(name: '1.1.0-rc.1+abcde')
 		addTag('1.1.0-rc.1+abcde')
 	}
 
@@ -104,6 +91,24 @@ class NearestVersionLocatorSpec extends Specification {
 		grgit.checkout(branch: head)
 		expect:
 		def nearest = new NearestVersionLocator().locate(grgit)
+		nearest.any == Version.valueOf(any)
+		nearest.normal == Version.valueOf(normal)
+		nearest.distanceFromNormal == distance
+		where:
+		head          | any                | normal                      | distance
+		'master'      | '1.1.0-rc.1+abcde' | '1.0.0'                     | 1
+		'RB_0.1'      | '0.1.2-beta.1'     | '0.1.1+2010.01.01.12.00.00' | 7
+		'RB_1.0'      | '1.0.0'            | '1.0.0'                     | 0
+		'no-normal'   | '0.0.1-beta.3'     | '0.0.0'                     | 3
+		'unreachable' | '0.0.0'            | '0.0.0'                     | 2
+	}
+
+	@Unroll('when on #head, locator with parallel finds normal #normal with distance #distance and nearest #any at #stage')
+	def 'locator with parallel returns correct value'() {
+		given:
+		grgit.checkout(branch: head)
+		expect:
+		def nearest = new NearestVersionLocator().locate(grgit, true)
 		nearest.any == Version.valueOf(any)
 		nearest.normal == Version.valueOf(normal)
 		nearest.distanceFromNormal == distance
