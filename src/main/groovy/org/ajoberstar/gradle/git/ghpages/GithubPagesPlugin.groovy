@@ -78,6 +78,7 @@ class GithubPagesPlugin implements Plugin<Project> {
 	private Task createPublishTask(Project project, GithubPagesPluginExtension extension) {
 		return project.tasks.create(PUBLISH_TASK_NAME) {
 			description = 'Publishes all gh-pages changes to Github'
+			group = 'publishing'
 			onlyIf { dependsOnTaskDidWork() }
 			doLast {
 				project.tasks."${PREPARE_TASK_NAME}".repo.with {
