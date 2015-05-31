@@ -15,17 +15,22 @@
  */
 package org.ajoberstar.gradle.git.base
 
+import org.ajoberstar.grgit.Grgit
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 
 /**
- * Plugin providing access to a Grgit instance for your repo.
- * Defaults to looking up the correct repo directory.
+ * Plugin adding a {@code grgit} property to all projects
+ * that searches for a Git repo from the root project's
+ * directory.
  * @since 1.2.0
  */
 class GrgitPlugin implements Plugin<Project> {
 	@Override
 	void apply(Project project) {
-		project.extensions.create('grgit', GrgitExtension)
+		Grgit grgit = Grgit.open(currentDir: project.rootProject.rootDir)
+		project.rootProject.allprojects { prj ->
+			project.ext.grgit = grgit
+		}
 	}
 }
