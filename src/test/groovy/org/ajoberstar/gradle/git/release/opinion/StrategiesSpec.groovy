@@ -22,6 +22,7 @@ import org.ajoberstar.gradle.git.release.semver.ChangeScope
 import org.ajoberstar.gradle.git.release.semver.NearestVersion
 import org.ajoberstar.gradle.git.release.semver.NearestVersionLocator
 import org.ajoberstar.gradle.git.release.semver.SemVerStrategyState
+import org.ajoberstar.gradle.git.release.semver.StrategyUtil
 import org.ajoberstar.grgit.Branch
 import org.ajoberstar.grgit.Commit
 import org.ajoberstar.grgit.Grgit
@@ -150,12 +151,12 @@ class StrategiesSpec extends Specification {
 		'3.0.x' | '2.0.0' | '3.0.0'
 		'3.0.x' | '2.1.0' | '3.0.0'
 		'3.0.x' | '2.1.2' | '3.0.0'
-		'3.0.x' | '3.0.0' | null
-		'3.0.x' | '3.0.1' | null
+		'3.0.x' | '3.0.0' | '3.0.1'
+		'3.0.x' | '3.0.1' | '3.0.2'
 		'3.2.x' | '3.1.0' | '3.2.0'
 		'3.2.x' | '3.1.2' | '3.2.0'
-		'3.2.x' | '3.2.0' | null
-		'3.2.x' | '3.2.1' | null
+		'3.2.x' | '3.2.0' | '3.2.1'
+		'3.2.x' | '3.2.1' | '3.2.2'
 	}
 
 	def 'Normal.ENFORCE_GITFLOW_BRANCH_MAJOR_MINOR_X correctly increments version to comply with branch'() {
@@ -169,9 +170,46 @@ class StrategiesSpec extends Specification {
 		where:
 		branch          | nearest | inferred
 		'release/3.0.x' | '2.0.0' | '3.0.0'
-		'release-3.0.x' | '3.0.0' | null
+		'release-3.0.x' | '3.0.0' | '3.0.1'
 		'release-3.2.x' | '3.1.2' | '3.2.0'
-		'release/3.2.x' | '3.2.1' | null
+		'release/3.2.x' | '3.2.1' | '3.2.2'
+	}
+
+	def 'Normal.ENFORCE_BRANCH_MAJOR_MINOR_X correctly increments version to comply with branch if normalStrategy is to increment minor instead of patch'() {
+		given:
+		def initialState = new SemVerStrategyState(
+			nearestVersion: new NearestVersion(normal: Version.valueOf(nearest)),
+			currentBranch: new Branch(fullName: "refs/heads/${branch}"))
+		def strategy = StrategyUtil.one(Strategies.Normal.ENFORCE_BRANCH_MAJOR_MINOR_X, Strategies.Normal.useScope(ChangeScope.MINOR))
+		expect:
+		strategy.infer(initialState) == initialState.copyWith(inferredNormal: inferred)
+		where:
+		branch  | nearest | inferred
+		'3.0.x' | '2.0.0' | '3.0.0'
+		'3.0.x' | '2.1.0' | '3.0.0'
+		'3.0.x' | '2.1.2' | '3.0.0'
+		'3.0.x' | '3.0.0' | '3.0.1'
+		'3.0.x' | '3.0.1' | '3.0.2'
+		'3.2.x' | '3.1.0' | '3.2.0'
+		'3.2.x' | '3.1.2' | '3.2.0'
+		'3.2.x' | '3.2.0' | '3.2.1'
+		'3.2.x' | '3.2.1' | '3.2.2'
+	}
+
+	def 'Normal.ENFORCE_GITFLOW_BRANCH_MAJOR_MINOR_X correctly increments version to comply with branch if normalStrategy is to increment minor instead of patch'() {
+		given:
+		def initialState = new SemVerStrategyState(
+			nearestVersion: new NearestVersion(normal: Version.valueOf(nearest)),
+			currentBranch: new Branch(fullName: "refs/heads/${branch}"))
+		def strategy = StrategyUtil.one(Strategies.Normal.ENFORCE_GITFLOW_BRANCH_MAJOR_MINOR_X, Strategies.Normal.useScope(ChangeScope.MINOR))
+		expect:
+		strategy.infer(initialState) == initialState.copyWith(inferredNormal: inferred)
+		where:
+		branch          | nearest | inferred
+		'release/3.0.x' | '2.0.0' | '3.0.0'
+		'release-3.0.x' | '3.0.0' | '3.0.1'
+		'release-3.2.x' | '3.1.2' | '3.2.0'
+		'release/3.2.x' | '3.2.1' | '3.2.2'
 	}
 
 	def 'Normal.useScope correctly increments normal'() {
