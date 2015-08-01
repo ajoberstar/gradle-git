@@ -16,10 +16,9 @@
 package org.ajoberstar.gradle.git.release.semver
 
 import com.github.zafarkhaja.semver.Version
-
 import org.ajoberstar.grgit.Commit
 import org.ajoberstar.grgit.Grgit
-
+import org.ajoberstar.grgit.Tag
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
@@ -71,7 +70,7 @@ class NearestVersionLocator {
 	 * Defaults to {@code HEAD}.
 	 * @return the version corresponding to the nearest tag
 	 */
-	NearestVersion locate(Grgit grgit) {
+	NearestVersion locate(Grgit grgit, boolean includeParallel = false) {
 		logger.debug('Locate beginning on branch: {}', grgit.branch.current.fullName)
 		Commit head = grgit.head()
 		List versionTags = grgit.tag.list().inject([]) { list, tag ->
@@ -79,21 +78,14 @@ class NearestVersionLocator {
 			logger.debug('Tag {} ({}) parsed as {} version.', tag.name, tag.commit.abbreviatedId, version)
 			if (version) {
 				def data
-				if (tag.commit == head) {
-					logger.debug('Tag {} is at head. Including as candidate.', tag.fullName)
-					data = [version: version, distance: 0]
+				if (tag.commit == head || grgit.isAncestorOf(tag, head)) {
+					logger.debug('Tag {} is an ancestor of HEAD. Including as candidate.', tag.fullName)
+					data = [version: version, tag: tag]
+				} else if (includeParallel && !grgit.isAncestorOf(head, tag)) {
+					logger.debug('Parallel tag {} is not derived from HEAD. Including as a candidate.', tag.name)
+					data = [version: Version.valueOf(version.normalVersion), tag: tag]
 				} else {
-					if (grgit.isAncestorOf(tag, head)) {
-						logger.debug('Tag {} is an ancestor of HEAD. Including as a candidate.', tag.name)
-						def reachableCommitLog = grgit.log {
-							range tag.commit.id, head.id
-						}
-						logger.debug('Reachable commits after tag {}: {}', tag.fullName, reachableCommitLog.collect { it.abbreviatedId })
-						def distance = reachableCommitLog.size()
-						data = [version: version, distance: distance]
-					} else {
-						logger.debug('Tag {} is not an ancestor of HEAD. Excluding as a candidate.', tag.name)
-					}
+					logger.debug('Tag {} is not an ancestor of HEAD. Excluding as a candidate.', tag.name)
 				}
 				if (data) {
 					logger.debug('Tag data found: {}', data)
@@ -101,23 +93,39 @@ class NearestVersionLocator {
 				}
 			}
 			list
+		}.sort { a, b ->
+			tagAncestryCompare(grgit, a.tag, b.tag) ?: a.version <=> b.version
+		}.reverse()
+
+		Map normal = versionTags.find { it.version.preReleaseVersion.empty }
+		Map any = versionTags.find()
+
+		def interpret = { versionTag ->
+			Version version = versionTag ? versionTag.version : Version.valueOf('0.0.0')
+			int distance = grgit.log {
+				includes = [head]
+				if (versionTag) {
+					excludes = [versionTag.tag.commit]
+				}
+			}.size()
+			[version, distance]
 		}
 
-		Map normal = versionTags.findAll { versionTag ->
-			versionTag.version.preReleaseVersion.empty
-		}.min { a, b ->
-			a.distance <=> b.distance ?: (a.version <=> b.version) * -1
-		}
-
-		Map any = versionTags.min { a, b ->
-			a.distance <=> b.distance ?: (a.version <=> b.version) * -1
-		}
-
-		Version anyVersion = any ? any.version : Version.valueOf('0.0.0')
-		Version normalVersion = normal ? normal.version : Version.valueOf('0.0.0')
-		int distanceFromAny = any ? any.distance : grgit.log(includes: [head.id]).size()
-		int distanceFromNormal = normal ? normal.distance : grgit.log(includes: [head.id]).size()
+		def (normalVersion, distanceFromNormal) = interpret(normal)
+		def (anyVersion, distanceFromAny) = interpret(any)
 
 		return new NearestVersion(anyVersion, normalVersion, distanceFromAny, distanceFromNormal)
+	}
+
+	private int tagAncestryCompare(Grgit grgit, Tag a, Tag b) {
+		if (a.commit == b.commit) {
+			return 0
+		} else if (grgit.isAncestorOf(a, b)) {
+			return -1
+		} else if (grgit.isAncestorOf(b, a)) {
+			return 1
+		} else {
+			return 0
+		}
 	}
 }
