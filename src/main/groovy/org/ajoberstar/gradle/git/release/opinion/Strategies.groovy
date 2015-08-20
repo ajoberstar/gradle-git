@@ -148,10 +148,12 @@ final class Strategies {
 					def minorDiff = minor - normal.minorVersion
 
 					if (minor <= 0 && majorDiff == 1) {
-						return state.copyWith(inferredNormal: "${major}.0.0")
+						return incrementNormalFromScope(state, ChangeScope.MAJOR)
 					} else if (minor > 0 && minorDiff == 1) {
-						return state.copyWith(inferredNormal: "${major}.${minor}.0")
-					} else if (majorDiff == 0 && (minor < 0 || minorDiff == 0)) {
+						return incrementNormalFromScope(state, ChangeScope.MINOR)
+					} else if (majorDiff == 0 && minor >= 0 && minorDiff == 0) {
+						return incrementNormalFromScope(state, ChangeScope.PATCH)
+					} else if (majorDiff == 0 && minor < 0) {
 						return state
 					} else {
 						throw new GradleException("Invalid branch (${state.currentBranch.name}) for nearest normal (${normal}).")
