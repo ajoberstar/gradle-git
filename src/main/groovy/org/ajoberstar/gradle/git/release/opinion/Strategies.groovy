@@ -130,9 +130,10 @@ final class Strategies {
 		 *
 		 * <ul>
 		 *   <li>If the current branch doesn't match the pattern do nothing.</li>
-		 *   <li>If the the nearest normal already complies with the branch name.</li>
-		 *   <li>If the major component can be incremented to comply with the branch, do so.</li>
+		 *   <li>If only the major is specified in the branch name, and the nearest normal complies with that major, do nothing.</li>
+		 *   <li>If the patch component can be incremented and still comply with the branch, do so.</li>
 		 *   <li>If the minor component can be incremented to comply with the branch, do so.</li>
+		 *   <li>If the major component can be incremented to comply with the branch, do so.</li>
 		 *   <li>Otherwise fail, because the version can't comply with the branch.</li>
 		 * </ul>
 		 */
@@ -147,13 +148,17 @@ final class Strategies {
 					def majorDiff = major - normal.majorVersion
 					def minorDiff = minor - normal.minorVersion
 
-					if (minor <= 0 && majorDiff == 1) {
+					if (majorDiff == 1 && minor <= 0) {
+						// major is off by one and minor is either 0 or not in the branch name
 						return incrementNormalFromScope(state, ChangeScope.MAJOR)
-					} else if (minor > 0 && minorDiff == 1) {
+					} else if (minorDiff == 1 && minor > 0) {
+						// minor is off by one and specified in the branch name
 						return incrementNormalFromScope(state, ChangeScope.MINOR)
-					} else if (majorDiff == 0 && minor >= 0 && minorDiff == 0) {
+					} else if (majorDiff == 0 && minorDiff == 0 && minor >= 0) {
+						// major and minor match, both are specified in branch name
 						return incrementNormalFromScope(state, ChangeScope.PATCH)
 					} else if (majorDiff == 0 && minor < 0) {
+						// only major specified in branch name and already matches
 						return state
 					} else {
 						throw new GradleException("Invalid branch (${state.currentBranch.name}) for nearest normal (${normal}).")
