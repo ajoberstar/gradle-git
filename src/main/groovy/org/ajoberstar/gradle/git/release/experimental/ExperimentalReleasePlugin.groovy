@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.ajoberstar.gradle.git.release.base
+package org.ajoberstar.gradle.git.release.experimental
 
 import org.gradle.api.GradleException
 import org.gradle.api.Plugin
@@ -23,7 +23,9 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
 /**
- *
+ * Experimental release plugin that removes some previous coupling to extensions.
+ * Inteded to support semver-vcs, but may serve as a better minimal base.
+ * @since 1.3.0
  */
 class SemverVcsReleasePlugin implements Plugin<Project> {
 	private static final Logger logger = LoggerFactory.getLogger(SemverVcsReleasePlugin)
@@ -32,11 +34,11 @@ class SemverVcsReleasePlugin implements Plugin<Project> {
 
 	void apply(Project project) {
 		project.plugins.apply('org.ajoberstar.grgit')
-		addPrepareTask(project, extension)
-		addReleaseTask(project, extension)
+		addPrepareTask(project)
+		addReleaseTask(project)
 	}
 
-	private void addPrepareTask(Project project, ReleasePluginExtension extension) {
+	private void addPrepareTask(Project project) {
 		project.tasks.create(PREPARE_TASK_NAME) {
 			description = 'Verifies that the project could be released.'
 			doLast {
@@ -56,7 +58,7 @@ class SemverVcsReleasePlugin implements Plugin<Project> {
 		}
 	}
 
-	private void addReleaseTask(Project project, ReleasePluginExtension extension) {
+	private void addReleaseTask(Project project) {
 		project.tasks.create(RELEASE_TASK_NAME) {
 			description = 'Releases this project.'
 			dependsOn PREPARE_TASK_NAME
