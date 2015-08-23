@@ -43,6 +43,9 @@ class BaseReleasePlugin implements Plugin<Project> {
 		def extension = project.extensions.create('release', ReleasePluginExtension, project)
 		addPrepareTask(project, extension)
 		addReleaseTask(project, extension)
+		project.plugins.withId('org.ajoberstar.grgit') {
+			extension.grgit = project.grgit
+		}
 	}
 
 	private void addPrepareTask(Project project, ReleasePluginExtension extension) {
