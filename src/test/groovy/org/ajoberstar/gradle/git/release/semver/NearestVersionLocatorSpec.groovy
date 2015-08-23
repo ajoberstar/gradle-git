@@ -116,6 +116,17 @@ class NearestVersionLocatorSpec extends Specification {
 		'unreachable' | '0.0.0'            | '0.0.0'                     | 2
 	}
 
+	def 'locator returns 0.0.0 when no commits'() {
+		given:
+		repoDir = Files.createTempDirectory('empty-repo').toFile()
+		grgit = Grgit.init(dir: repoDir)
+		expect:
+		def nearest = new NearestVersionLocator().locate(grgit)
+		nearest.any == Version.valueOf('0.0.0')
+		nearest.normal == Version.valueOf('0.0.0')
+		nearest.distanceFromNormal == 0
+	}
+
 	private void commit() {
 		byte[] bytes = new byte[128]
 		random.nextBytes(bytes)
