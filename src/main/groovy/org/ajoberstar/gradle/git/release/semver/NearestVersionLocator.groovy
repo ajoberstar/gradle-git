@@ -19,7 +19,6 @@ import com.github.zafarkhaja.semver.Version
 
 import org.ajoberstar.grgit.Commit
 import org.ajoberstar.grgit.Grgit
-import org.ajoberstar.grgit.exception.GrgitException
 
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -74,14 +73,7 @@ class NearestVersionLocator {
 	 */
 	NearestVersion locate(Grgit grgit) {
 		logger.debug('Locate beginning on branch: {}', grgit.branch.current.fullName)
-
-		Commit head
-		try {
-			head = grgit.head()
-		} catch (GrgitException e) {
-			head = null
-		}
-
+		Commit head = grgit.head()
 		List versionTags = grgit.tag.list().inject([]) { list, tag ->
 			Version version = TagUtil.parseAsVersion(tag)
 			logger.debug('Tag {} ({}) parsed as {} version.', tag.name, tag.commit.abbreviatedId, version)
@@ -121,25 +113,10 @@ class NearestVersionLocator {
 			a.distance <=> b.distance ?: (a.version <=> b.version) * -1
 		}
 
-		Version anyVersion
-		int distanceFromAny
-		if (any) {
-			anyVersion = any.version
-			distanceFromAny = any.distance
-		} else {
-			anyVersion = Version.valueOf('0.0.0')
-			distanceFromAny = head ? grgit.log(includes: [head.id]).size() : 0
-		}
-
-		Version normalVersion
-		int distanceFromNormal
-		if (normal) {
-			normalVersion = normal.version
-			distanceFromNormal = normal.distance
-		} else {
-			normalVersion = Version.valueOf('0.0.0')
-			distanceFromNormal = head ? grgit.log(includes: [head.id]).size() : 0
-		}
+		Version anyVersion = any ? any.version : Version.valueOf('0.0.0')
+		Version normalVersion = normal ? normal.version : Version.valueOf('0.0.0')
+		int distanceFromAny = any ? any.distance : grgit.log(includes: [head.id]).size()
+		int distanceFromNormal = normal ? normal.distance : grgit.log(includes: [head.id]).size()
 
 		return new NearestVersion(anyVersion, normalVersion, distanceFromAny, distanceFromNormal)
 	}
