@@ -15,18 +15,20 @@
  */
 package org.ajoberstar.gradle.git.release.semver
 
-import java.nio.file.Files
-import java.security.SecureRandom
-
 import com.github.zafarkhaja.semver.Version
-
 import org.ajoberstar.grgit.Grgit
-
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import spock.lang.Shared
 import spock.lang.Specification
 import spock.lang.Unroll
 
+import java.nio.file.Files
+import java.security.SecureRandom
+
 class NearestVersionLocatorSpec extends Specification {
+	private static final Logger logger = LoggerFactory.getLogger(NearestVersionLocatorSpec)
+
 	@Shared File repoDir
 
 	@Shared Grgit grgit
@@ -70,6 +72,7 @@ class NearestVersionLocatorSpec extends Specification {
 
 		commit()
 		commit()
+		addTag('not-a-version')
 		commit()
 		commit()
 		// grgit.tag.add(name: 'v0.1.2-beta.1')
@@ -92,13 +95,14 @@ class NearestVersionLocatorSpec extends Specification {
 		commit()
 		// grgit.tag.add(name: '1.1.0-rc.1+abcde')
 		addTag('1.1.0-rc.1+abcde')
+		addTag('also-not-a-version')
 	}
 
 	def cleanupSpec() {
-		assert !repoDir.exists() || repoDir.deleteDir()
+		cleanupRepo(repoDir)
 	}
 
-	@Unroll('when on #head, locator finds normal #normal with distance #distance and nearest #any at #stage')
+	@Unroll('when on #head, locator finds normal #normal with distance #distance and nearest #any')
 	def 'locator returns correct value'() {
 		given:
 		grgit.checkout(branch: head)
@@ -116,39 +120,59 @@ class NearestVersionLocatorSpec extends Specification {
 		'unreachable' | '0.0.0'            | '0.0.0'                     | 2
 	}
 
-	private void commit() {
+	public static void cleanupRepo(File repoDir) {
+		assert !repoDir.exists() || repoDir.deleteDir()
+	}
+
+	public void commit() {
+		commit(random, grgit)
+	}
+
+	public static void commit(Random random, Grgit grgit) {
 		byte[] bytes = new byte[128]
 		random.nextBytes(bytes)
 		new File(grgit.repository.rootDir, '1.txt') << bytes
 		grgit.add(patterns: ['1.txt'])
 		def commit = grgit.commit(message: 'do')
-		println "Created commit: ${commit.abbreviatedId}"
+		logger.debug("Created commit: ${commit.abbreviatedId}")
 	}
 
-	private void addBranch(String name) {
+	public void addBranch(String name) {
+		addBranch(name, grgit)
+	}
+
+	public static void addBranch(String name, Grgit grgit) {
 		def currentHead = grgit.head()
 		def currentBranch = grgit.branch.current
 		def newBranch = grgit.branch.add(name: name)
 		def atCommit = grgit.resolve.toCommit(newBranch.fullName)
-		println "Added new branch ${name} at ${atCommit.abbreviatedId}"
+		logger.debug("Added new branch ${name} at ${atCommit.abbreviatedId}")
 		assert currentBranch == grgit.branch.current
 		assert currentHead == atCommit
 	}
 
-	private void addTag(String name) {
+	public void addTag(String name) {
+		addTag(name, grgit)
+	}
+
+	public static void addTag(String name, Grgit grgit) {
 		def currentHead = grgit.head()
 		def newTag = grgit.tag.add(name: name)
 		def atCommit = grgit.resolve.toCommit(newTag.fullName)
-		println "Added new tag ${name} at ${atCommit.abbreviatedId}"
+		logger.debug("Added new tag ${name} at ${atCommit.abbreviatedId}")
 		assert currentHead == atCommit
 	}
 
-	private void checkout(String name) {
+	public void checkout(String name) {
+		checkout(name, grgit)
+	}
+
+	public static void checkout(String name, Grgit grgit) {
 		def currentHead = grgit.head()
 		grgit.checkout(branch: name)
 		def atCommit = grgit.resolve.toCommit(name)
 		def newHead = grgit.head()
-		println "Checkout out ${name}, which is at ${atCommit.abbreviatedId}"
+		logger.debug("Checkout out ${name}, which is at ${atCommit.abbreviatedId}")
 		assert currentHead != grgit.head()
 		assert atCommit == newHead
 		assert name == grgit.branch.current.name

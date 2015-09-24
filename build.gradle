@@ -3,6 +3,7 @@ plugins {
 	id 'maven-publish'
 	id 'com.jfrog.bintray' version '1.1'
 	id 'org.ajoberstar.defaults' version '0.5.3'
+	id 'me.champeau.gradle.jmh' version '0.2.0'
 }
 
 group = 'org.ajoberstar'
@@ -48,6 +49,14 @@ dependencies {
 	// testing
 	testCompile 'org.spockframework:spock-core:1.0-groovy-2.3'
 	testRuntime 'cglib:cglib-nodep:3.1'
+}
+
+test {
+	systemProperty 'root-level', 'DEBUG'
+}
+
+jmh {
+	jmhVersion = '1.11'
 }
 
 wrapper {
