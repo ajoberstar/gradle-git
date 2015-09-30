@@ -16,10 +16,11 @@
 package org.ajoberstar.gradle.git.release.semver
 
 import com.github.zafarkhaja.semver.Version
-
-import org.ajoberstar.grgit.Commit
 import org.ajoberstar.grgit.Grgit
-
+import org.ajoberstar.grgit.Tag
+import org.eclipse.jgit.api.Git
+import org.eclipse.jgit.lib.ObjectId
+import org.eclipse.jgit.revwalk.RevCommit
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
@@ -38,6 +39,7 @@ import org.slf4j.LoggerFactory
  */
 class NearestVersionLocator {
 	private static final Logger logger = LoggerFactory.getLogger(NearestVersionLocator)
+	private static final Version UNKNOWN = Version.valueOf('0.0.0')
 
 	/**
 	 * Locate the nearest version in the given repository
@@ -73,50 +75,59 @@ class NearestVersionLocator {
 	 */
 	NearestVersion locate(Grgit grgit) {
 		logger.debug('Locate beginning on branch: {}', grgit.branch.current.fullName)
-		Commit head = grgit.head()
-		List versionTags = grgit.tag.list().inject([]) { list, tag ->
-			Version version = TagUtil.parseAsVersion(tag)
-			logger.debug('Tag {} ({}) parsed as {} version.', tag.name, tag.commit.abbreviatedId, version)
-			if (version) {
-				def data
-				if (tag.commit == head) {
-					logger.debug('Tag {} is at head. Including as candidate.', tag.fullName)
-					data = [version: version, distance: 0]
-				} else {
-					if (grgit.isAncestorOf(tag, head)) {
-						logger.debug('Tag {} is an ancestor of HEAD. Including as a candidate.', tag.name)
-						def reachableCommitLog = grgit.log {
-							range tag.commit.id, head.id
-						}
-						logger.debug('Reachable commits after tag {}: {}', tag.fullName, reachableCommitLog.collect { it.abbreviatedId })
-						def distance = reachableCommitLog.size()
-						data = [version: version, distance: distance]
-					} else {
-						logger.debug('Tag {} is not an ancestor of HEAD. Excluding as a candidate.', tag.name)
+
+		List<Tag> tags = grgit.tag.list()
+		Map<ObjectId, List<Tag>> tagsByCommit = tags.groupBy { ObjectId.fromString(it.commit.id) }
+		Map<ObjectId, List<Version>> versionsByCommit = tagsByCommit.collectEntries { key, value ->
+			List<Version> versions = value.collect { tag ->
+				Version version = TagUtil.parseAsVersion(tag)
+				logger.debug('Tag {} ({}) parsed as {} version.', tag.name, tag.commit.abbreviatedId, version)
+				version
+			}.findAll { it }
+			Collections.sort(versions, Collections.reverseOrder())
+			[key, versions]
+		} as Map<ObjectId, List<Version>>;
+
+		logger.debug('Versions by commit {}.', versionsByCommit)
+
+		Version anyVersion = UNKNOWN
+		Version normalVersion = UNKNOWN
+		int distanceFromAny = 0
+		int distanceFromNormal = 0
+
+		Git jgit = grgit.repository.jgit
+		Iterator<RevCommit> log = jgit.log().call().iterator()
+		int distance = 0
+		while (log.hasNext() && !versionsByCommit.isEmpty()) {
+			ObjectId revCommitId = log.next().id
+			List<Version> versions = versionsByCommit.get(revCommitId)
+			if (versions) {
+				for (Version version : versions) {
+					if (anyVersion == UNKNOWN) {
+						logger.debug('Found any version {}, distance {}.', version, distance)
+						anyVersion = version
+						distanceFromAny = distance
+					}
+					if (normalVersion == UNKNOWN && version.preReleaseVersion.empty) {
+						logger.debug('Found normal version {}, distance {}.', version, distance)
+						normalVersion = version
+						distanceFromNormal = distance
+						break
 					}
 				}
-				if (data) {
-					logger.debug('Tag data found: {}', data)
-					list << data
-				}
+				versionsByCommit.remove(revCommitId)
 			}
-			list
+			distance++
 		}
 
-		Map normal = versionTags.findAll { versionTag ->
-			versionTag.version.preReleaseVersion.empty
-		}.min { a, b ->
-			a.distance <=> b.distance ?: (a.version <=> b.version) * -1
+		if (anyVersion == UNKNOWN) {
+			distanceFromAny = distance
+		}
+		if (normalVersion == UNKNOWN) {
+			distanceFromNormal = distance
 		}
 
-		Map any = versionTags.min { a, b ->
-			a.distance <=> b.distance ?: (a.version <=> b.version) * -1
-		}
-
-		Version anyVersion = any ? any.version : Version.valueOf('0.0.0')
-		Version normalVersion = normal ? normal.version : Version.valueOf('0.0.0')
-		int distanceFromAny = any ? any.distance : grgit.log(includes: [head.id]).size()
-		int distanceFromNormal = normal ? normal.distance : grgit.log(includes: [head.id]).size()
+		logger.debug('Walked {} commit(s). Nearest release: {}, nearest any: {}.', distance, normalVersion, anyVersion)
 
 		return new NearestVersion(anyVersion, normalVersion, distanceFromAny, distanceFromNormal)
 	}
