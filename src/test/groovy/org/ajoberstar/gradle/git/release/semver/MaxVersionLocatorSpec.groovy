@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2015 the original author or authors.
+ * Copyright 2012-2014 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,9 +23,10 @@ import com.github.zafarkhaja.semver.Version
 import org.ajoberstar.grgit.Grgit
 
 import spock.lang.Shared
+import spock.lang.Specification
 import spock.lang.Unroll
 
-class NearestVersionLocatorSpec extends VersionLocatorSpecBase {
+class MaxVersionLocatorSpec extends VersionLocatorSpecBase {
 
 	def setupSpec() {
 		repoDir = Files.createTempDirectory('repo').toFile()
@@ -69,7 +70,6 @@ class NearestVersionLocatorSpec extends VersionLocatorSpecBase {
 		// grgit.tag.add(name: 'v0.1.2-beta.1')
 		addTag('v0.1.2-beta.1')
 		addTag('v0.1.2-alpha.1')
-		addTag('not-a-version')
 
 		commit()
 		commit()
@@ -87,28 +87,22 @@ class NearestVersionLocatorSpec extends VersionLocatorSpecBase {
 		commit()
 		// grgit.tag.add(name: '1.1.0-rc.1+abcde')
 		addTag('1.1.0-rc.1+abcde')
-		addTag('also-not-a-version')
 	}
 
 	def cleanupSpec() {
 		assert !repoDir.exists() || repoDir.deleteDir()
 	}
 
-	@Unroll('when on #head, locator finds normal #normal with distance #distance and nearest #any at #stage')
+	@Unroll('when on #head, locator finds normal #normal and nearest #any')
 	def 'locator returns correct value'() {
 		given:
 		grgit.checkout(branch: head)
 		expect:
-		def nearest = new NearestVersionLocator().locate(grgit)
-		nearest.any == Version.valueOf(any)
-		nearest.normal == Version.valueOf(normal)
-		nearest.distanceFromNormal == distance
+		def max = new MaxVersionLocator().locate(grgit)
+		max.any == Version.valueOf(any)
+		max.normal == Version.valueOf(normal)
 		where:
-		head          | any                | normal                      | distance
-		'master'      | '1.1.0-rc.1+abcde' | '1.0.0'                     | 1
-		'RB_0.1'      | '0.1.2-beta.1'     | '0.1.1+2010.01.01.12.00.00' | 7
-		'RB_1.0'      | '1.0.0'            | '1.0.0'                     | 0
-		'no-normal'   | '0.0.1-beta.3'     | '0.0.0'                     | 3
-		'unreachable' | '0.0.0'            | '0.0.0'                     | 2
+		head          | any                | normal
+		'master'      | '1.1.0-rc.1+abcde' | '1.0.0'
 	}
 }

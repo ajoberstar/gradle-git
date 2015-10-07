@@ -35,6 +35,7 @@ final class SemVerStrategyState {
 	Branch currentBranch
 	boolean repoDirty
 	NearestVersion nearestVersion
+	MaxVersion maxVersion
 	String inferredNormal
 	String inferredPreRelease
 	String inferredBuildMetadata
