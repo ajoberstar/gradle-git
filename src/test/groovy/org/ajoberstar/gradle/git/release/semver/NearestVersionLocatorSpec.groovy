@@ -39,40 +39,31 @@ class NearestVersionLocatorSpec extends Specification {
 
 		commit()
 		commit()
-		// grgit.branch.add(name: 'unreachable')
 		addBranch('unreachable')
 
 		commit()
-		// grgit.tag.add(name: '0.0.1-beta.3')
 		addTag('0.0.1-beta.3')
-		// grgit.branch.add(name: 'no-normal')
 		addBranch('no-normal')
 
 		commit()
-		// grgit.tag.add(name: '0.1.0')
 		addTag('0.1.0')
 
 		commit()
-		// grgit.branch.add(name: 'RB_0.1')
 		addBranch('RB_0.1')
 
 		commit()
 		commit()
-		// grgit.tag.add(name: '0.2.0')
 		addTag('0.2.0')
 
-		// grgit.checkout(branch: 'RB_0.1')
 		checkout('RB_0.1')
 
 		commit()
-		// grgit.tag.add(name: 'v0.1.1+2010.01.01.12.00.00')
 		addTag('v0.1.1+2010.01.01.12.00.00')
 
 		commit()
 		commit()
 		commit()
 		commit()
-		// grgit.tag.add(name: 'v0.1.2-beta.1')
 		addTag('v0.1.2-beta.1')
 		addTag('v0.1.2-alpha.1')
 		addTag('not-a-version')
@@ -80,20 +71,29 @@ class NearestVersionLocatorSpec extends Specification {
 		commit()
 		commit()
 		commit()
-		// grgit.checkout(branch: 'master')
 		checkout('master')
 
 		commit()
-		// grgit.tag.add(name: 'v1.0.0')
 		addTag('v1.0.0')
 		addTag('v1.0.0-rc.3')
-		// grgit.branch.add(name: 'RB_1.0')
 		addBranch('RB_1.0')
 
 		commit()
-		// grgit.tag.add(name: '1.1.0-rc.1+abcde')
 		addTag('1.1.0-rc.1+abcde')
 		addTag('also-not-a-version')
+
+		addBranch('test')
+		checkout('test')
+		commit()
+		addTag('2.0.0-rc.1')
+		addBranch('REL_2.1')
+		checkout('REL_2.1')
+		commit('2.txt')
+		addTag('2.1.0-rc.1')
+		checkout('test')
+		commit()
+		commit()
+		merge('REL_2.1')
 	}
 
 	def cleanupSpec() {
@@ -108,21 +108,23 @@ class NearestVersionLocatorSpec extends Specification {
 		def nearest = new NearestVersionLocator().locate(grgit)
 		nearest.any == Version.valueOf(any)
 		nearest.normal == Version.valueOf(normal)
-		nearest.distanceFromNormal == distance
+		nearest.distanceFromAny == anyDistance
+		nearest.distanceFromNormal == normalDistance
 		where:
-		head          | any                | normal                      | distance
-		'master'      | '1.1.0-rc.1+abcde' | '1.0.0'                     | 1
-		'RB_0.1'      | '0.1.2-beta.1'     | '0.1.1+2010.01.01.12.00.00' | 7
-		'RB_1.0'      | '1.0.0'            | '1.0.0'                     | 0
-		'no-normal'   | '0.0.1-beta.3'     | '0.0.0'                     | 3
-		'unreachable' | '0.0.0'            | '0.0.0'                     | 2
+		head          | any                | normal                      | anyDistance | normalDistance
+		'master'      | '1.1.0-rc.1+abcde' | '1.0.0'                     | 0           | 1
+		'RB_0.1'      | '0.1.2-beta.1'     | '0.1.1+2010.01.01.12.00.00' | 3           | 7
+		'RB_1.0'      | '1.0.0'            | '1.0.0'                     | 0           | 0
+		'no-normal'   | '0.0.1-beta.3'     | '0.0.0'                     | 0           | 3
+		'unreachable' | '0.0.0'            | '0.0.0'                     | 2           | 2
+		'test'        | '2.1.0-rc.1'       | '1.0.0'                     | 1           | 6
 	}
 
-	private void commit() {
+	private void commit(String name = '1.txt') {
 		byte[] bytes = new byte[128]
 		random.nextBytes(bytes)
-		new File(grgit.repository.rootDir, '1.txt') << bytes
-		grgit.add(patterns: ['1.txt'])
+		new File(grgit.repository.rootDir, name) << bytes
+		grgit.add(patterns: [name])
 		def commit = grgit.commit(message: 'do')
 		println "Created commit: ${commit.abbreviatedId}"
 	}
@@ -151,8 +153,13 @@ class NearestVersionLocatorSpec extends Specification {
 		def atCommit = grgit.resolve.toCommit(name)
 		def newHead = grgit.head()
 		println "Checkout out ${name}, which is at ${atCommit.abbreviatedId}"
-		assert currentHead != grgit.head()
 		assert atCommit == newHead
 		assert name == grgit.branch.current.name
+	}
+
+	private void merge(String name) {
+		def currentHead = grgit.head()
+		grgit.merge(head: name)
+		println "Merged ${name}, now at ${grgit.head().abbreviatedId}"
 	}
 }
