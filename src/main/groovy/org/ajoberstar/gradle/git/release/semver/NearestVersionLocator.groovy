@@ -78,6 +78,7 @@ class NearestVersionLocator {
 	NearestVersion locate(Grgit grgit) {
 		logger.debug('Locate beginning on branch: {}', grgit.branch.current.fullName)
 
+		// Reuse a single walk to make use of caching.
 		RevWalk walk = new RevWalk(grgit.repository.jgit.repo)
 		try {
 			walk.retainBody = false
@@ -97,7 +98,6 @@ class NearestVersionLocator {
 			List normalTags = tags.findAll { !it.version.preReleaseVersion }
 			RevCommit head = toRev(grgit.head())
 
-			// Normals need to be handled first, since the anys would exclude them.
 			def normal = findNearestVersion(walk, head, normalTags)
 			def any = findNearestVersion(walk, head, tags)
 
@@ -109,34 +109,21 @@ class NearestVersionLocator {
 	}
 
 	private Map findNearestVersion(RevWalk walk, RevCommit head, List versionTags) {
-		/*
-		 * By excluding the parents of any tagged versions, we avoid walking back
-		 * too far in the history.
-		 */
-		versionTags.collectMany {
-			it.rev.parents as List
-		}.each {
-			walk.markUninteresting(it)
-		}
+		walk.reset()
+		walk.markStart(head)
+		Map versionTagsByRev = versionTags.groupBy { it.rev }
 
-		/*
-		 * Filter down to tags that are reachable from the head. This will generally
-		 * only leave multiple results in two scenarios:
-		 * - Single commit with multiple version tags
-		 * - Multiple version tags in parallel branches
-		 */
-		def reachableVersionTags = versionTags.findAll { versionTag ->
-			walk.isMergedInto(versionTag.rev, head)
-		}.collect { versionTag ->
+		def reachableVersionTags = walk.collectMany { rev ->
+			def matches = versionTagsByRev[rev]
+			if (matches) {
+				// Parents can't be "nearer". Exclude them to avoid extra walking.
+				rev.parents.each { walk.markUninteresting(it) }
+			}
+			matches ?: []
+		}.each { versionTag ->
 			versionTag.distance = RevWalkUtils.count(walk, head, versionTag.rev)
-			versionTag
 		}
 
-		/*
-		 * If any were found, make sure we pick the smallest distance or, if there
-		 * is a match, the one with the highest version precedence. If none were
-		 * found, use a base value.
-		 */
 		if (reachableVersionTags) {
 			return reachableVersionTags.min { a, b ->
 				def distanceCompare = a.distance <=> b.distance
