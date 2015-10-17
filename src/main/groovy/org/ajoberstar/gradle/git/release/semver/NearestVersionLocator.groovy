@@ -21,6 +21,8 @@ import org.ajoberstar.grgit.Tag
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.lib.ObjectId
 import org.eclipse.jgit.revwalk.RevCommit
+import org.eclipse.jgit.revwalk.RevWalk
+import org.eclipse.jgit.revwalk.RevWalkUtils
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
@@ -76,59 +78,73 @@ class NearestVersionLocator {
 	NearestVersion locate(Grgit grgit) {
 		logger.debug('Locate beginning on branch: {}', grgit.branch.current.fullName)
 
-		List<Tag> tags = grgit.tag.list()
-		Map<ObjectId, List<Tag>> tagsByCommit = tags.groupBy { ObjectId.fromString(it.commit.id) }
-		Map<ObjectId, List<Version>> versionsByCommit = tagsByCommit.collectEntries { key, value ->
-			List<Version> versions = value.collect { tag ->
-				Version version = TagUtil.parseAsVersion(tag)
-				logger.debug('Tag {} ({}) parsed as {} version.', tag.name, tag.commit.abbreviatedId, version)
-				version
-			}.findAll { it }
-			Collections.sort(versions, Collections.reverseOrder())
-			[key, versions]
-		} as Map<ObjectId, List<Version>>;
+		RevWalk walk = new RevWalk(grgit.repository.jgit.repo)
+		try {
+			walk.retainBody = false
 
-		logger.debug('Versions by commit {}.', versionsByCommit)
-
-		Version anyVersion = UNKNOWN
-		Version normalVersion = UNKNOWN
-		int distanceFromAny = 0
-		int distanceFromNormal = 0
-
-		Git jgit = grgit.repository.jgit
-		Iterator<RevCommit> log = jgit.log().call().iterator()
-		int distance = 0
-		while (log.hasNext() && !versionsByCommit.isEmpty()) {
-			ObjectId revCommitId = log.next().id
-			List<Version> versions = versionsByCommit.get(revCommitId)
-			if (versions) {
-				for (Version version : versions) {
-					if (anyVersion == UNKNOWN) {
-						logger.debug('Found any version {}, distance {}.', version, distance)
-						anyVersion = version
-						distanceFromAny = distance
-					}
-					if (normalVersion == UNKNOWN && version.preReleaseVersion.empty) {
-						logger.debug('Found normal version {}, distance {}.', version, distance)
-						normalVersion = version
-						distanceFromNormal = distance
-						break
-					}
-				}
-				versionsByCommit.remove(revCommitId)
+			def toRev = { obj ->
+				def commit = grgit.resolve.toCommit(obj)
+				def id = ObjectId.fromString(commit.id)
+				walk.parseCommit(id)
 			}
-			distance++
+
+			List tags = grgit.tag.list().collect { tag ->
+				[version: TagUtil.parseAsVersion(tag), tag: tag, rev: toRev(tag)]
+			}.findAll {
+				it.version
+			}
+
+			List normalTags = tags.findAll { !it.version.preReleaseVersion }
+			RevCommit head = toRev(grgit.head())
+
+			// Normals need to be handled first, since the anys would exclude them.
+			def normal = findNearestVersion(walk, head, normalTags)
+			def any = findNearestVersion(walk, head, tags)
+
+			logger.debug('Nearest release: {}, nearest any: {}.', normal, any)
+			return new NearestVersion(any.version, normal.version, any.distance, normal.distance)
+		} finally {
+			walk.close()
+		}
+	}
+
+	private Map findNearestVersion(RevWalk walk, RevCommit head, List versionTags) {
+		/*
+		 * By excluding the parents of any tagged versions, we avoid walking back
+		 * too far in the history.
+		 */
+		versionTags.collectMany {
+			it.rev.parents as List
+		}.each {
+			walk.markUninteresting(it)
 		}
 
-		if (anyVersion == UNKNOWN) {
-			distanceFromAny = distance
-		}
-		if (normalVersion == UNKNOWN) {
-			distanceFromNormal = distance
+		/*
+		 * Filter down to tags that are reachable from the head. This will generally
+		 * only leave multiple results in two scenarios:
+		 * - Single commit with multiple version tags
+		 * - Multiple version tags in parallel branches
+		 */
+		def reachableVersionTags = versionTags.findAll { versionTag ->
+			walk.isMergedInto(versionTag.rev, head)
+		}.collect { versionTag ->
+			versionTag.distance = RevWalkUtils.count(walk, head, versionTag.rev)
+			versionTag
 		}
 
-		logger.debug('Walked {} commit(s). Nearest release: {}, nearest any: {}.', distance, normalVersion, anyVersion)
-
-		return new NearestVersion(anyVersion, normalVersion, distanceFromAny, distanceFromNormal)
+		/*
+		 * If any were found, make sure we pick the smallest distance or, if there
+		 * is a match, the one with the highest version precedence. If none were
+		 * found, use a base value.
+		 */
+		if (reachableVersionTags) {
+			return reachableVersionTags.min { a, b ->
+				def distanceCompare = a.distance <=> b.distance
+				def versionCompare = (a.version <=> b.version) * -1
+				distanceCompare == 0 ? versionCompare : distanceCompare
+			}
+		} else {
+			return [version: UNKNOWN, distance: RevWalkUtils.count(walk, head, null)]
+		}
 	}
 }

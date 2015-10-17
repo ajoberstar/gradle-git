@@ -87,12 +87,12 @@ class NearestVersionLocatorSpec extends Specification {
 		commit()
 		addTag('2.0.0-rc.1')
 		addBranch('REL_2.1')
+		commit()
+		commit()
 		checkout('REL_2.1')
 		commit('2.txt')
 		addTag('2.1.0-rc.1')
 		checkout('test')
-		commit()
-		commit()
 		merge('REL_2.1')
 	}
 
