@@ -100,7 +100,7 @@ class NearestVersionLocatorSpec extends Specification {
 		assert !repoDir.exists() || repoDir.deleteDir()
 	}
 
-	@Unroll('when on #head, locator finds normal #normal with distance #distance and nearest #any at #stage')
+	@Unroll('when on #head, locator finds normal #normal with nearest #any')
 	def 'locator returns correct value'() {
 		given:
 		grgit.checkout(branch: head)
@@ -117,7 +117,7 @@ class NearestVersionLocatorSpec extends Specification {
 		'RB_1.0'      | '1.0.0'            | '1.0.0'                     | 0           | 0
 		'no-normal'   | '0.0.1-beta.3'     | '0.0.0'                     | 0           | 3
 		'unreachable' | '0.0.0'            | '0.0.0'                     | 2           | 2
-		'test'        | '2.1.0-rc.1'       | '1.0.0'                     | 1           | 6
+		'test'        | '2.1.0-rc.1'       | '1.0.0'                     | 3           | 6
 	}
 
 	private void commit(String name = '1.txt') {
