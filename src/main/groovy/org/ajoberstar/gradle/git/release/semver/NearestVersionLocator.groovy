@@ -16,6 +16,7 @@
 package org.ajoberstar.gradle.git.release.semver
 
 import com.github.zafarkhaja.semver.Version
+import org.ajoberstar.gradle.git.release.base.TagHandler
 import org.ajoberstar.grgit.Grgit
 import org.ajoberstar.grgit.Tag
 import org.eclipse.jgit.api.Git
@@ -42,6 +43,12 @@ import org.slf4j.LoggerFactory
 class NearestVersionLocator {
 	private static final Logger logger = LoggerFactory.getLogger(NearestVersionLocator)
 	private static final Version UNKNOWN = Version.valueOf('0.0.0')
+
+	final TagHandler handler
+
+	NearestVersionLocator(TagHandler handler) {
+		this.handler = handler
+	}
 
 	/**
 	 * Locate the nearest version in the given repository
@@ -90,7 +97,7 @@ class NearestVersionLocator {
 			}
 
 			List tags = grgit.tag.list().collect { tag ->
-				[version: TagUtil.parseAsVersion(tag), tag: tag, rev: toRev(tag)]
+				[version: handler.parseTag(tag), tag: tag, rev: toRev(tag)]
 			}.findAll {
 				it.version
 			}

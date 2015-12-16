@@ -23,18 +23,26 @@ import org.ajoberstar.grgit.Tag
 import org.ajoberstar.grgit.service.TagService
 
 import org.gradle.api.Project
-
+import org.gradle.testfixtures.ProjectBuilder
 import spock.lang.Specification
 
 class RebuildVersionStrategySpec extends Specification {
 	RebuildVersionStrategy strategy = new RebuildVersionStrategy()
 	Grgit grgit = GroovyMock()
-	Project project = Mock()
+
+	def getProject(Map properties) {
+		Project p = ProjectBuilder.builder().withName("testproject").build()
+		p.apply plugin: "org.ajoberstar.release-base"
+		properties.each { k, v ->
+			p.ext[k] = v
+		}
+		p
+	}
 
 	def 'selector returns false if repo is dirty'() {
 		given:
 		mockClean(false)
-		mockProperties([:])
+		Project project = getProject([:])
 		mockTagsAtHead('v1.0.0')
 		expect:
 		!strategy.selector(project, grgit)
@@ -43,7 +51,7 @@ class RebuildVersionStrategySpec extends Specification {
 	def 'selector returns false if any release properties are set'() {
 		given:
 		mockClean(true)
-		mockProperties('release.anything': 'value')
+		Project project = getProject('release.anything': 'value')
 		mockTagsAtHead('v1.0.0')
 		expect:
 		!strategy.selector(project, grgit)
@@ -52,7 +60,7 @@ class RebuildVersionStrategySpec extends Specification {
 	def 'selector returns false if no version tag at HEAD'() {
 		given:
 		mockClean(true)
-		mockProperties([:])
+		Project project = getProject([:])
 		mockTagsAtHead('non-version-tag')
 		expect:
 		!strategy.selector(project, grgit)
@@ -61,7 +69,7 @@ class RebuildVersionStrategySpec extends Specification {
 	def 'selector returns true if rebuild is attempted'() {
 		given:
 		mockClean(true)
-		mockProperties([:])
+		Project project = getProject([:])
 		mockTagsAtHead('v0.1.1', 'v1.0.0', '0.19.1')
 		expect:
 		strategy.selector(project, grgit)
@@ -70,7 +78,7 @@ class RebuildVersionStrategySpec extends Specification {
 	def 'infer returns HEAD version is inferred and previous with create tag false'() {
 		given:
 		mockClean(true)
-		mockProperties([:])
+		Project project = getProject([:])
 		mockTagsAtHead('v0.1.1', 'v1.0.0', '0.19.1')
 		expect:
 		strategy.infer(project, grgit) == new ReleaseVersion('1.0.0', '1.0.0', false)
@@ -91,6 +99,7 @@ class RebuildVersionStrategySpec extends Specification {
 	}
 
 	private void mockProperties(Map props) {
-		project.properties >> props
+		project.properties.clear()
+		project.properties.putAll(props)
 	}
 }

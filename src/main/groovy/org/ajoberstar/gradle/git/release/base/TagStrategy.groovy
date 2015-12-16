@@ -16,7 +16,7 @@
 package org.ajoberstar.gradle.git.release.base
 
 import org.ajoberstar.grgit.Grgit
-
+import org.ajoberstar.grgit.Tag
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
@@ -24,13 +24,24 @@ import org.slf4j.LoggerFactory
  * Strategy for creating a Git tag associated with a release.
  */
 class TagStrategy {
+	/**
+	 * The extension that was registered, ensures that we can use (and configure) the tagHandler defined.
+	 */
+	private final ReleasePluginExtension extension
+
+	TagStrategy(ReleasePluginExtension extension) {
+		this.extension = extension
+	}
+
 	private static final Logger logger = LoggerFactory.getLogger(TagStrategy)
 
 	/**
-	 * Whether or not the version number should be prefixed with a "v" when
-	 * the tag is named.
-	 */
-	boolean prefixNameWithV = true
+	 * Added for backwards compatibility.
+	 * @param prefix whether or not to prefix the tag with a 'v'
+     */
+	void setPrefixNameWithV(boolean prefix) {
+		this.extension.tagHandler = TagHandler.Handlers.semver(prefix)
+	}
 
 	/**
 	 * Closure taking a {@link ReleaseVersion} as an argument and returning
@@ -47,9 +58,8 @@ class TagStrategy {
 	 * @return the name of the tag created, or {@code null} if it wasn't
 	 */
 	String maybeCreateTag(Grgit grgit, ReleaseVersion version) {
-		def versionStr = version.version
 		if (version.createTag) {
-			String name = prefixNameWithV ? "v${versionStr}" : versionStr
+			String name = this.extension.tagHandler.toTagString(version)
 			String message = generateMessage(version)
 
 			logger.warn('Tagging repository as {}', name)
