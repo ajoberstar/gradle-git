@@ -2,7 +2,6 @@
 
 [![Bintray](https://img.shields.io/bintray/v/ajoberstar/gradle-plugins/org.ajoberstar%3Agradle-git.svg?style=flat-square)](https://bintray.com/ajoberstar/gradle-plugins/org.ajoberstar%3Agradle-git/_latestVersion)
 [![Travis](https://img.shields.io/travis/ajoberstar/gradle-git.svg?style=flat-square)](https://travis-ci.org/ajoberstar/gradle-git)
-[![Maintainer Status](http://stillmaintained.com/ajoberstar/gradle-git.svg)](http://stillmaintained.com/ajoberstar/gradle-git)
 [![GitHub license](https://img.shields.io/github/license/ajoberstar/gradle-git.svg?style=flat-square)](https://github.com/ajoberstar/gradle-git/blob/master/LICENSE)
 
 ## Why do you care?
