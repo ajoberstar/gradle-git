@@ -60,6 +60,28 @@ Release of 1.2.3
 '''.trim()
 	}
 
+	def 'plugin tag strategy creates correct message if previous tag exists and no prefix with v'() {
+		given:
+		project.plugins.apply('org.ajoberstar.release-opinion')
+		Grgit grgit = GroovyMock()
+		project.release.grgit = grgit
+		project.release.tagStrategy.prefixNameWithV = false
+		ResolveService resolve = Mock()
+		(1.._) * grgit.resolve >> resolve
+		1 * resolve.toCommit('1.2.2^{commit}') >> new Commit(shortMessage: 'Commit 1')
+		1 * grgit.log([includes: ['HEAD'], excludes: ['1.2.2^{commit}']]) >> [
+				new Commit(shortMessage: 'Commit 2'),
+				new Commit(shortMessage: 'Next commit')]
+		0 * grgit._
+		expect:
+		project.release.tagStrategy.generateMessage(version).trim() == '''
+Release of 1.2.3
+
+- Commit 2
+- Next commit
+'''.trim()
+	}
+
 	def 'plugin tag strategy creates correct message if previous tag does not exist'() {
 		given:
 		project.plugins.apply('org.ajoberstar.release-opinion')
