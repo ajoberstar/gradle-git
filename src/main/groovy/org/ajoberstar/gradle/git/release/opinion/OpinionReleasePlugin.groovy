@@ -64,7 +64,7 @@ class OpinionReleasePlugin implements Plugin<Project> {
 					builder << version.version
 					builder << '\n\n'
 
-					String previousVersion = "v${version.previousVersion}^{commit}"
+					String previousVersion = "${project.release.tagStrategy.prefixNameWithV ? "v" : ""}${version.previousVersion}^{commit}"
 					List excludes = []
 					if (tagExists(grgit, previousVersion)) {
 						excludes << previousVersion
