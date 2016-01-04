@@ -47,12 +47,7 @@ class ReleasePluginExtension {
 	/**
 	 * The strategy to use when creating a tag for the inferred version.
 	 */
-	final TagStrategy tagStrategy = new TagStrategy(this)
-
-	/**
-	 * The tagHandler used to parse tags and define new tag names.
-	 */
-	TagHandler tagHandler = TagHandler.Handlers.semver(true)
+	final TagStrategy tagStrategy = new TagStrategy()
 
 	/**
 	 * The strategy to use if all of the ones in {@code versionStrategies} return

@@ -16,7 +16,6 @@
 package org.ajoberstar.gradle.git.release.semver
 
 import com.github.zafarkhaja.semver.Version
-import org.ajoberstar.gradle.git.release.base.TagHandler
 import org.ajoberstar.gradle.git.release.base.TagStrategy
 import org.ajoberstar.grgit.Grgit
 import spock.lang.Shared
@@ -105,7 +104,7 @@ class NearestVersionLocatorSpec extends Specification {
 		given:
 		grgit.checkout(branch: head)
 		expect:
-		def nearest = new NearestVersionLocator(TagHandler.Handlers.semver(true)).locate(grgit)
+		def nearest = new NearestVersionLocator(new TagStrategy()).locate(grgit)
 		nearest.any == Version.valueOf(any)
 		nearest.normal == Version.valueOf(normal)
 		nearest.distanceFromAny == anyDistance

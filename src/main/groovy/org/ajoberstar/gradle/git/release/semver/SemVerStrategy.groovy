@@ -116,8 +116,8 @@ final class SemVerStrategy implements VersionStrategy {
 	 */
 	@Override
 	ReleaseVersion infer(Project project, Grgit grgit) {
-		def tagHandler = project.extensions.getByType(ReleasePluginExtension).tagHandler
-		return doInfer(project, grgit, new NearestVersionLocator(tagHandler))
+		def tagStrategy = project.extensions.getByType(ReleasePluginExtension).tagStrategy
+		return doInfer(project, grgit, new NearestVersionLocator(tagStrategy))
 	}
 
 	@PackageScope
