@@ -28,7 +28,7 @@ import org.slf4j.LoggerFactory
 class TagStrategy {
 
 	/**
-	 * Closure taking a {@link ReleaseVersion version} as an argument and returning a string to be used as a tag name.
+	 * Closure taking a version String as an argument and returning a string to be used as a tag name.
 	 */
 	Closure<String> toTagString
 
@@ -55,7 +55,7 @@ class TagStrategy {
 	 * @param prefix whether or not to prefix the tag with a 'v'
 	 */
 	void setPrefixNameWithV(boolean prefix) {
-		toTagString = { version -> prefix ? "v${version.version}" : version.version }
+		toTagString = { versionString -> prefix ? "v${versionString}" : versionString }
 	}
 
 	/**
@@ -74,7 +74,7 @@ class TagStrategy {
 	 */
 	String maybeCreateTag(Grgit grgit, ReleaseVersion version) {
 		if (version.createTag) {
-			String name = toTagString(version)
+			String name = toTagString(version.version)
 			String message = generateMessage(version)
 
 			logger.warn('Tagging repository as {}', name)
