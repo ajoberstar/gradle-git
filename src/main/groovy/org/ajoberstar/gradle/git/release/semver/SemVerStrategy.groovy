@@ -19,7 +19,7 @@ import groovy.transform.Immutable
 import groovy.transform.PackageScope
 
 import com.github.zafarkhaja.semver.Version
-
+import org.ajoberstar.gradle.git.release.base.ReleasePluginExtension
 import org.ajoberstar.gradle.git.release.base.ReleaseVersion
 import org.ajoberstar.gradle.git.release.base.VersionStrategy
 import org.ajoberstar.grgit.Grgit
@@ -116,7 +116,8 @@ final class SemVerStrategy implements VersionStrategy {
 	 */
 	@Override
 	ReleaseVersion infer(Project project, Grgit grgit) {
-		return doInfer(project, grgit, new NearestVersionLocator())
+		def tagStrategy = project.extensions.getByType(ReleasePluginExtension).tagStrategy
+		return doInfer(project, grgit, new NearestVersionLocator(tagStrategy))
 	}
 
 	@PackageScope

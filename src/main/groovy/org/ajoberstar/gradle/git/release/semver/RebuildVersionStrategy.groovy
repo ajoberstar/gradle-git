@@ -15,6 +15,7 @@
  */
 package org.ajoberstar.gradle.git.release.semver
 
+import org.ajoberstar.gradle.git.release.base.ReleasePluginExtension
 import org.ajoberstar.gradle.git.release.base.ReleaseVersion
 import org.ajoberstar.gradle.git.release.base.VersionStrategy
 import org.ajoberstar.grgit.Commit
@@ -50,7 +51,7 @@ class RebuildVersionStrategy implements VersionStrategy {
 	boolean selector(Project project, Grgit grgit) {
 		return grgit.status().clean &&
 			project.properties.keySet().find { it.startsWith('release.') } == null &&
-			getHeadVersion(grgit)
+			getHeadVersion(project, grgit)
 	}
 
 	/**
@@ -59,16 +60,17 @@ class RebuildVersionStrategy implements VersionStrategy {
 	 */
 	@Override
 	ReleaseVersion infer(Project project, Grgit grgit) {
-		String version = getHeadVersion(grgit)
+		String version = getHeadVersion(project, grgit)
 		return new ReleaseVersion(version, version, false)
 	}
 
-	private String getHeadVersion(Grgit grgit) {
+	private String getHeadVersion(Project project, Grgit grgit) {
+		def tagStrategy = project.extensions.getByType(ReleasePluginExtension).tagStrategy
 		Commit head = grgit.head()
 		return grgit.tag.list().findAll {
 			it.commit == head
 		}.collect {
-			TagUtil.parseAsVersion(it)
+			tagStrategy.parseTag(it)
 		}.findAll {
 			it != null
 		}.max()?.toString()

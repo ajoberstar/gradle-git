@@ -15,16 +15,15 @@
  */
 package org.ajoberstar.gradle.git.release.semver
 
-import java.nio.file.Files
-import java.security.SecureRandom
-
 import com.github.zafarkhaja.semver.Version
-
+import org.ajoberstar.gradle.git.release.base.TagStrategy
 import org.ajoberstar.grgit.Grgit
-
 import spock.lang.Shared
 import spock.lang.Specification
 import spock.lang.Unroll
+
+import java.nio.file.Files
+import java.security.SecureRandom
 
 class NearestVersionLocatorSpec extends Specification {
 	@Shared File repoDir
@@ -105,7 +104,7 @@ class NearestVersionLocatorSpec extends Specification {
 		given:
 		grgit.checkout(branch: head)
 		expect:
-		def nearest = new NearestVersionLocator().locate(grgit)
+		def nearest = new NearestVersionLocator(new TagStrategy()).locate(grgit)
 		nearest.any == Version.valueOf(any)
 		nearest.normal == Version.valueOf(normal)
 		nearest.distanceFromAny == anyDistance

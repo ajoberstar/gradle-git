@@ -17,7 +17,6 @@ package org.ajoberstar.gradle.git.release.base
 
 import org.ajoberstar.grgit.Grgit
 import org.ajoberstar.grgit.service.TagService
-
 import spock.lang.Specification
 
 class TagStrategySpec extends Specification {
