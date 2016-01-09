@@ -57,7 +57,8 @@ class BaseReleasePlugin implements Plugin<Project> {
 				logger.info('Fetching changes from remote: {}', extension.remote)
 				grgit.fetch(remote: extension.remote)
 
-				if (grgit.branch.status(branch: grgit.branch.current.fullName).behindCount > 0) {
+				// if branch is tracking another, make sure it's not behind
+				if (grgit.branch.current.trackingBranch != null && grgit.branch.status(branch: grgit.branch.current.fullName).behindCount > 0) {
 					throw new GradleException('Current branch is behind the tracked branch. Cannot release.')
 				}
 			}
@@ -79,15 +80,24 @@ class BaseReleasePlugin implements Plugin<Project> {
 				project.version.toString()
 
 				ext.grgit = extension.grgit
-				ext.toPush = [grgit.branch.current.fullName]
+				ext.toPush = []
+
+				// if not on detached HEAD, push branch
+				if (grgit.branch.current.fullName != 'HEAD') {
+					ext.toPush << [grgit.branch.current.fullName]
+				}
 
 				ext.tagName = extension.tagStrategy.maybeCreateTag(grgit, project.version.inferredVersion)
 				if (tagName) {
 					toPush << tagName
 				}
 
-				logger.warn('Pushing changes in {} to {}', toPush, extension.remote)
-				grgit.push(remote: extension.remote, refsOrSpecs: toPush)
+				if (toPush) {
+					logger.warn('Pushing changes in {} to {}', toPush, extension.remote)
+					grgit.push(remote: extension.remote, refsOrSpecs: toPush)
+				} else {
+					logger.warn('Nothing to push.')
+				}
 			}
 		}
 	}
