@@ -57,7 +57,7 @@ class BaseReleasePluginSpec extends Specification {
 		Grgit repo = GroovyMock()
 		BranchService branch = GroovyMock()
 		repo.branch >> branch
-		branch.current >> new Branch(fullName: 'refs/heads/master')
+		branch.current >> new Branch(fullName: 'refs/heads/master', trackingBranch: new Branch(fullName: 'refs/remotes/origin/master'))
 		branch.status([branch: 'refs/heads/master']) >> new BranchStatus(behindCount: 2)
 
 		project.release {
@@ -77,7 +77,7 @@ class BaseReleasePluginSpec extends Specification {
 		repo.branch >> branch
 		TagService tag = GroovyMock()
 		repo.tag >> tag
-		branch.current >> new Branch(fullName: 'refs/heads/master')
+		branch.current >> new Branch(fullName: 'refs/heads/master', trackingBranch: new Branch(fullName: 'refs/remotes/origin/master'))
 		project.release {
 			versionStrategy([
 				getName: { 'a' },
@@ -98,7 +98,7 @@ class BaseReleasePluginSpec extends Specification {
 		repo.branch >> branch
 		TagService tag = GroovyMock()
 		repo.tag >> tag
-		branch.current >> new Branch(fullName: 'refs/heads/master')
+		branch.current >> new Branch(fullName: 'refs/heads/master', trackingBranch: new Branch(fullName: 'refs/remotes/origin/master'))
 		project.release {
 			versionStrategy([
 				getName: { 'a' },
@@ -110,5 +110,26 @@ class BaseReleasePluginSpec extends Specification {
 		project.tasks.release.execute()
 		then:
 		1 * repo.push([remote: 'origin', refsOrSpecs: ['refs/heads/master']])
+	}
+
+	def 'release task skips push if on detached head'() {
+		given:
+		Grgit repo = GroovyMock()
+		BranchService branch = GroovyMock()
+		repo.branch >> branch
+		TagService tag = GroovyMock()
+		repo.tag >> tag
+		branch.current >> new Branch(fullName: 'HEAD')
+		project.release {
+			versionStrategy([
+				getName: { 'a' },
+				selector: {proj, repo2 -> true },
+				infer: {proj, repo2 -> new ReleaseVersion('1.2.3', null, false)}] as VersionStrategy)
+			grgit = repo
+		}
+		when:
+		project.tasks.release.execute()
+		then:
+		0 * repo.push(_)
 	}
 }

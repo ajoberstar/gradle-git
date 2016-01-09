@@ -84,7 +84,7 @@ class BaseReleasePlugin implements Plugin<Project> {
 
 				// if not on detached HEAD, push branch
 				if (grgit.branch.current.fullName != 'HEAD') {
-					ext.toPush << [grgit.branch.current.fullName]
+					ext.toPush << grgit.branch.current.fullName
 				}
 
 				ext.tagName = extension.tagStrategy.maybeCreateTag(grgit, project.version.inferredVersion)
