@@ -15,6 +15,7 @@
  */
 package org.ajoberstar.gradle.git.ghpages
 
+import org.ajoberstar.grgit.Grgit
 import org.gradle.api.Project
 import org.gradle.api.Task
 import org.gradle.testfixtures.ProjectBuilder
@@ -94,4 +95,6 @@ class GithubPagesPluginSpec extends Specification {
 		then:
 		task.taskDependencies.getDependencies(task).find { it.name == 'javadoc' }
 	}
+
+	// TODO need a test for gh-pages branch creatino if didn't exist before
 }

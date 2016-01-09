@@ -64,6 +64,13 @@ class GithubPagesPlugin implements Plugin<Project> {
 						credentials: extension.credentials?.toGrgit()
 				)
 
+				// check if on the correct branch, which implies it doesn't exist
+				if (!repo.branch.current.name != extension.targetBranch) {
+					repo.checkout(branch: extension.targetBranch, orphan: true)
+					// need to wipe out the current files
+					extension.deleteExistingFiles = true
+				}
+
 				def filesList = extension.workingDir.list({ dir, name ->
 					return !name.equals('.git')
 				})
