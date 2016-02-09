@@ -65,7 +65,7 @@ class GithubPagesPlugin implements Plugin<Project> {
 				)
 
 				// check if on the correct branch, which implies it doesn't exist
-				if (!repo.branch.current.name != extension.targetBranch) {
+				if (repo.branch.current.name != extension.targetBranch) {
 					repo.checkout(branch: extension.targetBranch, orphan: true)
 					// need to wipe out the current files
 					extension.deleteExistingFiles = true
