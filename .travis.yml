@@ -1,6 +1,6 @@
 language: java
 install: ""
-script: TERM=dumb ./gradlew clean check
+script: TERM=dumb ./gradlew clean check sonarqube
 jdk:
     - openjdk7
 sudo: false
