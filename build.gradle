@@ -51,18 +51,9 @@ dependencies {
 	testRuntime 'cglib:cglib-nodep:3.1'
 }
 
-tasks.sonarqube.onlyIf {
-	def branch = System.env['TRAVIS_BRANCH']
-	!branch || branch == 'master'
-}
-
-if (System.env['SONARQUBE_TOKEN']) {
-	sonarqube {
-		properties {
-			property 'sonar.host.url', 'http://sonarqube.ajoberstar.com'
-			property 'sonar.login', System.env['SONARQUBE_TOKEN']
-			property 'sonar.projectVersion', version.toString().split('-')[0]
-		}
+sonarqube {
+	properties {
+		property 'sonar.projectVersion', version.toString().split('-')[0]
 	}
 }
 
