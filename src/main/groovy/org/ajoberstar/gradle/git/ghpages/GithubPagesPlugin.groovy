@@ -90,8 +90,12 @@ class GithubPagesPlugin implements Plugin<Project> {
 			doLast {
 				project.tasks."${PREPARE_TASK_NAME}".repo.with {
 					add(patterns: ['.'])
-					commit(message: extension.commitMessage)
-					push()
+					if (grgit.status().clean) {
+						println 'Nothing to commit, skipping publish.'
+					} else {
+						commit(message: extension.commitMessage)
+						push()
+					}
 				}
 			}
 		}
