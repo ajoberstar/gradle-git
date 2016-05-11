@@ -25,7 +25,7 @@ import spock.lang.Unroll
 class GithubPagesPluginSpec extends Specification {
 	public static final String PLUGIN_NAME = 'org.ajoberstar.github-pages'
 	public static final String EXTENSION_NAME = 'githubPages'
-	Project project = ProjectBuilder.builder().build()
+	Project project = ProjectBuilder.builder().withProjectDir(new File('.')).build()
 
 	def 'Creates the [githubPages] extension'() {
 		assert !project.plugins.hasPlugin(PLUGIN_NAME)

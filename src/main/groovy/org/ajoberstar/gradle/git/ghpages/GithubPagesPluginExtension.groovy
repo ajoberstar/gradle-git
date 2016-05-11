@@ -15,6 +15,9 @@
  */
 package org.ajoberstar.gradle.git.ghpages
 
+import org.ajoberstar.grgit.Grgit
+import org.ajoberstar.grgit.exception.GrgitException
+
 import org.ajoberstar.gradle.git.auth.BasicPasswordCredentials
 import org.ajoberstar.gradle.util.ObjectUtil
 
@@ -76,6 +79,16 @@ class GithubPagesPluginExtension implements AuthenticationSupported {
 		this.project = project;
 		this.pages = project.copySpec {
 			from 'src/main/ghpages'
+		}
+
+		// defaulting the repoUri to the project repo's origin
+		try {
+			Grgit grgit = Grgit.open(currentDir: project.projectDir)
+			this.repoUri = grgit.remote.list().find { it.name == 'origin' }?.url
+			grgit.close()
+		} catch (GrgitException e) {
+			// failed to open the repo of the current project
+			this.repoUri = null
 		}
 	}
 
