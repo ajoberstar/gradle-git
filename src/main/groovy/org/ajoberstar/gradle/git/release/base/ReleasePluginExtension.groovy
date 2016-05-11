@@ -106,11 +106,11 @@ class ReleasePluginExtension {
 			}
 
 			if (!selectedStrategy) {
-				if (defaultVersionStrategy) {
+				if (defaultVersionStrategy?.selector(project, grgit)) {
 					logger.info('Falling back to default strategy: {}', defaultVersionStrategy.name)
 					selectedStrategy = defaultVersionStrategy
 				} else {
-					throw new GradleException('No strategies were selected and defaultVersionStrategy is not set.')
+					throw new GradleException('No version strategies were selected. Run build with --info for more detail.')
 				}
 			}
 
