@@ -15,6 +15,7 @@
  */
 package org.ajoberstar.gradle.git.release.opinion
 
+import org.ajoberstar.gradle.git.release.base.BaseReleasePlugin
 import org.ajoberstar.gradle.git.release.semver.RebuildVersionStrategy
 import org.ajoberstar.grgit.Grgit
 import org.ajoberstar.grgit.exception.GrgitException
@@ -49,7 +50,7 @@ import org.gradle.api.Project
  */
 class OpinionReleasePlugin implements Plugin<Project> {
 	void apply(Project project) {
-		project.plugins.apply('org.ajoberstar.release-base')
+		project.plugins.apply(BaseReleasePlugin)
 
 		project.release {
 			versionStrategy RebuildVersionStrategy.INSTANCE
