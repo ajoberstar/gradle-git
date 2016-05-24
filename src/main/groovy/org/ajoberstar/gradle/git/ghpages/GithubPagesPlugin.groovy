@@ -53,7 +53,7 @@ class GithubPagesPlugin implements Plugin<Project> {
 		Task task = project.tasks.create(PREPARE_TASK_NAME, Copy)
 		task.with {
 			description = 'Prepare the gh-pages changes locally'
-			with extension.pages
+			with extension.pages.realSpec
 			into { extension.workingDir }
 			doFirst {
 				extension.workingDir.deleteDir()
@@ -71,7 +71,8 @@ class GithubPagesPlugin implements Plugin<Project> {
 					extension.deleteExistingFiles = true
 				}
 
-				def filesList = extension.workingDir.list({ dir, name ->
+				def targetDir = project.file("${extension.workingDir}/${extension.pages.relativeDestinationDir}")
+				def filesList = targetDir.list({ dir, name ->
 					return !name.equals('.git')
 				})
 				if (filesList && extension.deleteExistingFiles) {

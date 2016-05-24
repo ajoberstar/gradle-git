@@ -15,6 +15,8 @@
  */
 package org.ajoberstar.gradle.git.ghpages
 
+import groovy.transform.PackageScope
+
 import org.ajoberstar.grgit.Grgit
 import org.ajoberstar.grgit.exception.GrgitException
 
@@ -76,10 +78,9 @@ class GithubPagesPluginExtension implements AuthenticationSupported {
 	 * the extension for
 	 */
 	GithubPagesPluginExtension(Project project) {
-		this.project = project;
-		this.pages = project.copySpec {
-			from 'src/main/ghpages'
-		}
+		this.project = project
+		this.pages = new DestinationCopySpec(project)
+		pages.from 'src/main/ghpages'
 
 		// defaulting the repoUri to the project repo's origin
 		try {
@@ -125,5 +126,29 @@ class GithubPagesPluginExtension implements AuthenticationSupported {
 	 */
 	void credentials(Closure closure) {
 		ConfigureUtil.configure(closure, credentials)
+	}
+
+	static class DestinationCopySpec implements CopySpec {
+		private Project project
+		private Object destPath
+
+		@Delegate
+		CopySpec realSpec
+
+		public DestinationCopySpec(Project project) {
+			this.project = project
+			this.realSpec = project.copySpec {}
+		}
+
+		public File getRelativeDestinationDir() {
+			return destPath ? project.file(destPath) : new File('.')
+		}
+
+		@Override
+		public CopySpec into(Object destPath) {
+			this.destPath = destPath
+			realSpec.into(destPath)
+			return this
+		}
 	}
 }
