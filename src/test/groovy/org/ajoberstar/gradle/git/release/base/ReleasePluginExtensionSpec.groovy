@@ -24,7 +24,7 @@ import org.gradle.testfixtures.ProjectBuilder
 import spock.lang.Specification
 
 class ReleasePluginExtensionSpec extends Specification {
-	def 'infers default version if selector returns false for all'() {
+	def 'infers default version if selector returns false for all but default'() {
 		given:
 		Project project = ProjectBuilder.builder().build()
 		ReleasePluginExtension extension = new ReleasePluginExtension(project)
@@ -35,7 +35,7 @@ class ReleasePluginExtensionSpec extends Specification {
 			infer: { proj, grgit -> new ReleaseVersion('1.0.0', null, true) }] as VersionStrategy)
 		extension.defaultVersionStrategy = [
 			getName: { 'a' },
-			selector: { proj, grgit -> false },
+			selector: { proj, grgit -> true },
 			infer: { proj, grgit -> new ReleaseVersion('1.2.3', null, true) }] as VersionStrategy
 		expect:
 		project.version.toString() == '1.2.3'
@@ -71,6 +71,25 @@ class ReleasePluginExtensionSpec extends Specification {
 			infer: { proj, grgit -> new ReleaseVersion('1.2.3', null, true) }] as VersionStrategy)
 		expect:
 		project.version.toString() == '1.0.0'
+	}
+
+	def 'infer fails if no strategy selected including the default strategy'() {
+		given:
+		Project project = ProjectBuilder.builder().build()
+		ReleasePluginExtension extension = new ReleasePluginExtension(project)
+		extension.grgit = GroovyMock(Grgit)
+		extension.versionStrategy([
+			getName: { 'b' },
+			selector: { proj, grgit -> false },
+			infer: { proj, grgit -> new ReleaseVersion('1.0.0', null, true) }] as VersionStrategy)
+		extension.defaultVersionStrategy = [
+			getName: { 'a' },
+			selector: { proj, grgit -> false },
+			infer: { proj, grgit -> new ReleaseVersion('1.2.3', null, true) }] as VersionStrategy
+		when:
+		project.version.toString()
+		then:
+		thrown(GradleException)
 	}
 
 	def 'infer fails if no strategy selected and no default set'() {

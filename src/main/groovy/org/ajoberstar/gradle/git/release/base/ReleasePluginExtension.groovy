@@ -53,7 +53,11 @@ class ReleasePluginExtension {
 	 * The strategy to use if all of the ones in {@code versionStrategies} return
 	 * false from their {@code selector()} methods. This strategy can be, but is
 	 * not required to be, one from {@code versionStrategies}.
+	 *
+	 * This is deprecated as of 1.5.0, as version strategies that return false often
+	 * will fail when their {@code infer()} method is called.
 	 */
+	@Deprecated
 	VersionStrategy defaultVersionStrategy
 
 	/**
@@ -108,6 +112,7 @@ class ReleasePluginExtension {
 			if (!selectedStrategy) {
 				if (defaultVersionStrategy?.selector(project, grgit)) {
 					logger.info('Falling back to default strategy: {}', defaultVersionStrategy.name)
+					logger.warn('Use of a default version strategy is deprecated and will be removed in gradle-git 2.0.0')
 					selectedStrategy = defaultVersionStrategy
 				} else {
 					throw new GradleException('No version strategies were selected. Run build with --info for more detail.')
