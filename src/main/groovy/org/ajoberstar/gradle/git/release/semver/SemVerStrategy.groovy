@@ -104,6 +104,7 @@ final class SemVerStrategy implements VersionStrategy {
 			logger.info('Skipping {} strategy because repo is dirty.', name)
 			return false
 		} else {
+			logger.debug('Use {} strategy because stage ({}) is one of: {}', name, stage, stages)
 			return true
 		}
 	}
