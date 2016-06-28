@@ -128,8 +128,8 @@ class SemVerStrategySpec extends Specification {
 
 	private def mockRepoClean(boolean isClean) {
 		Status status = GroovyMock()
-		(0..1) * status.clean >> isClean
-		(0..1) * grgit.status() >> status
+		(0..2) * status.clean >> isClean
+		(0..2) * grgit.status() >> status
 		0 * status._
 	}
 
