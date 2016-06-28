@@ -21,6 +21,7 @@ import groovy.transform.PackageScope
 import com.github.zafarkhaja.semver.Version
 import org.ajoberstar.gradle.git.release.base.ReleasePluginExtension
 import org.ajoberstar.gradle.git.release.base.ReleaseVersion
+import org.ajoberstar.gradle.git.release.base.DefaultVersionStrategy
 import org.ajoberstar.gradle.git.release.base.VersionStrategy
 import org.ajoberstar.grgit.Grgit
 
@@ -37,7 +38,7 @@ import org.slf4j.LoggerFactory
  * @see <a href="https://github.com/ajoberstar/gradle-git/wiki/SemVer%20Support">Wiki Doc</a>
  */
 @Immutable(copyWith=true, knownImmutableClasses=[PartialSemVerStrategy])
-final class SemVerStrategy implements VersionStrategy {
+final class SemVerStrategy implements DefaultVersionStrategy {
 	private static final Logger logger = LoggerFactory.getLogger(SemVerStrategy)
 	static final String SCOPE_PROP = 'release.scope'
 	static final String STAGE_PROP = 'release.stage'
@@ -85,6 +86,28 @@ final class SemVerStrategy implements VersionStrategy {
 	 * than the nearest any.
 	 */
 	boolean enforcePrecedence
+
+	/**
+	 * Determines whether this strategy can be used to infer the version as a default.
+	 * <ul>
+	 * <li>Return {@code false}, if the {@code release.stage} is not one listed in the {@code stages} property.</li>
+	 * <li>Return {@code false}, if the repository has uncommitted changes and {@code allowDirtyRepo} is {@code false}.</li>
+	 * <li>Return {@code true}, otherwise.</li>
+	 * </ul>
+	 */
+	@Override
+	boolean defaultSelector(Project project, Grgit grgit) {
+		String stage = getPropertyOrNull(project, STAGE_PROP)
+		if (!stages.contains(stage)) {
+			logger.info('Skipping {} default strategy because stage ({}) is not one of: {}', name, stage, stages)
+			return false
+		} else if (!allowDirtyRepo && !grgit.status().clean) {
+			logger.info('Skipping {} default strategy because repo is dirty.', name)
+			return false
+		} else {
+			return true
+		}
+	}
 
 	/**
 	 * Determines whether this strategy should be used to infer the version.

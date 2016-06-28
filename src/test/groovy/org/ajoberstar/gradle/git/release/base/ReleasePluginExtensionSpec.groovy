@@ -73,6 +73,24 @@ class ReleasePluginExtensionSpec extends Specification {
 		project.version.toString() == '1.0.0'
 	}
 
+	def 'infer uses default if it has default selector that passes when selector doesnt'() {
+		given:
+		Project project = ProjectBuilder.builder().build()
+		ReleasePluginExtension extension = new ReleasePluginExtension(project)
+		extension.grgit = GroovyMock(Grgit)
+		extension.versionStrategy([
+			getName: { 'b' },
+			selector: { proj, grgit -> false },
+			infer: { proj, grgit -> new ReleaseVersion('1.0.0', null, true) }] as VersionStrategy)
+		extension.defaultVersionStrategy = [
+			getName: { 'a' },
+			selector: { proj, grgit -> false },
+			defaultSelector: { proj, grgit -> true },
+			infer: { proj, grgit -> new ReleaseVersion('1.2.3', null, true) }] as DefaultVersionStrategy
+		expect:
+		project.version.toString() == '1.2.3'
+	}
+
 	def 'infer fails if no strategy selected including the default strategy'() {
 		given:
 		Project project = ProjectBuilder.builder().build()
