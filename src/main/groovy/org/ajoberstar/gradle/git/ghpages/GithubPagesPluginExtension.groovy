@@ -60,11 +60,11 @@ class GithubPagesPluginExtension implements AuthenticationSupported {
 	 */
 	Object workingPath = "${project.buildDir}/ghpages"
 
-    /**
-     * Whether to delete existing files in the branch, replacing the
-     * entire contents. Defaults to {@code true}.
-     */
-    boolean deleteExistingFiles = true
+	/**
+	 * Whether to delete existing files in the branch, replacing the
+	 * entire contents. Defaults to {@code true}.
+	 */
+	 boolean deleteExistingFiles = true
 
 	/**
 	 * The message used when committing changes to Github pages branch.
@@ -87,6 +87,9 @@ class GithubPagesPluginExtension implements AuthenticationSupported {
 			Grgit grgit = Grgit.open(currentDir: project.projectDir)
 			this.repoUri = grgit.remote.list().find { it.name == 'origin' }?.url
 			grgit.close()
+		} catch (IllegalArgumentException e) {
+			// there isn't a git repo
+			this.repoUri = null
 		} catch (GrgitException e) {
 			// failed to open the repo of the current project
 			this.repoUri = null
