@@ -105,6 +105,8 @@ final class SemVerStrategy implements DefaultVersionStrategy {
 			logger.info('Skipping {} default strategy because repo is dirty.', name)
 			return false
 		} else {
+			String status = grgit.status().clean ? 'clean' : 'dirty'
+			logger.info('Using {} default strategy because repo is {} and no stage defined', name, status)
 			return true
 		}
 	}
