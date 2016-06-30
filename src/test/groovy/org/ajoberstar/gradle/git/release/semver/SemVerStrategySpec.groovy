@@ -72,6 +72,54 @@ class SemVerStrategySpec extends Specification {
 		strategy.selector(project, grgit)
 	}
 
+	def 'default selector returns false if stage is defined but not set to valid value'() {
+		given:
+		def strategy = new SemVerStrategy(stages: ['one', 'two'] as SortedSet)
+		mockStage('test')
+		expect:
+		!strategy.defaultSelector(project, grgit)
+	}
+
+	def 'default selector returns true if stage is not defined'() {
+		given:
+		def strategy = new SemVerStrategy(stages: ['one', 'two'] as SortedSet)
+		mockStage(null)
+		mockRepoClean(true)
+		expect:
+		strategy.defaultSelector(project, grgit)
+	}
+
+	def 'default selector returns false if repo is dirty and not allowed to be'() {
+		given:
+		def strategy = new SemVerStrategy(stages: ['one'] as SortedSet, allowDirtyRepo: false)
+		mockStage(stageProp)
+		mockRepoClean(false)
+		expect:
+		!strategy.defaultSelector(project, grgit)
+		where:
+		stageProp << [null, 'one']
+	}
+
+	def 'default  selector returns true if repo is dirty and allowed and other criteria met'() {
+		given:
+		def strategy = new SemVerStrategy(stages: ['one'] as SortedSet, allowDirtyRepo: true)
+		mockStage('one')
+		mockRepoClean(false)
+		mockBranchService()
+		expect:
+		strategy.defaultSelector(project, grgit)
+	}
+
+	def 'default selector returns true if all criteria met'() {
+		given:
+		def strategy = new SemVerStrategy(stages: ['one', 'and'] as SortedSet, allowDirtyRepo: false)
+		mockStage('one')
+		mockRepoClean(true)
+		mockBranchService()
+		expect:
+		strategy.defaultSelector(project, grgit)
+	}
+
 	def 'infer returns correct version'() {
 		given:
 		mockScope(scope)

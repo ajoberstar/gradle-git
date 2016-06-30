@@ -98,13 +98,15 @@ final class SemVerStrategy implements DefaultVersionStrategy {
 	@Override
 	boolean defaultSelector(Project project, Grgit grgit) {
 		String stage = getPropertyOrNull(project, STAGE_PROP)
-		if (!stages.contains(stage)) {
+		if (stage != null && !stages.contains(stage)) {
 			logger.info('Skipping {} default strategy because stage ({}) is not one of: {}', name, stage, stages)
 			return false
 		} else if (!allowDirtyRepo && !grgit.status().clean) {
 			logger.info('Skipping {} default strategy because repo is dirty.', name)
 			return false
 		} else {
+			String status = grgit.status().clean ? 'clean' : 'dirty'
+			logger.info('Using {} default strategy because repo is {} and no stage defined', name, status)
 			return true
 		}
 	}
