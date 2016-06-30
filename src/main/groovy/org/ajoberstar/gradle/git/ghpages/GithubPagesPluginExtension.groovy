@@ -143,8 +143,8 @@ class GithubPagesPluginExtension implements AuthenticationSupported {
 			this.realSpec = project.copySpec {}
 		}
 
-		public File getRelativeDestinationDir() {
-			return destPath ? project.file(destPath) : new File('.')
+		public String getRelativeDestinationDir() {
+			return destPath ? destPath : '.'
 		}
 
 		@Override
