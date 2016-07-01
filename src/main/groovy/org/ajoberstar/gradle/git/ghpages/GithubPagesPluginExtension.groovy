@@ -131,6 +131,21 @@ class GithubPagesPluginExtension implements AuthenticationSupported {
 		ConfigureUtil.configure(closure, credentials)
 	}
 
+	def getFilesToRemove() {
+		def targetDir = new File(workingDir, pages.relativeDestinationDir)
+		def path = workingDir.toPath()
+
+		def toRemove = []
+		if(targetDir.isDirectory()) {
+			targetDir.eachFileRecurse { f ->
+				if(f.isFile() && f.name != '.git') {
+					toRemove << path.relativize(f.toPath()).toString().replaceAll('\\\\', '/')
+				}
+ 			}
+		}
+		toRemove
+	}
+
 	static class DestinationCopySpec implements CopySpec {
 		private Project project
 		private Object destPath
