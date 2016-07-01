@@ -36,6 +36,7 @@ class GithubPagesPluginExtensionSpec extends Specification {
 		ext.workingDir == project.file("${project.buildDir}/ghpages")
 		ext.workingPath == "${project.buildDir}/ghpages"
 		ext.deleteExistingFiles
+		ext.pages.relativeDestinationDir == '.'
 		// TODO ideally would check the repoUri, but need a more stable case
 	}
 
@@ -54,7 +55,7 @@ class GithubPagesPluginExtensionSpec extends Specification {
 		// use-cases for this. But I've none
 	}
 
-	def 'WorkingDir is based on workingPath'() {
+	def 'Property workingDir is based on workingPath'() {
 		def ext = new GithubPagesPluginExtension(project)
 		ext.workingPath = "${project.buildDir}${File.separator}some-path"
 
@@ -63,5 +64,21 @@ class GithubPagesPluginExtensionSpec extends Specification {
 
 		then:
 		workingDir.absolutePath.endsWith(old(ext.workingPath))
+	}
+
+	def 'Property pages.relativeDestinationDir is relative to workingDir'() {
+		def ext = new GithubPagesPluginExtension(project)
+		ext.workingPath = "${project.buildDir}${File.separator}some-path"
+		ext.pages {
+		  into 'docs'
+		}
+
+		when:
+		def workingDir = ext.workingDir
+		def relativeDestinationDir = ext.pages.relativeDestinationDir
+
+		then:
+		workingDir.absolutePath == old(ext.workingPath)
+		relativeDestinationDir == 'docs'
 	}
 }
