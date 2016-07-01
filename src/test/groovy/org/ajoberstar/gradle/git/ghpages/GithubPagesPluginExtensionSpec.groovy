@@ -81,4 +81,36 @@ class GithubPagesPluginExtensionSpec extends Specification {
 		workingDir.absolutePath == old(ext.workingPath)
 		relativeDestinationDir == 'docs'
 	}
+
+	def 'getFilesToRemove() should return paths relative to workingDir' () {
+		given:
+		def ext = new GithubPagesPluginExtension(project)
+		ext.workingPath = "src/test/resources/work"
+		ext.pages {
+			into 'releases/latest'
+		}
+
+		when:
+		def toRemove = ext.filesToRemove
+
+		then:
+		toRemove.size() == 2
+		toRemove.contains('releases/latest/index.html')
+		toRemove.contains('releases/latest/img/a.png')
+	}
+
+	def 'getFilesToRemove() should return an empty list if the "into" directory does not exist' () {
+		given:
+		def ext = new GithubPagesPluginExtension(project)
+		ext.workingPath = "src/test/resources/work"
+		ext.pages {
+			into 'releases/1.0.1'
+		}
+
+		when:
+		def toRemove = ext.filesToRemove
+
+		then:
+		toRemove.empty
+	}
 }
