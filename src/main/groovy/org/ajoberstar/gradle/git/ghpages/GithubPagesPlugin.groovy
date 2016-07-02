@@ -16,6 +16,9 @@
 package org.ajoberstar.gradle.git.ghpages
 
 import org.ajoberstar.grgit.Grgit
+import org.ajoberstar.grgit.operation.ResetOp
+import org.ajoberstar.grgit.exception.GrgitException
+import org.eclipse.jgit.errors.RepositoryNotFoundException
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.Task
@@ -56,28 +59,50 @@ class GithubPagesPlugin implements Plugin<Project> {
 			with extension.pages.realSpec
 			into { extension.workingDir }
 			doFirst {
-				extension.workingDir.deleteDir()
-				ext.repo = Grgit.clone(
-						uri: extension.repoUri,
-						refToCheckout: extension.targetBranch,
-						dir: extension.workingDir,
-						credentials: extension.credentials?.toGrgit()
-				)
+				def repo = null
+				try {
+					// attempt to reuse existing repository
+					repo = Grgit.open(dir: extension.workingDir)
+					if (extension.repoUri == repo.remote.list().find { it.name == 'origin' }?.url &&
+							repo.branch.current.name == extension.targetBranch) {
+						repo.clean(directories: true, ignore: false)
+						repo.fetch()
+						repo.reset(commit: 'origin/' + extension.targetBranch, mode: ResetOp.Mode.HARD)
+					}
+					else {
+						logger.warn('Found a git repository at workingDir, but it does not match configuration. A fresh clone will be used.')
+						repo.close()
+						repo = null
+					}
+				}
+				// not a git repo
+				catch (RepositoryNotFoundException e) {}
+				// invalid/corrup git repo
+				catch (GrgitException e) {}
 
-				// check if on the correct branch, which implies it doesn't exist
-				if (repo.branch.current.name != extension.targetBranch) {
-					repo.checkout(branch: extension.targetBranch, orphan: true)
-					// need to wipe out the current files
-					extension.deleteExistingFiles = true
+				if (!repo) {
+					extension.workingDir.deleteDir()
+					repo = Grgit.clone(
+							uri: extension.repoUri,
+							refToCheckout: extension.targetBranch,
+							dir: extension.workingDir,
+							credentials: extension.credentials?.toGrgit()
+					)
+
+					// check if on the correct branch, which implies it doesn't exist
+					if (repo.branch.current.name != extension.targetBranch) {
+						repo.checkout(branch: extension.targetBranch, orphan: true)
+						// need to wipe out the current files
+						extension.deleteExistingFiles = true
+					}
 				}
 
 				def targetDir = new File(extension.workingDir, extension.pages.relativeDestinationDir)
-				def filesList = targetDir.list({ dir, name ->
-					return !name.equals('.git')
-				})
+				def filesList = targetDir.list({ dir, name -> !name.equals('.git') })
 				if (filesList && extension.deleteExistingFiles) {
 					repo.remove(patterns: filesList)
 				}
+				ext.repo = repo
 			}
 		}
 		return task
