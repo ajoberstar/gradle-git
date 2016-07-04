@@ -79,6 +79,16 @@ class GithubPagesPlugin implements Plugin<Project> {
 					repo.remove(patterns: filesList)
 				}
 			}
+			doLast {
+				repo.with {
+					add(patterns: ['.'])
+					if (status().clean) {
+						println 'Nothing to commit, skipping publish.'
+					} else {
+						commit(message: extension.commitMessage)
+					}
+				}
+			}
 		}
 		return task
 	}
@@ -89,15 +99,7 @@ class GithubPagesPlugin implements Plugin<Project> {
 			group = 'publishing'
 			onlyIf { dependsOnTaskDidWork() }
 			doLast {
-				project.tasks."${PREPARE_TASK_NAME}".repo.with {
-					add(patterns: ['.'])
-					if (status().clean) {
-						println 'Nothing to commit, skipping publish.'
-					} else {
-						commit(message: extension.commitMessage)
-						push()
-					}
-				}
+				project.tasks[PREPARE_TASK_NAME].repo.push()
 			}
 		}
 	}
