@@ -22,12 +22,15 @@ import org.ajoberstar.grgit.Commit
 import org.ajoberstar.grgit.Grgit
 
 import org.gradle.api.Project
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 
 /**
  * Strategy that infers the version based on the tag on the current
  * HEAD.
  */
 class RebuildVersionStrategy implements VersionStrategy {
+	private static final Logger logger = LoggerFactory.getLogger(RebuildVersionStrategy)
 	public static final RebuildVersionStrategy INSTANCE = new RebuildVersionStrategy()
 
 	private RebuildVersionStrategy() {
@@ -49,9 +52,17 @@ class RebuildVersionStrategy implements VersionStrategy {
 	 */
 	@Override
 	boolean selector(Project project, Grgit grgit) {
-		return grgit.status().clean &&
-			project.properties.keySet().find { it.startsWith('release.') } == null &&
-			getHeadVersion(project, grgit)
+		def clean = grgit.status().clean
+		def props = project.properties.keySet().find { it.startsWith('release.') }
+		def headVersion = getHeadVersion(project, grgit)
+
+		if (clean && props == null && headVersion) {
+			logger.info('Using {} strategy because repo is clean, no "release." properties found and head version is {}', name, headVersion)
+			return true
+		} else {
+			logger.info('Skipping {} strategy because clean is {}, "release." properties are {} and head version is {}', name, clean, props, headVersion)
+			return false
+		}
 	}
 
 	/**
@@ -61,7 +72,9 @@ class RebuildVersionStrategy implements VersionStrategy {
 	@Override
 	ReleaseVersion infer(Project project, Grgit grgit) {
 		String version = getHeadVersion(project, grgit)
-		return new ReleaseVersion(version, version, false)
+		def releaseVersion = new ReleaseVersion(version, version, false)
+		logger.debug('Inferred version {} by strategy {}', releaseVersion, name)
+		return releaseVersion
 	}
 
 	private String getHeadVersion(Project project, Grgit grgit) {
