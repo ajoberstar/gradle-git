@@ -64,7 +64,7 @@ class GithubPagesPluginExtension implements AuthenticationSupported {
 	 * Whether to delete existing files in the branch, replacing the
 	 * entire contents. Defaults to {@code true}.
 	 */
-	 boolean deleteExistingFiles = true
+	boolean deleteExistingFiles = true
 
 	/**
 	 * The message used when committing changes to Github pages branch.
