@@ -4,3 +4,7 @@ install: ""
 script: ./travis.sh
 jdk:
     - oraclejdk8
+cache:
+    directories:
+        - $HOME/.gradle/caches
+        - $HOME/.gradle/wrapper
