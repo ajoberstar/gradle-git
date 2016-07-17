@@ -23,7 +23,7 @@ import groovy.lang.Closure;
  * Utility class for general {@code Object} related operations.
  * @since 0.1.0
  */
-public class ObjectUtil {
+public final class ObjectUtil {
     /**
      * Cannot instantiate
      * @throws AssertionError always
@@ -31,11 +31,11 @@ public class ObjectUtil {
     private ObjectUtil() {
         throw new AssertionError("Cannot instantiate this class");
     }
-    
+
     /**
      * Unpacks the given object by recursively
      * calling the {@code call()} method if the
-     * object is a {@code Closure} or {@code Callable}. 
+     * object is a {@code Closure} or {@code Callable}.
      * @param obj the object to unpack
      * @return the unpacked value of the object
      */
@@ -57,7 +57,7 @@ public class ObjectUtil {
         }
         return value;
     }
-    
+
     /**
      * Unpacks the given object to its {@code String}
      * value.  Same behavior as the other {@code unpack}

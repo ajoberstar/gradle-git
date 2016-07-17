@@ -22,7 +22,6 @@ import com.github.zafarkhaja.semver.Version
 import org.ajoberstar.gradle.git.release.base.ReleasePluginExtension
 import org.ajoberstar.gradle.git.release.base.ReleaseVersion
 import org.ajoberstar.gradle.git.release.base.DefaultVersionStrategy
-import org.ajoberstar.gradle.git.release.base.VersionStrategy
 import org.ajoberstar.grgit.Grgit
 
 import org.gradle.api.GradleException

@@ -50,6 +50,7 @@ public class BasicPasswordCredentials implements PasswordCredentials, Serializab
     /**
      * {@inheritDoc}
      */
+    @Override
     public String getUsername() {
         return username;
     }
@@ -57,6 +58,7 @@ public class BasicPasswordCredentials implements PasswordCredentials, Serializab
     /**
      * {@inheritDoc}
      */
+    @Override
     public void setUsername(String username) {
         this.username = username;
     }
@@ -64,6 +66,7 @@ public class BasicPasswordCredentials implements PasswordCredentials, Serializab
     /**
      * {@inheritDoc}
      */
+    @Override
     public String getPassword() {
         return password;
     }
@@ -71,6 +74,7 @@ public class BasicPasswordCredentials implements PasswordCredentials, Serializab
     /**
      * {@inheritDoc}
      */
+    @Override
     public void setPassword(String password) {
         this.password = password;
     }

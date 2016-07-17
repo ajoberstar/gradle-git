@@ -48,7 +48,7 @@ class GithubPagesPlugin implements Plugin<Project> {
      */
     private void configureTasks(final Project project, final GithubPagesPluginExtension extension) {
         Task prepare = createPrepareTask(project, extension)
-        Task publish = createPublishTask(project, extension)
+        Task publish = createPublishTask(project)
         publish.dependsOn(prepare)
     }
 
@@ -74,11 +74,11 @@ class GithubPagesPlugin implements Plugin<Project> {
                         repo.close()
                         repo = null
                     }
+                } catch (RepositoryNotFoundException e) {
+                    // not a git repo
+                } catch (GrgitException e) {
+                    // invalid/corrup git repo
                 }
-                // not a git repo
-                catch (RepositoryNotFoundException e) {}
-                // invalid/corrup git repo
-                catch (GrgitException e) {}
 
                 if (!repo) {
                     extension.workingDir.deleteDir()
@@ -98,7 +98,7 @@ class GithubPagesPlugin implements Plugin<Project> {
                 }
 
                 def targetDir = new File(extension.workingDir, extension.pages.relativeDestinationDir)
-                def filesList = targetDir.list({ dir, name -> !name.equals('.git') })
+                def filesList = targetDir.list { dir, name -> !name.equals('.git') }
                 if (filesList && extension.deleteExistingFiles) {
                     repo.remove(patterns: filesList)
                 }
@@ -108,7 +108,7 @@ class GithubPagesPlugin implements Plugin<Project> {
                 repo.with {
                     add(patterns: ['.'])
                     if (status().clean) {
-                        println 'Nothing to commit, skipping publish.'
+                        project.logger.warn 'Nothing to commit, skipping publish.'
                     } else {
                         commit(message: extension.commitMessage)
                     }
@@ -118,7 +118,7 @@ class GithubPagesPlugin implements Plugin<Project> {
         return task
     }
 
-    private Task createPublishTask(Project project, GithubPagesPluginExtension extension) {
+    private Task createPublishTask(Project project) {
         return project.tasks.create(PUBLISH_TASK_NAME) {
             description = 'Publishes all gh-pages changes to Github'
             group = 'publishing'

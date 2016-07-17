@@ -15,8 +15,6 @@
  */
 package org.ajoberstar.gradle.git.ghpages
 
-import groovy.transform.PackageScope
-
 import org.ajoberstar.grgit.Grgit
 import org.ajoberstar.grgit.exception.GrgitException
 
@@ -110,7 +108,7 @@ class GithubPagesPluginExtension implements AuthenticationSupported {
      * @return the working directory
      */
     File getWorkingDir() {
-        return project.file(getWorkingPath())
+        return project.file(workingPath)
     }
 
     /**
@@ -132,23 +130,23 @@ class GithubPagesPluginExtension implements AuthenticationSupported {
     }
 
     static class DestinationCopySpec implements CopySpec {
-        private Project project
+        private final Project project
         private Object destPath
 
         @Delegate
         CopySpec realSpec
 
-        public DestinationCopySpec(Project project) {
+        DestinationCopySpec(Project project) {
             this.project = project
             this.realSpec = project.copySpec {}
         }
 
-        public String getRelativeDestinationDir() {
-            return destPath ? destPath : '.'
+        String getRelativeDestinationDir() {
+            return destPath ?: '.'
         }
 
         @Override
-        public CopySpec into(Object destPath) {
+        CopySpec into(Object destPath) {
             this.destPath = destPath
             realSpec.into(destPath)
             return this

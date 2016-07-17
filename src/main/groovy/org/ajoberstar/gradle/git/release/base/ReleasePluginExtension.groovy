@@ -15,10 +15,6 @@
  */
 package org.ajoberstar.gradle.git.release.base
 
-import org.ajoberstar.gradle.git.release.base.ReleaseVersion
-import org.ajoberstar.gradle.git.release.base.TagStrategy
-import org.ajoberstar.gradle.git.release.base.DefaultVersionStrategy
-import org.ajoberstar.gradle.git.release.base.VersionStrategy
 import org.ajoberstar.grgit.Grgit
 import org.ajoberstar.grgit.util.ConfigureUtil
 
@@ -126,7 +122,7 @@ class ReleasePluginExtension {
         }
 
         @Override
-        public String toString() {
+        String toString() {
             if (!inferredVersion) {
                 infer()
             }

@@ -19,7 +19,6 @@ import com.github.zafarkhaja.semver.Version
 import org.ajoberstar.gradle.git.release.base.TagStrategy
 import org.ajoberstar.grgit.Grgit
 import org.ajoberstar.grgit.Tag
-import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.lib.ObjectId
 import org.eclipse.jgit.revwalk.RevCommit
 import org.eclipse.jgit.revwalk.RevWalk

@@ -27,8 +27,8 @@ import org.slf4j.LoggerFactory
  * Inteded to support semver-vcs, but may serve as a better minimal base.
  * @since 1.3.0
  */
-class SemverVcsReleasePlugin implements Plugin<Project> {
-    private static final Logger logger = LoggerFactory.getLogger(SemverVcsReleasePlugin)
+class ExperimentalReleasePlugin implements Plugin<Project> {
+    private static final Logger logger = LoggerFactory.getLogger(ExperimentalReleasePlugin)
     private static final String PREPARE_TASK_NAME = 'prepare'
     private static final String RELEASE_TASK_NAME = 'release'
 
