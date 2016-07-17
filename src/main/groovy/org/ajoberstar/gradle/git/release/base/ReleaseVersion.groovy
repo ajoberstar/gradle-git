@@ -23,16 +23,16 @@ import groovy.transform.Immutable
  */
 @Immutable
 class ReleaseVersion {
-	/**
-	 * The version that should be used by the project.
-	 */
-	String version
-	/**
-	 * The latest version, as determined by the strategy's logic.
-	 */
-	String previousVersion
-	/**
-	 * Whether or not to create a tag for the release.
-	 */
-	boolean createTag
+    /**
+     * The version that should be used by the project.
+     */
+    String version
+    /**
+     * The latest version, as determined by the strategy's logic.
+     */
+    String previousVersion
+    /**
+     * Whether or not to create a tag for the release.
+     */
+    boolean createTag
 }

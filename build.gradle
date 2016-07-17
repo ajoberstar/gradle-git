@@ -1,62 +1,62 @@
 plugins {
-	id 'groovy'
-	id 'maven-publish'
-	id 'com.jfrog.bintray' version '1.1'
-	id 'org.ajoberstar.defaults' version '0.5.3'
-	id 'org.sonarqube' version '1.2'
+    id 'groovy'
+    id 'maven-publish'
+    id 'com.jfrog.bintray' version '1.1'
+    id 'org.ajoberstar.defaults' version '0.5.3'
+    id 'org.sonarqube' version '1.2'
 }
 
 group = 'org.ajoberstar'
 description = 'Git plugins for Gradle.'
 
 defaults {
-	id = 'ajoberstar'
+    id = 'ajoberstar'
 
-	bintrayRepo = 'gradle-plugins'
-	bintrayLabels = ['gradle', 'git', 'semver']
+    bintrayRepo = 'gradle-plugins'
+    bintrayLabels = ['gradle', 'git', 'semver']
 
-	developers = [
-		[id: 'ajoberstar', name: 'Andrew Oberstar', email: 'andrew@ajoberstar.org']
-	]
+    developers = [
+        [id: 'ajoberstar', name: 'Andrew Oberstar', email: 'andrew@ajoberstar.org']
+    ]
 
-	copyrightYears = '2012-2015'
+    copyrightYears = '2012-2015'
 }
 
 sourceCompatibility = '1.7'
 
 configurations {
-	// use local groovy
-	all*.exclude group: 'org.codehaus.groovy'
+    // use local groovy
+    all*.exclude group: 'org.codehaus.groovy'
 }
 
 repositories {
-	jcenter()
+    jcenter()
 }
 
 dependencies {
-	// groovy
-	compile localGroovy()
+    // groovy
+    compile localGroovy()
 
-	// gradle api
-	compile gradleApi()
+    // gradle api
+    compile gradleApi()
 
-	// grgit
-	compile 'org.ajoberstar:grgit:1.7.0'
+    // grgit
+    compile 'org.ajoberstar:grgit:1.7.0'
 
-	// semver
-	compile 'com.github.zafarkhaja:java-semver:0.9.0'
+    // semver
+    compile 'com.github.zafarkhaja:java-semver:0.9.0'
 
-	// testing
-	testCompile 'org.spockframework:spock-core:1.0-groovy-2.3'
-	testRuntime 'cglib:cglib-nodep:3.1'
+    // testing
+    testCompile 'org.spockframework:spock-core:1.0-groovy-2.3'
+    testRuntime 'cglib:cglib-nodep:3.1'
 }
 
 sonarqube {
-	properties {
-		property 'sonar.projectVersion', version.toString().split('-')[0]
-	}
+    properties {
+        property 'sonar.projectVersion', version.toString().split('-')[0]
+    }
 }
 
 wrapper {
-	gradleVersion = '2.1'
+    gradleVersion = '2.1'
 }

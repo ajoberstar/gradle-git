@@ -28,52 +28,52 @@ import org.slf4j.LoggerFactory
  * @since 1.3.0
  */
 class SemverVcsReleasePlugin implements Plugin<Project> {
-	private static final Logger logger = LoggerFactory.getLogger(SemverVcsReleasePlugin)
-	private static final String PREPARE_TASK_NAME = 'prepare'
-	private static final String RELEASE_TASK_NAME = 'release'
+    private static final Logger logger = LoggerFactory.getLogger(SemverVcsReleasePlugin)
+    private static final String PREPARE_TASK_NAME = 'prepare'
+    private static final String RELEASE_TASK_NAME = 'release'
 
-	void apply(Project project) {
-		project.plugins.apply('org.ajoberstar.grgit')
-		addPrepareTask(project)
-		addReleaseTask(project)
-	}
+    void apply(Project project) {
+        project.plugins.apply('org.ajoberstar.grgit')
+        addPrepareTask(project)
+        addReleaseTask(project)
+    }
 
-	private void addPrepareTask(Project project) {
-		project.tasks.create(PREPARE_TASK_NAME) {
-			description = 'Verifies that the project could be released.'
-			doLast {
-				logger.info('Fetching changes from remote.')
-				project.grgit.fetch()
+    private void addPrepareTask(Project project) {
+        project.tasks.create(PREPARE_TASK_NAME) {
+            description = 'Verifies that the project could be released.'
+            doLast {
+                logger.info('Fetching changes from remote.')
+                project.grgit.fetch()
 
-				if (project.grgit.branch.status(branch: project.grgit.branch.current).behindCount > 0) {
-					throw new GradleException('Current branch is behind the tracked branch. Cannot release.')
-				}
-			}
-		}
+                if (project.grgit.branch.status(branch: project.grgit.branch.current).behindCount > 0) {
+                    throw new GradleException('Current branch is behind the tracked branch. Cannot release.')
+                }
+            }
+        }
 
-		project.tasks.all { task ->
-			if (name != PREPARE_TASK_NAME) {
-				task.shouldRunAfter PREPARE_TASK_NAME
-			}
-		}
-	}
+        project.tasks.all { task ->
+            if (name != PREPARE_TASK_NAME) {
+                task.shouldRunAfter PREPARE_TASK_NAME
+            }
+        }
+    }
 
-	private void addReleaseTask(Project project) {
-		project.tasks.create(RELEASE_TASK_NAME) {
-			description = 'Releases this project.'
-			dependsOn PREPARE_TASK_NAME
-			doLast {
-				ext.toPush = [project.grgit.branch.current.fullName]
+    private void addReleaseTask(Project project) {
+        project.tasks.create(RELEASE_TASK_NAME) {
+            description = 'Releases this project.'
+            dependsOn PREPARE_TASK_NAME
+            doLast {
+                ext.toPush = [project.grgit.branch.current.fullName]
 
-				// force version inference if it hasn't happened already
-				ext.tagName = project.version.toString()
-				if (tagName) {
-					toPush << tagName
-				}
+                // force version inference if it hasn't happened already
+                ext.tagName = project.version.toString()
+                if (tagName) {
+                    toPush << tagName
+                }
 
-				logger.warn('Pushing changes in {} to remote.', toPush)
-				project.grgit.push(refsOrSpecs: toPush)
-			}
-		}
-	}
+                logger.warn('Pushing changes in {} to remote.', toPush)
+                project.grgit.push(refsOrSpecs: toPush)
+            }
+        }
+    }
 }

@@ -26,11 +26,11 @@ import org.gradle.api.Project
  * @since 1.2.0
  */
 class GrgitPlugin implements Plugin<Project> {
-	@Override
-	void apply(Project project) {
-		Grgit grgit = Grgit.open(currentDir: project.rootProject.rootDir)
-		project.rootProject.allprojects { prj ->
-			project.ext.grgit = grgit
-		}
-	}
+    @Override
+    void apply(Project project) {
+        Grgit grgit = Grgit.open(currentDir: project.rootProject.rootDir)
+        project.rootProject.allprojects { prj ->
+            project.ext.grgit = grgit
+        }
+    }
 }

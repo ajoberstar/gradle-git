@@ -29,22 +29,22 @@ import org.ajoberstar.grgit.Commit
 @Immutable(copyWith=true)
 @ToString(includeNames=true)
 final class SemVerStrategyState {
-	ChangeScope scopeFromProp
-	String stageFromProp
-	Commit currentHead
-	Branch currentBranch
-	boolean repoDirty
-	NearestVersion nearestVersion
-	String inferredNormal
-	String inferredPreRelease
-	String inferredBuildMetadata
+    ChangeScope scopeFromProp
+    String stageFromProp
+    Commit currentHead
+    Branch currentBranch
+    boolean repoDirty
+    NearestVersion nearestVersion
+    String inferredNormal
+    String inferredPreRelease
+    String inferredBuildMetadata
 
-	Version toVersion() {
-		return new Version.Builder().with {
-			normalVersion = inferredNormal
-			preReleaseVersion = inferredPreRelease
-			buildMetadata =inferredBuildMetadata
-			build()
-		}
-	}
+    Version toVersion() {
+        return new Version.Builder().with {
+            normalVersion = inferredNormal
+            preReleaseVersion = inferredPreRelease
+            buildMetadata =inferredBuildMetadata
+            build()
+        }
+    }
 }

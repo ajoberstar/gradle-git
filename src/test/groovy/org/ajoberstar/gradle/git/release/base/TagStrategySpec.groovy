@@ -20,37 +20,37 @@ import org.ajoberstar.grgit.service.TagService
 import spock.lang.Specification
 
 class TagStrategySpec extends Specification {
-	def 'maybeCreateTag with version create tag true will create a tag'() {
-		given:
-		Grgit grgit = GroovyMock()
-		TagService tag = GroovyMock()
-		grgit.tag >> tag
-		1 * tag.add([name: 'v1.2.3', message: 'Release of 1.2.3'])
-		0 * tag._
-		expect:
-		new TagStrategy().maybeCreateTag(grgit, new ReleaseVersion('1.2.3', null, true)) == 'v1.2.3'
-	}
+    def 'maybeCreateTag with version create tag true will create a tag'() {
+        given:
+        Grgit grgit = GroovyMock()
+        TagService tag = GroovyMock()
+        grgit.tag >> tag
+        1 * tag.add([name: 'v1.2.3', message: 'Release of 1.2.3'])
+        0 * tag._
+        expect:
+        new TagStrategy().maybeCreateTag(grgit, new ReleaseVersion('1.2.3', null, true)) == 'v1.2.3'
+    }
 
-	def 'maybeCreateTag with version create tag false does not create a tag'() {
-		given:
-		Grgit grgit = GroovyMock()
-		TagService tag = GroovyMock()
-		grgit.tag >> tag
-		0 * tag._
-		expect:
-		new TagStrategy().maybeCreateTag(grgit, new ReleaseVersion('1.2.3', null, false)) == null
-	}
+    def 'maybeCreateTag with version create tag false does not create a tag'() {
+        given:
+        Grgit grgit = GroovyMock()
+        TagService tag = GroovyMock()
+        grgit.tag >> tag
+        0 * tag._
+        expect:
+        new TagStrategy().maybeCreateTag(grgit, new ReleaseVersion('1.2.3', null, false)) == null
+    }
 
-	def 'maybeCreateTag with version create tag true and prefix name with v false will create a tag'() {
-		given:
-		Grgit grgit = GroovyMock()
-		TagService tag = GroovyMock()
-		grgit.tag >> tag
-		1 * tag.add([name: '1.2.3', message: 'Release of 1.2.3'])
-		0 * tag._
-		def strategy = new TagStrategy()
-		strategy.prefixNameWithV = false
-		expect:
-		strategy.maybeCreateTag(grgit, new ReleaseVersion('1.2.3', null, true)) == '1.2.3'
-	}
+    def 'maybeCreateTag with version create tag true and prefix name with v false will create a tag'() {
+        given:
+        Grgit grgit = GroovyMock()
+        TagService tag = GroovyMock()
+        grgit.tag >> tag
+        1 * tag.add([name: '1.2.3', message: 'Release of 1.2.3'])
+        0 * tag._
+        def strategy = new TagStrategy()
+        strategy.prefixNameWithV = false
+        expect:
+        strategy.maybeCreateTag(grgit, new ReleaseVersion('1.2.3', null, true)) == '1.2.3'
+    }
 }

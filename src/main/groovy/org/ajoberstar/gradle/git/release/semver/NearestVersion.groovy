@@ -26,23 +26,23 @@ import com.github.zafarkhaja.semver.Version
  */
 @Immutable(knownImmutableClasses=[Version])
 class NearestVersion {
-	/**
-	 * The nearest version that is tagged.
-	 */
-	Version any
+    /**
+     * The nearest version that is tagged.
+     */
+    Version any
 
-	/**
-	 * The nearest normal (i.e. non-prerelease) version that is tagged.
-	 */
-	Version normal
+    /**
+     * The nearest normal (i.e. non-prerelease) version that is tagged.
+     */
+    Version normal
 
-	/**
-	 * The number of commits since {@code any} reachable from HEAD.
-	 */
-	int distanceFromAny
+    /**
+     * The number of commits since {@code any} reachable from HEAD.
+     */
+    int distanceFromAny
 
-	/**
-	 * The number of commits since {@code normal} reachable from HEAD.
-	 */
-	int distanceFromNormal
+    /**
+     * The number of commits since {@code normal} reachable from HEAD.
+     */
+    int distanceFromNormal
 }

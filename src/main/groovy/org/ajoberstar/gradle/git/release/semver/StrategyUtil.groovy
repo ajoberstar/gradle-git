@@ -19,103 +19,103 @@ package org.ajoberstar.gradle.git.release.semver
  * Utility class to more easily create {@link PartialSemVerStrategy} instances.
  */
 final class StrategyUtil {
-	private StrategyUtil() {
-		throw new AssertionError('Cannot instantiate this class.')
-	}
+    private StrategyUtil() {
+        throw new AssertionError('Cannot instantiate this class.')
+    }
 
-	/**
-	 * Creates a strategy backed by the given closure. It should accept and return
-	 * a {@link SemVerStrategyState}.
-	 */
-	static final PartialSemVerStrategy closure(Closure<SemVerStrategyState> behavior) {
-		return new ClosureBackedPartialSemVerStrategy(behavior)
-	}
+    /**
+     * Creates a strategy backed by the given closure. It should accept and return
+     * a {@link SemVerStrategyState}.
+     */
+    static final PartialSemVerStrategy closure(Closure<SemVerStrategyState> behavior) {
+        return new ClosureBackedPartialSemVerStrategy(behavior)
+    }
 
-	/**
-	 * Creates a strategy that applies all of the given strategies in order.
-	 */
-	static final PartialSemVerStrategy all(PartialSemVerStrategy... strategies) {
-		return new ApplyAllChainedPartialSemVerStrategy(strategies as List)
-	}
+    /**
+     * Creates a strategy that applies all of the given strategies in order.
+     */
+    static final PartialSemVerStrategy all(PartialSemVerStrategy... strategies) {
+        return new ApplyAllChainedPartialSemVerStrategy(strategies as List)
+    }
 
-	/**
-	 * Creates a strategy that applies each strategy in order, until one changes
-	 * the state, which is then returned.
-	 */
-	static final PartialSemVerStrategy one(PartialSemVerStrategy... strategies) {
-		return new ChooseOneChainedPartialSemVerStrategy(strategies as List)
-	}
+    /**
+     * Creates a strategy that applies each strategy in order, until one changes
+     * the state, which is then returned.
+     */
+    static final PartialSemVerStrategy one(PartialSemVerStrategy... strategies) {
+        return new ChooseOneChainedPartialSemVerStrategy(strategies as List)
+    }
 
-	/**
-	 * Returns the int value of a string or returns 0 if it cannot be parsed.
-	 */
-	static final int parseIntOrZero(String str) {
-		try {
-			return Integer.parseInt(str)
-		} catch (NumberFormatException e) {
-			return 0
-		}
-	}
+    /**
+     * Returns the int value of a string or returns 0 if it cannot be parsed.
+     */
+    static final int parseIntOrZero(String str) {
+        try {
+            return Integer.parseInt(str)
+        } catch (NumberFormatException e) {
+            return 0
+        }
+    }
 
-	/**
-	 * Increments the nearest normal version using the specified scope.
-	 */
-	static final SemVerStrategyState incrementNormalFromScope(SemVerStrategyState state, ChangeScope scope) {
-		def oldNormal = state.nearestVersion.normal
-		switch (scope) {
-			case ChangeScope.MAJOR:
-				return state.copyWith(inferredNormal: oldNormal.incrementMajorVersion())
-			case ChangeScope.MINOR:
-				return state.copyWith(inferredNormal: oldNormal.incrementMinorVersion())
-			case ChangeScope.PATCH:
-				return state.copyWith(inferredNormal: oldNormal.incrementPatchVersion())
-			default:
-				return state
-		}
-	}
+    /**
+     * Increments the nearest normal version using the specified scope.
+     */
+    static final SemVerStrategyState incrementNormalFromScope(SemVerStrategyState state, ChangeScope scope) {
+        def oldNormal = state.nearestVersion.normal
+        switch (scope) {
+            case ChangeScope.MAJOR:
+                return state.copyWith(inferredNormal: oldNormal.incrementMajorVersion())
+            case ChangeScope.MINOR:
+                return state.copyWith(inferredNormal: oldNormal.incrementMinorVersion())
+            case ChangeScope.PATCH:
+                return state.copyWith(inferredNormal: oldNormal.incrementPatchVersion())
+            default:
+                return state
+        }
+    }
 
-	private static class ClosureBackedPartialSemVerStrategy implements PartialSemVerStrategy {
-		private final Closure<SemVerStrategyState> behavior
+    private static class ClosureBackedPartialSemVerStrategy implements PartialSemVerStrategy {
+        private final Closure<SemVerStrategyState> behavior
 
-		ClosureBackedPartialSemVerStrategy(Closure<SemVerStrategyState> behavior) {
-			this.behavior = behavior
-		}
+        ClosureBackedPartialSemVerStrategy(Closure<SemVerStrategyState> behavior) {
+            this.behavior = behavior
+        }
 
-		@Override
-		SemVerStrategyState infer(SemVerStrategyState state) {
-			return behavior(state)
-		}
-	}
+        @Override
+        SemVerStrategyState infer(SemVerStrategyState state) {
+            return behavior(state)
+        }
+    }
 
-	private static class ApplyAllChainedPartialSemVerStrategy implements PartialSemVerStrategy {
-		private final List<PartialSemVerStrategy> strategies
+    private static class ApplyAllChainedPartialSemVerStrategy implements PartialSemVerStrategy {
+        private final List<PartialSemVerStrategy> strategies
 
-		ApplyAllChainedPartialSemVerStrategy(List<PartialSemVerStrategy> strategies) {
-			this.strategies = strategies
-		}
+        ApplyAllChainedPartialSemVerStrategy(List<PartialSemVerStrategy> strategies) {
+            this.strategies = strategies
+        }
 
-		@Override
-		SemVerStrategyState infer(SemVerStrategyState initialState) {
-			return strategies.inject(initialState) { state, strategy ->
-				strategy.infer(state)
-			}
-		}
-	}
+        @Override
+        SemVerStrategyState infer(SemVerStrategyState initialState) {
+            return strategies.inject(initialState) { state, strategy ->
+                strategy.infer(state)
+            }
+        }
+    }
 
-	private static class ChooseOneChainedPartialSemVerStrategy implements PartialSemVerStrategy {
-		private final List<PartialSemVerStrategy> strategies
+    private static class ChooseOneChainedPartialSemVerStrategy implements PartialSemVerStrategy {
+        private final List<PartialSemVerStrategy> strategies
 
-		ChooseOneChainedPartialSemVerStrategy(List<PartialSemVerStrategy> strategies) {
-			this.strategies = strategies
-		}
+        ChooseOneChainedPartialSemVerStrategy(List<PartialSemVerStrategy> strategies) {
+            this.strategies = strategies
+        }
 
-		@Override
-		SemVerStrategyState infer(SemVerStrategyState oldState) {
-			def result = strategies.findResult { strategy ->
-				def newState = strategy.infer(oldState)
-				oldState == newState ? null : newState
-			}
-			return result ?: oldState
-		}
-	}
+        @Override
+        SemVerStrategyState infer(SemVerStrategyState oldState) {
+            def result = strategies.findResult { strategy ->
+                def newState = strategy.infer(oldState)
+                oldState == newState ? null : newState
+            }
+            return result ?: oldState
+        }
+    }
 }

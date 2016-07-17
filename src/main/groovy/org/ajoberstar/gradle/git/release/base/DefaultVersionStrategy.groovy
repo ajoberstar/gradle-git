@@ -27,13 +27,13 @@ import org.gradle.api.Project
  * @see org.ajoberstar.gradle.git.release.opinion.Strategies
  */
 interface DefaultVersionStrategy extends VersionStrategy {
-	/**
-	 * Determines if the strategy can be used as a default strategy for inferring
-	 * the project's version. A return of {@code false} does not mean that the
-	 * strategy cannot be used as the default.
-	 * @param project the project the version should be inferred for
-	 * @param grgit the repository the version should be inferred from
-	 * @return {@code true} if the strategy can be used to infer the version
-	 */
-	boolean defaultSelector(Project project, Grgit grgit)
+    /**
+     * Determines if the strategy can be used as a default strategy for inferring
+     * the project's version. A return of {@code false} does not mean that the
+     * strategy cannot be used as the default.
+     * @param project the project the version should be inferred for
+     * @param grgit the repository the version should be inferred from
+     * @return {@code true} if the strategy can be used to infer the version
+     */
+    boolean defaultSelector(Project project, Grgit grgit)
 }

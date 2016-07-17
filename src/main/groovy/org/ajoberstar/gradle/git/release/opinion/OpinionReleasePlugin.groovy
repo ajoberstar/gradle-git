@@ -48,47 +48,47 @@ import org.gradle.api.Project
  * @see <a href="https://github.com/ajoberstar/gradle-git/wiki/org.ajoberstar.release-opinion">Wiki Doc</a>
  */
 class OpinionReleasePlugin implements Plugin<Project> {
-	void apply(Project project) {
-		project.plugins.apply('org.ajoberstar.release-base')
+    void apply(Project project) {
+        project.plugins.apply('org.ajoberstar.release-base')
 
-		project.release {
-			versionStrategy RebuildVersionStrategy.INSTANCE
-			versionStrategy Strategies.DEVELOPMENT
-			versionStrategy Strategies.PRE_RELEASE
-			versionStrategy Strategies.FINAL
-			defaultVersionStrategy = Strategies.DEVELOPMENT
-			tagStrategy {
-				generateMessage = { version ->
-					StringBuilder builder = new StringBuilder()
-					builder << 'Release of '
-					builder << version.version
-					builder << '\n\n'
+        project.release {
+            versionStrategy RebuildVersionStrategy.INSTANCE
+            versionStrategy Strategies.DEVELOPMENT
+            versionStrategy Strategies.PRE_RELEASE
+            versionStrategy Strategies.FINAL
+            defaultVersionStrategy = Strategies.DEVELOPMENT
+            tagStrategy {
+                generateMessage = { version ->
+                    StringBuilder builder = new StringBuilder()
+                    builder << 'Release of '
+                    builder << version.version
+                    builder << '\n\n'
 
-					String previousVersion = "${project.release.tagStrategy.toTagString(version.previousVersion)}^{commit}"
-					List excludes = []
-					if (tagExists(grgit, previousVersion)) {
-						excludes << previousVersion
-					}
-					grgit.log(
-						includes: ['HEAD'],
-						excludes: excludes
-					).inject(builder) { bldr, commit ->
-						bldr << '- '
-						bldr << commit.shortMessage
-						bldr << '\n'
-					}
-					builder.toString()
-				}
-			}
-		}
-	}
+                    String previousVersion = "${project.release.tagStrategy.toTagString(version.previousVersion)}^{commit}"
+                    List excludes = []
+                    if (tagExists(grgit, previousVersion)) {
+                        excludes << previousVersion
+                    }
+                    grgit.log(
+                        includes: ['HEAD'],
+                        excludes: excludes
+                    ).inject(builder) { bldr, commit ->
+                        bldr << '- '
+                        bldr << commit.shortMessage
+                        bldr << '\n'
+                    }
+                    builder.toString()
+                }
+            }
+        }
+    }
 
-	private boolean tagExists(Grgit grgit, String revStr) {
-		try {
-			grgit.resolve.toCommit(revStr)
-			return true
-		} catch (GrgitException e) {
-			return false
-		}
-	}
+    private boolean tagExists(Grgit grgit, String revStr) {
+        try {
+            grgit.resolve.toCommit(revStr)
+            return true
+        } catch (GrgitException e) {
+            return false
+        }
+    }
 }

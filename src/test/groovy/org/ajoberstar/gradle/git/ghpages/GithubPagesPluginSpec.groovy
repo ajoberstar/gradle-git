@@ -23,78 +23,78 @@ import spock.lang.Specification
 import spock.lang.Unroll
 
 class GithubPagesPluginSpec extends Specification {
-	public static final String PLUGIN_NAME = 'org.ajoberstar.github-pages'
-	public static final String EXTENSION_NAME = 'githubPages'
-	Project project = ProjectBuilder.builder().withProjectDir(new File('.')).build()
+    public static final String PLUGIN_NAME = 'org.ajoberstar.github-pages'
+    public static final String EXTENSION_NAME = 'githubPages'
+    Project project = ProjectBuilder.builder().withProjectDir(new File('.')).build()
 
-	def 'Creates the [githubPages] extension'() {
-		assert !project.plugins.hasPlugin(PLUGIN_NAME)
-		assert !project.extensions.findByName(EXTENSION_NAME)
+    def 'Creates the [githubPages] extension'() {
+        assert !project.plugins.hasPlugin(PLUGIN_NAME)
+        assert !project.extensions.findByName(EXTENSION_NAME)
 
-		when:
-		project.plugins.apply(PLUGIN_NAME)
+        when:
+        project.plugins.apply(PLUGIN_NAME)
 
-		then:
-		def extension = project.extensions.findByName(EXTENSION_NAME)
-		extension instanceof GithubPagesPluginExtension
-	}
+        then:
+        def extension = project.extensions.findByName(EXTENSION_NAME)
+        extension instanceof GithubPagesPluginExtension
+    }
 
-	@Unroll
-	def 'Implements the [#taskName] task'() {
-		assert !project.plugins.hasPlugin(PLUGIN_NAME)
-		assert !project.tasks.findByName(taskName)
+    @Unroll
+    def 'Implements the [#taskName] task'() {
+        assert !project.plugins.hasPlugin(PLUGIN_NAME)
+        assert !project.tasks.findByName(taskName)
 
-		when:
-		project.plugins.apply(PLUGIN_NAME)
+        when:
+        project.plugins.apply(PLUGIN_NAME)
 
-		then:
-		project.tasks.findByName(taskName)
+        then:
+        project.tasks.findByName(taskName)
 
-		where:
-		taskName         || _
-		'prepareGhPages' || _
-		'publishGhPages' || _
-	}
+        where:
+        taskName         || _
+        'prepareGhPages' || _
+        'publishGhPages' || _
+    }
 
-	def '[publishGhPages] task depends on [prepareGhPages] tasks'() {
-		project.plugins.apply(PLUGIN_NAME)
+    def '[publishGhPages] task depends on [prepareGhPages] tasks'() {
+        project.plugins.apply(PLUGIN_NAME)
 
-		when:
-		def task = project.tasks.findByName('publishGhPages')
+        when:
+        def task = project.tasks.findByName('publishGhPages')
 
-		then:
-		task.taskDependencies.getDependencies(task).find { Task it ->
-			it.name == 'prepareGhPages'
-		}
-	}
+        then:
+        task.taskDependencies.getDependencies(task).find { Task it ->
+            it.name == 'prepareGhPages'
+        }
+    }
 
-	@Unroll
-	def 'Task [#taskName] has description [#description]'() {
-		project.plugins.apply(PLUGIN_NAME)
+    @Unroll
+    def 'Task [#taskName] has description [#description]'() {
+        project.plugins.apply(PLUGIN_NAME)
 
-		when:
-		def task = project.tasks.findByName(taskName)
+        when:
+        def task = project.tasks.findByName(taskName)
 
-		then:
-		task.description == description
+        then:
+        task.description == description
 
-		where:
-		taskName         || description
-		'prepareGhPages' || 'Prepare the gh-pages changes locally'
-		'publishGhPages' || 'Publishes all gh-pages changes to Github'
-	}
+        where:
+        taskName         || description
+        'prepareGhPages' || 'Prepare the gh-pages changes locally'
+        'publishGhPages' || 'Publishes all gh-pages changes to Github'
+    }
 
-	def '[prepareGhPages] depends on tasks add to the pages spec from'() {
-		project.plugins.apply(PLUGIN_NAME)
-		project.plugins.apply('java')
-		when:
-		project.githubPages.pages {
-			from project.tasks.javadoc
-		}
-		def task = project.tasks.findByName('prepareGhPages')
-		then:
-		task.taskDependencies.getDependencies(task).find { it.name == 'javadoc' }
-	}
+    def '[prepareGhPages] depends on tasks add to the pages spec from'() {
+        project.plugins.apply(PLUGIN_NAME)
+        project.plugins.apply('java')
+        when:
+        project.githubPages.pages {
+            from project.tasks.javadoc
+        }
+        def task = project.tasks.findByName('prepareGhPages')
+        then:
+        task.taskDependencies.getDependencies(task).find { it.name == 'javadoc' }
+    }
 
-	// TODO need a test for gh-pages branch creatino if didn't exist before
+    // TODO need a test for gh-pages branch creatino if didn't exist before
 }

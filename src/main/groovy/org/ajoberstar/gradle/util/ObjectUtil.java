@@ -24,50 +24,50 @@ import groovy.lang.Closure;
  * @since 0.1.0
  */
 public class ObjectUtil {
-	/**
-	 * Cannot instantiate
-	 * @throws AssertionError always
-	 */
-	private ObjectUtil() {
-		throw new AssertionError("Cannot instantiate this class");
-	}
-	
-	/**
-	 * Unpacks the given object by recursively
-	 * calling the {@code call()} method if the
-	 * object is a {@code Closure} or {@code Callable}. 
-	 * @param obj the object to unpack
-	 * @return the unpacked value of the object
-	 */
-	@SuppressWarnings("rawtypes")
-	public static Object unpack(Object obj) {
-		Object value = obj;
-		while (value != null) {
-			if (value instanceof Closure) {
-				value = ((Closure) value).call();
-			} else if (value instanceof Callable) {
-				try {
-					value = ((Callable) value).call();
-				} catch (Exception e) {
-					throw new RuntimeException(e);
-				}
-			} else {
-				return value;
-			}
-		}
-		return value;
-	}
-	
-	/**
-	 * Unpacks the given object to its {@code String}
-	 * value.  Same behavior as the other {@code unpack}
-	 * method ending with a call to {@code toString()}.
-	 * @param obj the value to unpack
-	 * @return the unpacked string value
-	 * @see ObjectUtil#unpack(Object)
-	 */
-	public static String unpackString(Object obj) {
-		Object value = unpack(obj);
-		return value == null ? null : value.toString();
-	}
+    /**
+     * Cannot instantiate
+     * @throws AssertionError always
+     */
+    private ObjectUtil() {
+        throw new AssertionError("Cannot instantiate this class");
+    }
+    
+    /**
+     * Unpacks the given object by recursively
+     * calling the {@code call()} method if the
+     * object is a {@code Closure} or {@code Callable}. 
+     * @param obj the object to unpack
+     * @return the unpacked value of the object
+     */
+    @SuppressWarnings("rawtypes")
+    public static Object unpack(Object obj) {
+        Object value = obj;
+        while (value != null) {
+            if (value instanceof Closure) {
+                value = ((Closure) value).call();
+            } else if (value instanceof Callable) {
+                try {
+                    value = ((Callable) value).call();
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+            } else {
+                return value;
+            }
+        }
+        return value;
+    }
+    
+    /**
+     * Unpacks the given object to its {@code String}
+     * value.  Same behavior as the other {@code unpack}
+     * method ending with a call to {@code toString()}.
+     * @param obj the value to unpack
+     * @return the unpacked string value
+     * @see ObjectUtil#unpack(Object)
+     */
+    public static String unpackString(Object obj) {
+        Object value = unpack(obj);
+        return value == null ? null : value.toString();
+    }
 }

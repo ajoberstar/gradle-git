@@ -23,62 +23,62 @@ import spock.lang.Specification
 import spock.lang.Unroll
 
 class GithubPagesPluginExtensionSpec extends Specification {
-	Project project = ProjectBuilder.builder().withProjectDir(new File('.')).build()
+    Project project = ProjectBuilder.builder().withProjectDir(new File('.')).build()
 
-	def 'Verify the defaults'() {
-		def ext = new GithubPagesPluginExtension(project)
+    def 'Verify the defaults'() {
+        def ext = new GithubPagesPluginExtension(project)
 
-		expect:
-		ext.commitMessage == 'Publish of Github pages from Gradle.'
-		ext.credentials instanceof BasicPasswordCredentials
-		ext.pages instanceof CopySpec
-		ext.targetBranch == 'gh-pages'
-		ext.workingDir == project.file("${project.buildDir}/ghpages")
-		ext.workingPath == "${project.buildDir}/ghpages"
-		ext.deleteExistingFiles
-		ext.pages.relativeDestinationDir == '.'
-		// TODO ideally would check the repoUri, but need a more stable case
-	}
+        expect:
+        ext.commitMessage == 'Publish of Github pages from Gradle.'
+        ext.credentials instanceof BasicPasswordCredentials
+        ext.pages instanceof CopySpec
+        ext.targetBranch == 'gh-pages'
+        ext.workingDir == project.file("${project.buildDir}/ghpages")
+        ext.workingPath == "${project.buildDir}/ghpages"
+        ext.deleteExistingFiles
+        ext.pages.relativeDestinationDir == '.'
+        // TODO ideally would check the repoUri, but need a more stable case
+    }
 
-	@Unroll
-	def 'Repo uri [#repoUri] results in [#expected]'() {
-		def ext = new GithubPagesPluginExtension(project)
-		ext.repoUri = repoUri
+    @Unroll
+    def 'Repo uri [#repoUri] results in [#expected]'() {
+        def ext = new GithubPagesPluginExtension(project)
+        ext.repoUri = repoUri
 
-		expect:
-		ext.getRepoUri() == expected
+        expect:
+        ext.getRepoUri() == expected
 
-		where:
-		repoUri                        || expected
-		'git@domain.tld:user/repo.git' || 'git@domain.tld:user/repo.git'
-		// as repoUri is an Object which gets "unpacked", I expect there are
-		// use-cases for this. But I've none
-	}
+        where:
+        repoUri                        || expected
+        'git@domain.tld:user/repo.git' || 'git@domain.tld:user/repo.git'
+        // as repoUri is an Object which gets "unpacked", I expect there are
+        // use-cases for this. But I've none
+    }
 
-	def 'Property workingDir is based on workingPath'() {
-		def ext = new GithubPagesPluginExtension(project)
-		ext.workingPath = "${project.buildDir}${File.separator}some-path"
+    def 'Property workingDir is based on workingPath'() {
+        def ext = new GithubPagesPluginExtension(project)
+        ext.workingPath = "${project.buildDir}${File.separator}some-path"
 
-		when:
-		def workingDir = ext.getWorkingDir()
+        when:
+        def workingDir = ext.getWorkingDir()
 
-		then:
-		workingDir.absolutePath.endsWith(old(ext.workingPath))
-	}
+        then:
+        workingDir.absolutePath.endsWith(old(ext.workingPath))
+    }
 
-	def 'Property pages.relativeDestinationDir is relative to workingDir'() {
-		def ext = new GithubPagesPluginExtension(project)
-		ext.workingPath = "${project.buildDir}${File.separator}some-path"
-		ext.pages {
-		  into 'docs'
-		}
+    def 'Property pages.relativeDestinationDir is relative to workingDir'() {
+        def ext = new GithubPagesPluginExtension(project)
+        ext.workingPath = "${project.buildDir}${File.separator}some-path"
+        ext.pages {
+          into 'docs'
+        }
 
-		when:
-		def workingDir = ext.workingDir
-		def relativeDestinationDir = ext.pages.relativeDestinationDir
+        when:
+        def workingDir = ext.workingDir
+        def relativeDestinationDir = ext.pages.relativeDestinationDir
 
-		then:
-		workingDir.absolutePath == old(ext.workingPath)
-		relativeDestinationDir == 'docs'
-	}
+        then:
+        workingDir.absolutePath == old(ext.workingPath)
+        relativeDestinationDir == 'docs'
+    }
 }

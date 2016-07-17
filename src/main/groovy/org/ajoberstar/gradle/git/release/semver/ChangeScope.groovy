@@ -16,7 +16,7 @@
 package org.ajoberstar.gradle.git.release.semver
 
 enum ChangeScope {
-	MAJOR,
-	MINOR,
-	PATCH
+    MAJOR,
+    MINOR,
+    PATCH
 }

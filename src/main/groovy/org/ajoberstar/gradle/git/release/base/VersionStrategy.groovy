@@ -25,27 +25,27 @@ import org.gradle.api.Project
  * @see org.ajoberstar.gradle.git.release.opinion.Strategies
  */
 interface VersionStrategy {
-	/**
-	 * The name of the strategy.
-	 * @return the name of the strategy
-	 */
-	String getName()
+    /**
+     * The name of the strategy.
+     * @return the name of the strategy
+     */
+    String getName()
 
-	/**
-	 * Determines if the strategy should be used to infer the project's version.
-	 * A return of {@code false} does not mean that the strategy cannot be used
-	 * as the default.
-	 * @param project the project the version should be inferred for
-	 * @param grgit the repository the version should be inferred from
-	 * @return {@code true} if the strategy should be used to infer the version
-	 */
-	boolean selector(Project project, Grgit grgit)
+    /**
+     * Determines if the strategy should be used to infer the project's version.
+     * A return of {@code false} does not mean that the strategy cannot be used
+     * as the default.
+     * @param project the project the version should be inferred for
+     * @param grgit the repository the version should be inferred from
+     * @return {@code true} if the strategy should be used to infer the version
+     */
+    boolean selector(Project project, Grgit grgit)
 
-	/**
-	 * Infers the project version from the repository.
-	 * @param project the project the version should be inferred for
-	 * @param grgit the repository the version should be inferred from
-	 * @return the inferred version
-	 */
-	ReleaseVersion infer(Project project, Grgit grgit)
+    /**
+     * Infers the project version from the repository.
+     * @param project the project the version should be inferred for
+     * @param grgit the repository the version should be inferred from
+     * @return the inferred version
+     */
+    ReleaseVersion infer(Project project, Grgit grgit)
 }

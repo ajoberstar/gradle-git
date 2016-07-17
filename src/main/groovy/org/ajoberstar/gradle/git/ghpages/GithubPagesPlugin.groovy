@@ -29,103 +29,103 @@ import org.gradle.api.tasks.Copy
  * @since 0.1.0
  */
 class GithubPagesPlugin implements Plugin<Project> {
-	static final String PREPARE_TASK_NAME = 'prepareGhPages'
-	static final String PUBLISH_TASK_NAME = 'publishGhPages'
+    static final String PREPARE_TASK_NAME = 'prepareGhPages'
+    static final String PUBLISH_TASK_NAME = 'publishGhPages'
 
-	/**
-	 * Applies the plugin to the given project.
-	 * @param project the project
-	 */
-	void apply(Project project) {
-		GithubPagesPluginExtension extension = project.extensions.create('githubPages', GithubPagesPluginExtension, project)
-		configureTasks(project, extension)
-	}
+    /**
+     * Applies the plugin to the given project.
+     * @param project the project
+     */
+    void apply(Project project) {
+        GithubPagesPluginExtension extension = project.extensions.create('githubPages', GithubPagesPluginExtension, project)
+        configureTasks(project, extension)
+    }
 
-	/**
-	 * Configures the tasks to publish to gh-pages.
-	 * @param project the project to configure
-	 * @param extension the plugin extension
-	 */
-	private void configureTasks(final Project project, final GithubPagesPluginExtension extension) {
-		Task prepare = createPrepareTask(project, extension)
-		Task publish = createPublishTask(project, extension)
-		publish.dependsOn(prepare)
-	}
+    /**
+     * Configures the tasks to publish to gh-pages.
+     * @param project the project to configure
+     * @param extension the plugin extension
+     */
+    private void configureTasks(final Project project, final GithubPagesPluginExtension extension) {
+        Task prepare = createPrepareTask(project, extension)
+        Task publish = createPublishTask(project, extension)
+        publish.dependsOn(prepare)
+    }
 
-	private Task createPrepareTask(Project project, GithubPagesPluginExtension extension) {
-		Task task = project.tasks.create(PREPARE_TASK_NAME, Copy)
-		task.with {
-			description = 'Prepare the gh-pages changes locally'
-			with extension.pages.realSpec
-			into { extension.workingDir }
-			doFirst {
-				def repo = null
-				try {
-					// attempt to reuse existing repository
-					repo = Grgit.open(dir: extension.workingDir)
-					if (extension.repoUri == repo.remote.list().find { it.name == 'origin' }?.url &&
-							repo.branch.current.name == extension.targetBranch) {
-						repo.clean(directories: true, ignore: false)
-						repo.fetch()
-						repo.reset(commit: 'origin/' + extension.targetBranch, mode: ResetOp.Mode.HARD)
-					}
-					else {
-						logger.warn('Found a git repository at workingDir, but it does not match configuration. A fresh clone will be used.')
-						repo.close()
-						repo = null
-					}
-				}
-				// not a git repo
-				catch (RepositoryNotFoundException e) {}
-				// invalid/corrup git repo
-				catch (GrgitException e) {}
+    private Task createPrepareTask(Project project, GithubPagesPluginExtension extension) {
+        Task task = project.tasks.create(PREPARE_TASK_NAME, Copy)
+        task.with {
+            description = 'Prepare the gh-pages changes locally'
+            with extension.pages.realSpec
+            into { extension.workingDir }
+            doFirst {
+                def repo = null
+                try {
+                    // attempt to reuse existing repository
+                    repo = Grgit.open(dir: extension.workingDir)
+                    if (extension.repoUri == repo.remote.list().find { it.name == 'origin' }?.url &&
+                            repo.branch.current.name == extension.targetBranch) {
+                        repo.clean(directories: true, ignore: false)
+                        repo.fetch()
+                        repo.reset(commit: 'origin/' + extension.targetBranch, mode: ResetOp.Mode.HARD)
+                    }
+                    else {
+                        logger.warn('Found a git repository at workingDir, but it does not match configuration. A fresh clone will be used.')
+                        repo.close()
+                        repo = null
+                    }
+                }
+                // not a git repo
+                catch (RepositoryNotFoundException e) {}
+                // invalid/corrup git repo
+                catch (GrgitException e) {}
 
-				if (!repo) {
-					extension.workingDir.deleteDir()
-					repo = Grgit.clone(
-							uri: extension.repoUri,
-							refToCheckout: extension.targetBranch,
-							dir: extension.workingDir,
-							credentials: extension.credentials?.toGrgit()
-					)
+                if (!repo) {
+                    extension.workingDir.deleteDir()
+                    repo = Grgit.clone(
+                            uri: extension.repoUri,
+                            refToCheckout: extension.targetBranch,
+                            dir: extension.workingDir,
+                            credentials: extension.credentials?.toGrgit()
+                    )
 
-					// check if on the correct branch, which implies it doesn't exist
-					if (repo.branch.current.name != extension.targetBranch) {
-						repo.checkout(branch: extension.targetBranch, orphan: true)
-						// need to wipe out the current files
-						extension.deleteExistingFiles = true
-					}
-				}
+                    // check if on the correct branch, which implies it doesn't exist
+                    if (repo.branch.current.name != extension.targetBranch) {
+                        repo.checkout(branch: extension.targetBranch, orphan: true)
+                        // need to wipe out the current files
+                        extension.deleteExistingFiles = true
+                    }
+                }
 
-				def targetDir = new File(extension.workingDir, extension.pages.relativeDestinationDir)
-				def filesList = targetDir.list({ dir, name -> !name.equals('.git') })
-				if (filesList && extension.deleteExistingFiles) {
-					repo.remove(patterns: filesList)
-				}
-				ext.repo = repo
-			}
-			doLast {
-				repo.with {
-					add(patterns: ['.'])
-					if (status().clean) {
-						println 'Nothing to commit, skipping publish.'
-					} else {
-						commit(message: extension.commitMessage)
-					}
-				}
-			}
-		}
-		return task
-	}
+                def targetDir = new File(extension.workingDir, extension.pages.relativeDestinationDir)
+                def filesList = targetDir.list({ dir, name -> !name.equals('.git') })
+                if (filesList && extension.deleteExistingFiles) {
+                    repo.remove(patterns: filesList)
+                }
+                ext.repo = repo
+            }
+            doLast {
+                repo.with {
+                    add(patterns: ['.'])
+                    if (status().clean) {
+                        println 'Nothing to commit, skipping publish.'
+                    } else {
+                        commit(message: extension.commitMessage)
+                    }
+                }
+            }
+        }
+        return task
+    }
 
-	private Task createPublishTask(Project project, GithubPagesPluginExtension extension) {
-		return project.tasks.create(PUBLISH_TASK_NAME) {
-			description = 'Publishes all gh-pages changes to Github'
-			group = 'publishing'
-			onlyIf { dependsOnTaskDidWork() }
-			doLast {
-				project.tasks[PREPARE_TASK_NAME].repo.push()
-			}
-		}
-	}
+    private Task createPublishTask(Project project, GithubPagesPluginExtension extension) {
+        return project.tasks.create(PUBLISH_TASK_NAME) {
+            description = 'Publishes all gh-pages changes to Github'
+            group = 'publishing'
+            onlyIf { dependsOnTaskDidWork() }
+            doLast {
+                project.tasks[PREPARE_TASK_NAME].repo.push()
+            }
+        }
+    }
 }

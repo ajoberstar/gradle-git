@@ -26,65 +26,65 @@ import org.gradle.api.artifacts.repositories.PasswordCredentials;
  * @since 0.1.0
  */
 public class BasicPasswordCredentials implements PasswordCredentials, Serializable {
-	private static final long serialVersionUID = 1L;
-	private String username;
-	private String password;
+    private static final long serialVersionUID = 1L;
+    private String username;
+    private String password;
 
-	/**
-	 * Constructs credentials with {@code null} username and password.
-	 */
-	public BasicPasswordCredentials() {
-		this(null, null);
-	}
+    /**
+     * Constructs credentials with {@code null} username and password.
+     */
+    public BasicPasswordCredentials() {
+        this(null, null);
+    }
 
-	/**
-	 * Constructs credentials with the given arguments.
-	 * @param username the username to set
-	 * @param password the password to set
-	 */
-	public BasicPasswordCredentials(String username, String password) {
-		this.username = username;
-		this.password = password;
-	}
+    /**
+     * Constructs credentials with the given arguments.
+     * @param username the username to set
+     * @param password the password to set
+     */
+    public BasicPasswordCredentials(String username, String password) {
+        this.username = username;
+        this.password = password;
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public String getUsername() {
-		return username;
-	}
+    /**
+     * {@inheritDoc}
+     */
+    public String getUsername() {
+        return username;
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public void setUsername(String username) {
-		this.username = username;
-	}
+    /**
+     * {@inheritDoc}
+     */
+    public void setUsername(String username) {
+        this.username = username;
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public String getPassword() {
-		return password;
-	}
+    /**
+     * {@inheritDoc}
+     */
+    public String getPassword() {
+        return password;
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public void setPassword(String password) {
-		this.password = password;
-	}
+    /**
+     * {@inheritDoc}
+     */
+    public void setPassword(String password) {
+        this.password = password;
+    }
 
-	/**
-	 * Converts to credentials for use in Grgit.
-	 * @return {@code null} if both username and password are {@code null},
-	 * otherwise returns credentials in Grgit format.
-	 */
-	public Credentials toGrgit() {
-		if (username != null && password != null) {
-			return new Credentials(username, password);
-		} else {
-			return null;
-		}
-	}
+    /**
+     * Converts to credentials for use in Grgit.
+     * @return {@code null} if both username and password are {@code null},
+     * otherwise returns credentials in Grgit format.
+     */
+    public Credentials toGrgit() {
+        if (username != null && password != null) {
+            return new Credentials(username, password);
+        } else {
+            return null;
+        }
+    }
 }

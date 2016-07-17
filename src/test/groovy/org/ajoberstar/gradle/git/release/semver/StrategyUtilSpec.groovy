@@ -18,39 +18,39 @@ package org.ajoberstar.gradle.git.release.semver
 import spock.lang.Specification
 
 class StrategyUtilSpec extends Specification {
-	SemVerStrategyState initialState = new SemVerStrategyState([:])
+    SemVerStrategyState initialState = new SemVerStrategyState([:])
 
-	def 'closure backed uses behavior passed in'() {
-		expect:
-		stringReplace('a').infer(initialState) == new SemVerStrategyState(inferredPreRelease: 'a')
-	}
+    def 'closure backed uses behavior passed in'() {
+        expect:
+        stringReplace('a').infer(initialState) == new SemVerStrategyState(inferredPreRelease: 'a')
+    }
 
-	def 'choose one returns the first that changes state'() {
-		given:
-		def chain = StrategyUtil.one(nothing(), stringReplace('a'), stringReplace('b'), nothing())
-		expect:
-		chain.infer(initialState) == new SemVerStrategyState(inferredPreRelease: 'a')
-	}
+    def 'choose one returns the first that changes state'() {
+        given:
+        def chain = StrategyUtil.one(nothing(), stringReplace('a'), stringReplace('b'), nothing())
+        expect:
+        chain.infer(initialState) == new SemVerStrategyState(inferredPreRelease: 'a')
+    }
 
-	def 'apply all uses all strategies in order'() {
-		given:
-		def chain = StrategyUtil.all(stringAppend('a'), stringAppend('b'), stringAppend('c'))
-		expect:
-		chain.infer(initialState) == new SemVerStrategyState(inferredPreRelease: 'a.b.c')
-	}
+    def 'apply all uses all strategies in order'() {
+        given:
+        def chain = StrategyUtil.all(stringAppend('a'), stringAppend('b'), stringAppend('c'))
+        expect:
+        chain.infer(initialState) == new SemVerStrategyState(inferredPreRelease: 'a.b.c')
+    }
 
-	private def nothing() {
-		return StrategyUtil.closure { state -> state }
-	}
+    private def nothing() {
+        return StrategyUtil.closure { state -> state }
+    }
 
-	private def stringReplace(String str) {
-		return StrategyUtil.closure { state -> state.copyWith(inferredPreRelease: str) }
-	}
+    private def stringReplace(String str) {
+        return StrategyUtil.closure { state -> state.copyWith(inferredPreRelease: str) }
+    }
 
-	private def stringAppend(String str) {
-		return StrategyUtil.closure { state ->
-			def preRelease = state.inferredPreRelease ? "${state.inferredPreRelease}.${str}" : str
-			return state.copyWith(inferredPreRelease: preRelease)
-		}
-	}
+    private def stringAppend(String str) {
+        return StrategyUtil.closure { state ->
+            def preRelease = state.inferredPreRelease ? "${state.inferredPreRelease}.${str}" : str
+            return state.copyWith(inferredPreRelease: preRelease)
+        }
+    }
 }

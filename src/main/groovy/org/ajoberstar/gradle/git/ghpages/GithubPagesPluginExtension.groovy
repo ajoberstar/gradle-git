@@ -34,124 +34,124 @@ import org.gradle.util.ConfigureUtil
  * @since 0.1.0
  */
 class GithubPagesPluginExtension implements AuthenticationSupported {
-	private final Project project
-	PasswordCredentials credentials = new BasicPasswordCredentials()
+    private final Project project
+    PasswordCredentials credentials = new BasicPasswordCredentials()
 
-	/**
-	 * The URI of the Github repository.
-	 */
-	Object repoUri
+    /**
+     * The URI of the Github repository.
+     */
+    Object repoUri
 
-	/**
-	 * The branch of the Github repository to push to.
-	 * Defaults to {@code gh-pages}
-	 */
-	Object targetBranch = 'gh-pages'
+    /**
+     * The branch of the Github repository to push to.
+     * Defaults to {@code gh-pages}
+     */
+    Object targetBranch = 'gh-pages'
 
-	/**
-	 * The distribution of files to put in gh-pages. Defaults
-	 * to including {@code src/main/ghpages}.
-	 */
-	final CopySpec pages
+    /**
+     * The distribution of files to put in gh-pages. Defaults
+     * to including {@code src/main/ghpages}.
+     */
+    final CopySpec pages
 
-	/**
-	 * The path to put the github repository in. Defaults to
-	 * {@code build/ghpages}.
-	 */
-	Object workingPath = "${project.buildDir}/ghpages"
+    /**
+     * The path to put the github repository in. Defaults to
+     * {@code build/ghpages}.
+     */
+    Object workingPath = "${project.buildDir}/ghpages"
 
-	/**
-	 * Whether to delete existing files in the branch, replacing the
-	 * entire contents. Defaults to {@code true}.
-	 */
-	boolean deleteExistingFiles = true
+    /**
+     * Whether to delete existing files in the branch, replacing the
+     * entire contents. Defaults to {@code true}.
+     */
+    boolean deleteExistingFiles = true
 
-	/**
-	 * The message used when committing changes to Github pages branch.
-	 * Defaults to 'Publish of Github pages from Gradle.'.
-	 */
-	String commitMessage = 'Publish of Github pages from Gradle.'
+    /**
+     * The message used when committing changes to Github pages branch.
+     * Defaults to 'Publish of Github pages from Gradle.'.
+     */
+    String commitMessage = 'Publish of Github pages from Gradle.'
 
-	/**
-	 * Constructs the plugin extension.
-	 * @param project the project to create
-	 * the extension for
-	 */
-	GithubPagesPluginExtension(Project project) {
-		this.project = project
-		this.pages = new DestinationCopySpec(project)
-		pages.from 'src/main/ghpages'
+    /**
+     * Constructs the plugin extension.
+     * @param project the project to create
+     * the extension for
+     */
+    GithubPagesPluginExtension(Project project) {
+        this.project = project
+        this.pages = new DestinationCopySpec(project)
+        pages.from 'src/main/ghpages'
 
-		// defaulting the repoUri to the project repo's origin
-		try {
-			Grgit grgit = Grgit.open(currentDir: project.projectDir)
-			this.repoUri = grgit.remote.list().find { it.name == 'origin' }?.url
-			grgit.close()
-		} catch (IllegalArgumentException e) {
-			// there isn't a git repo
-			this.repoUri = null
-		} catch (GrgitException e) {
-			// failed to open the repo of the current project
-			this.repoUri = null
-		}
-	}
+        // defaulting the repoUri to the project repo's origin
+        try {
+            Grgit grgit = Grgit.open(currentDir: project.projectDir)
+            this.repoUri = grgit.remote.list().find { it.name == 'origin' }?.url
+            grgit.close()
+        } catch (IllegalArgumentException e) {
+            // there isn't a git repo
+            this.repoUri = null
+        } catch (GrgitException e) {
+            // failed to open the repo of the current project
+            this.repoUri = null
+        }
+    }
 
-	/**
-	 * Gets the URI of the Github repository.  This
-	 * will be used to clone the repository.
-	 * @return the repo URI
-	 */
-	String getRepoUri() {
-		return ObjectUtil.unpackString(repoUri)
-	}
+    /**
+     * Gets the URI of the Github repository.  This
+     * will be used to clone the repository.
+     * @return the repo URI
+     */
+    String getRepoUri() {
+        return ObjectUtil.unpackString(repoUri)
+    }
 
-	/**
-	 * Gets the working directory that the repo will be places in.
-	 * @return the working directory
-	 */
-	File getWorkingDir() {
-		return project.file(getWorkingPath())
-	}
+    /**
+     * Gets the working directory that the repo will be places in.
+     * @return the working directory
+     */
+    File getWorkingDir() {
+        return project.file(getWorkingPath())
+    }
 
-	/**
-	 * Configures the gh-pages copy spec.
-	 * @param closure the configuration closure
-	 */
-	void pages(Closure closure) {
-		ConfigureUtil.configure(closure, pages)
-	}
+    /**
+     * Configures the gh-pages copy spec.
+     * @param closure the configuration closure
+     */
+    void pages(Closure closure) {
+        ConfigureUtil.configure(closure, pages)
+    }
 
-	/**
-	 * Configured the credentials to be used when interacting with
-	 * the repo. This will be passed a {@link PasswordCredentials}
-	 * instance.
-	 * @param closure the configuration closure
-	 */
-	void credentials(Closure closure) {
-		ConfigureUtil.configure(closure, credentials)
-	}
+    /**
+     * Configured the credentials to be used when interacting with
+     * the repo. This will be passed a {@link PasswordCredentials}
+     * instance.
+     * @param closure the configuration closure
+     */
+    void credentials(Closure closure) {
+        ConfigureUtil.configure(closure, credentials)
+    }
 
-	static class DestinationCopySpec implements CopySpec {
-		private Project project
-		private Object destPath
+    static class DestinationCopySpec implements CopySpec {
+        private Project project
+        private Object destPath
 
-		@Delegate
-		CopySpec realSpec
+        @Delegate
+        CopySpec realSpec
 
-		public DestinationCopySpec(Project project) {
-			this.project = project
-			this.realSpec = project.copySpec {}
-		}
+        public DestinationCopySpec(Project project) {
+            this.project = project
+            this.realSpec = project.copySpec {}
+        }
 
-		public String getRelativeDestinationDir() {
-			return destPath ? destPath : '.'
-		}
+        public String getRelativeDestinationDir() {
+            return destPath ? destPath : '.'
+        }
 
-		@Override
-		public CopySpec into(Object destPath) {
-			this.destPath = destPath
-			realSpec.into(destPath)
-			return this
-		}
-	}
+        @Override
+        public CopySpec into(Object destPath) {
+            this.destPath = destPath
+            realSpec.into(destPath)
+            return this
+        }
+    }
 }
