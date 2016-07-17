@@ -74,9 +74,9 @@ class GithubPagesPlugin implements Plugin<Project> {
                         repo.close()
                         repo = null
                     }
-                } catch (RepositoryNotFoundException e) {
+                } catch (RepositoryNotFoundException ignored) {
                     // not a git repo
-                } catch (GrgitException e) {
+                } catch (GrgitException ignored) {
                     // invalid/corrup git repo
                 }
 
