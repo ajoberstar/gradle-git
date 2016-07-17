@@ -3,13 +3,10 @@
 # top-most EditorConfig file
 root = true
 
-# Unix-style newlines with a newline ending every file
+# defaults
 [*]
-end_of_line = lf
 insert_final_newline = true
-
-# Matches multiple files with brace expansion notation
-# Set default charset
-[*.{java,groovy}]
+trim_trailing_whitespace = true
 charset = utf-8
-indent_style = tab
+indent_style = space
+indent_size = 4
