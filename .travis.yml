@@ -3,4 +3,4 @@ sudo: false
 install: ""
 script: ./travis.sh
 jdk:
-    - openjdk7
+    - oraclejdk8
