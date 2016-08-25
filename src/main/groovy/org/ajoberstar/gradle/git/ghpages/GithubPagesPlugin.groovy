@@ -97,10 +97,17 @@ class GithubPagesPlugin implements Plugin<Project> {
                     }
                 }
 
-                def targetDir = new File(extension.workingDir, extension.pages.relativeDestinationDir)
-                def filesList = targetDir.list { dir, name -> !name.equals('.git') }
-                if (filesList && extension.deleteExistingFiles) {
-                    repo.remove(patterns: filesList)
+                if (extension.deleteExistingFiles) {
+                    def relDestDir = extension.pages.relativeDestinationDir
+                    def targetDir = new File(extension.workingDir, relDestDir)
+                    def filesList = targetDir.list { dir, name -> !name.equals('.git') }
+                    if(filesList) {
+                        def removePatterns = filesList
+                        if(relDestDir && relDestDir != '.') {
+                            removePatterns = filesList.collect {name -> "$relDestDir/$name"}
+                        }
+                        repo.remove(patterns: removePatterns)
+                    }
                 }
                 ext.repo = repo
             }
