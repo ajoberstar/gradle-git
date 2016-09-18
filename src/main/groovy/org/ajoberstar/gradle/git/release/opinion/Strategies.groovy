@@ -198,9 +198,10 @@ final class Strategies {
          * to the nearest any's pre-release.
          */
         static final PartialSemVerStrategy STAGE_FLOAT = closure { state ->
-            def nearestPreRelease = state.nearestVersion.any.preReleaseVersion
-            if (nearestPreRelease != null && nearestPreRelease > state.stageFromProp) {
-                state.copyWith(inferredPreRelease: "${nearestPreRelease}.${state.stageFromProp}")
+            def sameNormal = state.inferredNormal == state.nearestVersion.any.normalVersion
+            def nearestAnyPreRelease = state.nearestVersion.any.preReleaseVersion
+            if (sameNormal && nearestAnyPreRelease != null && nearestAnyPreRelease > state.stageFromProp) {
+                state.copyWith(inferredPreRelease: "${nearestAnyPreRelease}.${state.stageFromProp}")
             } else {
                 state.copyWith(inferredPreRelease: state.stageFromProp)
             }

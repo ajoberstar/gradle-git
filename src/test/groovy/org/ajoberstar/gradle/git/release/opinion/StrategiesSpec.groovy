@@ -245,16 +245,20 @@ class StrategiesSpec extends Specification {
         given:
         def initialState = new SemVerStrategyState(
             stageFromProp: 'boom',
+            inferredNormal: '1.1.0',
             inferredPreRelease: 'other',
-            nearestVersion: new NearestVersion(any: Version.valueOf(nearest)))
+            nearestVersion: new NearestVersion(
+                normal: Version.valueOf('1.0.0'),
+                any: Version.valueOf(nearest)))
         expect:
         Strategies.PreRelease.STAGE_FLOAT.infer(initialState) == initialState.copyWith(inferredPreRelease: expected)
         where:
         nearest                    | expected
         '1.0.0'                    | 'boom'
-        '1.0.0-and.1'              | 'boom'
-        '1.0.0-cat.1'              | 'cat.1.boom'
-        '1.0.0-cat.something.else' | 'cat.something.else.boom'
+        '1.0.1-cat.something.else' | 'boom'
+        '1.1.0-and.1'              | 'boom'
+        '1.1.0-cat.1'              | 'cat.1.boom'
+        '1.1.0-cat.something.else' | 'cat.something.else.boom'
     }
 
     def 'PreRelease.COUNT_INCREMENTED will increment the nearest any\'s pre release or set to 1 if not found'() {
