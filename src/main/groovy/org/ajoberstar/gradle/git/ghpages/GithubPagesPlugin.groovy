@@ -48,7 +48,7 @@ class GithubPagesPlugin implements Plugin<Project> {
      */
     private void configureTasks(final Project project, final GithubPagesPluginExtension extension) {
         Task prepare = createPrepareTask(project, extension)
-        Task publish = createPublishTask(project)
+        Task publish = createPublishTask(project, extension)
         publish.dependsOn(prepare)
     }
 
@@ -59,44 +59,7 @@ class GithubPagesPlugin implements Plugin<Project> {
             with extension.pages.realSpec
             into { extension.workingDir }
             doFirst {
-                def repo = null
-                try {
-                    // attempt to reuse existing repository
-                    repo = Grgit.open(dir: extension.workingDir)
-                    if (extension.repoUri == repo.remote.list().find { it.name == 'origin' }?.url &&
-                            repo.branch.current.name == extension.targetBranch) {
-                        repo.clean(directories: true, ignore: false)
-                        repo.fetch()
-                        repo.reset(commit: 'origin/' + extension.targetBranch, mode: ResetOp.Mode.HARD)
-                    }
-                    else {
-                        logger.warn('Found a git repository at workingDir, but it does not match configuration. A fresh clone will be used.')
-                        repo.close()
-                        repo = null
-                    }
-                } catch (RepositoryNotFoundException ignored) {
-                    // not a git repo
-                } catch (GrgitException ignored) {
-                    // invalid/corrup git repo
-                }
-
-                if (!repo) {
-                    extension.workingDir.deleteDir()
-                    repo = Grgit.clone(
-                            uri: extension.repoUri,
-                            refToCheckout: extension.targetBranch,
-                            dir: extension.workingDir,
-                            credentials: extension.credentials?.toGrgit()
-                    )
-
-                    // check if on the correct branch, which implies it doesn't exist
-                    if (repo.branch.current.name != extension.targetBranch) {
-                        repo.checkout(branch: extension.targetBranch, orphan: true)
-                        // need to wipe out the current files
-                        extension.deleteExistingFiles = true
-                    }
-                }
-
+                def repo = repo(project, extension)
                 if (extension.deleteExistingFiles) {
                     def relDestDir = extension.pages.relativeDestinationDir
                     def targetDir = new File(extension.workingDir, relDestDir)
@@ -109,9 +72,9 @@ class GithubPagesPlugin implements Plugin<Project> {
                         repo.remove(patterns: removePatterns)
                     }
                 }
-                ext.repo = repo
             }
             doLast {
+                def repo = repo(project, extension)
                 repo.with {
                     add(patterns: ['.'])
                     if (status().clean) {
@@ -125,13 +88,13 @@ class GithubPagesPlugin implements Plugin<Project> {
         return task
     }
 
-    private Task createPublishTask(Project project) {
+    private Task createPublishTask(Project project, GithubPagesPluginExtension extension) {
         return project.tasks.create(PUBLISH_TASK_NAME) {
             description = 'Publishes all gh-pages changes to Github'
             group = 'publishing'
             // only push if there are commits to push
             onlyIf {
-                def repo = project.tasks[PREPARE_TASK_NAME].repo
+                def repo = repo(project, extension)
                 def status = repo.branch.status(name: repo.branch.current)
                 status.aheadCount > 0
             }
@@ -139,5 +102,50 @@ class GithubPagesPlugin implements Plugin<Project> {
                 project.tasks[PREPARE_TASK_NAME].repo.push()
             }
         }
+    }
+
+    private Grgit repo(Project project, GithubPagesPluginExtension extension) {
+        if (extension.ext.repo) {
+            return extension.ext.repo
+        }
+        def repo = null
+        try {
+            // attempt to reuse existing repository
+            repo = Grgit.open(dir: extension.workingDir)
+            if (extension.repoUri == repo.remote.list().find { it.name == 'origin' }?.url &&
+                    repo.branch.current.name == extension.targetBranch) {
+                repo.clean(directories: true, ignore: false)
+                repo.fetch()
+                repo.reset(commit: 'origin/' + extension.targetBranch, mode: ResetOp.Mode.HARD)
+            }
+            else {
+                logger.warn('Found a git repository at workingDir, but it does not match configuration. A fresh clone will be used.')
+                repo.close()
+                repo = null
+            }
+        } catch (RepositoryNotFoundException ignored) {
+            // not a git repo
+        } catch (GrgitException ignored) {
+            // invalid/corrup git repo
+        }
+
+        if (!repo) {
+            extension.workingDir.deleteDir()
+            repo = Grgit.clone(
+                uri: extension.repoUri,
+                refToCheckout: extension.targetBranch,
+                dir: extension.workingDir,
+                credentials: extension.credentials?.toGrgit()
+            )
+
+            // check if on the correct branch, which implies it doesn't exist
+            if (repo.branch.current.name != extension.targetBranch) {
+                repo.checkout(branch: extension.targetBranch, orphan: true)
+                // need to wipe out the current files
+                extension.deleteExistingFiles = true
+            }
+        }
+        extension.ext.repo = repo
+        return repo
     }
 }
