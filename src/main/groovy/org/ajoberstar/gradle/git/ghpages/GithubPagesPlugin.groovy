@@ -99,7 +99,7 @@ class GithubPagesPlugin implements Plugin<Project> {
                 status.aheadCount > 0
             }
             doLast {
-                project.tasks[PREPARE_TASK_NAME].repo.push()
+                repo(project, extension).push()
             }
         }
     }
