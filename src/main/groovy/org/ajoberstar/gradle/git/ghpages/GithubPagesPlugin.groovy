@@ -129,7 +129,12 @@ class GithubPagesPlugin implements Plugin<Project> {
         return project.tasks.create(PUBLISH_TASK_NAME) {
             description = 'Publishes all gh-pages changes to Github'
             group = 'publishing'
-            onlyIf { dependsOnTaskDidWork() }
+            // only push if there are commits to push
+            onlyIf {
+                def repo = project.tasks[PREPARE_TASK_NAME].repo
+                def status = repo.branch.status(name: repo.branch.current)
+                status.aheadCount > 0
+            }
             doLast {
                 project.tasks[PREPARE_TASK_NAME].repo.push()
             }
