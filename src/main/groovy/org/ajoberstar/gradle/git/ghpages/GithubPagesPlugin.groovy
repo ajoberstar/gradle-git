@@ -105,7 +105,7 @@ class GithubPagesPlugin implements Plugin<Project> {
     }
 
     private Grgit repo(Project project, GithubPagesPluginExtension extension) {
-        if (extension.ext.repo) {
+        if (extension.ext.has('repo')) {
             return extension.ext.repo
         }
         def repo = null
