@@ -66,7 +66,9 @@ class ReleasePluginExtension {
     ReleasePluginExtension(Project project) {
         this.project = project
         def sharedVersion = new DelayedVersion()
-        project.rootProject.allprojects {
+
+        project.version = sharedVersion
+        project.subprojects {
             version = sharedVersion
         }
     }
