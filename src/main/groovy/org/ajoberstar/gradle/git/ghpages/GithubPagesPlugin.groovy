@@ -119,7 +119,7 @@ class GithubPagesPlugin implements Plugin<Project> {
                 repo.reset(commit: 'origin/' + extension.targetBranch, mode: ResetOp.Mode.HARD)
             }
             else {
-                logger.warn('Found a git repository at workingDir, but it does not match configuration. A fresh clone will be used.')
+                project.logger.warn('Found a git repository at workingDir, but it does not match configuration. A fresh clone will be used.')
                 repo.close()
                 repo = null
             }
