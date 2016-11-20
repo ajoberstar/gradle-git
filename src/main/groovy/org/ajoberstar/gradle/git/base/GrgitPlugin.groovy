@@ -35,7 +35,7 @@ class GrgitPlugin implements Plugin<Project> {
             project.rootProject.allprojects { prj ->
                 project.ext.grgit = grgit
             }
-        } catch (RepositoryNotFoundException | GrgitException ignored) {
+        } catch (RepositoryNotFoundException | GrgitException | IllegalArgumentException ignored) {
             // not a git repo or invalid/corrupt
             project.logger.warn 'No git repository found. Build may fail with NPE.'
         }
