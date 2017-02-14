@@ -61,6 +61,7 @@ class GithubPagesPlugin implements Plugin<Project> {
             into { extension.workingDir }
             doFirst {
                 def repo = repo(extension)
+                verifyRepo(repo, extension)
                 resetRepo(repo, extension)
                 if (extension.deleteExistingFiles) {
                     def relDestDir = extension.pages.relativeDestinationDir
@@ -97,6 +98,7 @@ class GithubPagesPlugin implements Plugin<Project> {
             // only push if there are commits to push
             onlyIf {
                 def repo = repo(extension)
+                verifyRepo(repo, extension)
                 def status = repo.branch.status(name: repo.branch.current)
                 status.aheadCount > 0
             }
@@ -140,19 +142,20 @@ class GithubPagesPlugin implements Plugin<Project> {
         return repo
     }
 
+    private void verifyRepo(Grgit repo, GithubPagesPluginExtension extension) {
+        if (extension.repoUri != repo.remote.list().find { it.name == 'origin' }?.url ||
+                repo.branch.current.name != extension.targetBranch) {
+            repo.close()
+            throw new GradleException("Invalid repository at ${extension.workingDir}")
+        }
+    }
+
     private void resetRepo(Grgit repo, GithubPagesPluginExtension extension) {
         try {
             // attempt to reset existing repository to targetBranch
-            if (extension.repoUri == repo.remote.list().find { it.name == 'origin' }?.url &&
-                    repo.branch.current.name == extension.targetBranch) {
-                repo.clean(directories: true, ignore: false)
-                repo.fetch()
-                repo.reset(commit: 'origin/' + extension.targetBranch, mode: ResetOp.Mode.HARD)
-            }
-            else {
-                repo.close()
-                throw new GradleException("Invalid repository at ${extension.workingDir}")
-            }
+            repo.clean(directories: true, ignore: false)
+            repo.fetch()
+            repo.reset(commit: 'origin/' + extension.targetBranch, mode: ResetOp.Mode.HARD)
         } catch (GrgitException e) {
             throw new GradleException(e)
         }
