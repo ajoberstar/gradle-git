@@ -37,6 +37,7 @@ class GithubPagesPlugin implements Plugin<Project> {
      * @param project the project
      */
     void apply(Project project) {
+        project.logger.warn('org.ajoberstar.github-pages is deprecated will be removed in gradle-git 2.0.0. Users should migrate to org.ajoberstar.git-publish (https://github.com/ajoberstar/gradle-git-publish).')
         GithubPagesPluginExtension extension = project.extensions.create('githubPages', GithubPagesPluginExtension, project)
         configureTasks(project, extension)
     }
