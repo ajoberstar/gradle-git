@@ -25,6 +25,12 @@ import org.ajoberstar.grgit.service.BranchService
 
 import org.gradle.api.GradleException
 import org.gradle.api.Project
+import org.gradle.api.artifacts.Configuration
+import org.gradle.api.artifacts.ConfigurationContainer
+import org.gradle.api.artifacts.Dependency
+import org.gradle.api.artifacts.DependencySet
+import org.gradle.api.internal.DefaultDomainObjectSet
+import org.gradle.api.internal.artifacts.dependencies.DefaultExternalModuleDependency
 
 import spock.lang.Specification
 
@@ -62,9 +68,29 @@ class SemVerStrategySpec extends Specification {
         strategy.selector(project, grgit)
     }
 
+    def 'selector returns false if project has snapshot dependencies and not allowed to have them'() {
+        given:
+        def strategy = new SemVerStrategy(stages: ['one'] as SortedSet, allowSnapshotDependencies: false)
+        mockStage('one')
+        mockRepoClean(true)
+        mockSnapshotDependencies()
+        expect:
+        !strategy.selector(project, grgit)
+    }
+
+    def 'selector returns true if project has snapshot dependencies and allowed to have them and other criteria met'() {
+        given:
+        def strategy = new SemVerStrategy(stages: ['one'] as SortedSet, allowSnapshotDependencies: true)
+        mockStage('one')
+        mockRepoClean(true)
+        mockSnapshotDependencies()
+        expect:
+        strategy.selector(project, grgit)
+    }
+
     def 'selector returns true if all criteria met'() {
         given:
-        def strategy = new SemVerStrategy(stages: ['one', 'and'] as SortedSet, allowDirtyRepo: false)
+        def strategy = new SemVerStrategy(stages: ['one', 'and'] as SortedSet, allowDirtyRepo: false, allowSnapshotDependencies: false)
         mockStage('one')
         mockRepoClean(true)
         mockBranchService()
@@ -110,9 +136,31 @@ class SemVerStrategySpec extends Specification {
         strategy.defaultSelector(project, grgit)
     }
 
+    def 'default selector returns false if project has snapshot dependencies and not allowed to have them'() {
+        given:
+        def strategy = new SemVerStrategy(stages: ['one'] as SortedSet, allowSnapshotDependencies: false)
+        mockStage(stageProp)
+        mockRepoClean(true)
+        mockSnapshotDependencies()
+        expect:
+        !strategy.defaultSelector(project, grgit)
+        where:
+        stageProp << [null, 'one']
+    }
+
+    def 'default selector returns true if project has snapshot dependencies and allowed to have them and other criteria met'() {
+        given:
+        def strategy = new SemVerStrategy(stages: ['one'] as SortedSet, allowSnapshotDependencies: true)
+        mockStage('one')
+        mockRepoClean(true)
+        mockSnapshotDependencies()
+        expect:
+        strategy.defaultSelector(project, grgit)
+    }
+
     def 'default selector returns true if all criteria met'() {
         given:
-        def strategy = new SemVerStrategy(stages: ['one', 'and'] as SortedSet, allowDirtyRepo: false)
+        def strategy = new SemVerStrategy(stages: ['one', 'and'] as SortedSet, allowDirtyRepo: false, allowSnapshotDependencies: false)
         mockStage('one')
         mockRepoClean(true)
         mockBranchService()
@@ -224,5 +272,16 @@ class SemVerStrategySpec extends Specification {
             createTag: createTag,
             enforcePrecedence: enforcePrecedence
         )
+    }
+
+    private def mockSnapshotDependencies() {
+        def dependency = new DefaultExternalModuleDependency('org.foo', 'bar', '1.0-SNAPSHOT')
+        Project pr = Mock()
+        Configuration cfg = Mock()
+
+        (0..1) * cfg.dependencies >> (new DefaultDomainObjectSet(Dependency, [dependency]) as DependencySet)
+        (0..1) * pr.configurations >> ([cfg] as ConfigurationContainer)
+        (0..1) * project.allprojects >> [pr]
+        (0..1) * pr.name >> 'foo'
     }
 }
