@@ -51,7 +51,7 @@ class RebuildVersionStrategySpec extends Specification {
     def 'selector returns false if any release properties are set'() {
         given:
         mockClean(true)
-        Project project = getProject('release.anything': 'value')
+        Project project = getProject('release.scope': 'value')
         mockTagsAtHead('v1.0.0')
         expect:
         !strategy.selector(project, grgit)
