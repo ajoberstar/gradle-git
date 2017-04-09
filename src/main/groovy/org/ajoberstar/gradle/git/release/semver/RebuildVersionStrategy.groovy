@@ -53,14 +53,14 @@ class RebuildVersionStrategy implements VersionStrategy {
     @Override
     boolean selector(Project project, Grgit grgit) {
         def clean = grgit.status().clean
-        def props = project.properties.keySet().find { it.startsWith('release.') }
+        def propsSpecified = project.hasProperty(SemVerStrategy.SCOPE_PROP) || project.hasProperty(SemVerStrategy.STAGE_PROP)
         def headVersion = getHeadVersion(project, grgit)
 
-        if (clean && props == null && headVersion) {
+        if (clean && !propsSpecified && headVersion) {
             logger.info('Using {} strategy because repo is clean, no "release." properties found and head version is {}', name, headVersion)
             return true
         } else {
-            logger.info('Skipping {} strategy because clean is {}, "release." properties are {} and head version is {}', name, clean, props, headVersion)
+            logger.info('Skipping {} strategy because clean is {}, "release." properties are {} and head version is {}', name, clean, propsSpecified, headVersion)
             return false
         }
     }
