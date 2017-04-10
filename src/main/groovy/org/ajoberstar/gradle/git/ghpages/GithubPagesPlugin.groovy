@@ -19,6 +19,7 @@ import org.ajoberstar.grgit.Grgit
 import org.ajoberstar.grgit.operation.ResetOp
 import org.ajoberstar.grgit.exception.GrgitException
 import org.eclipse.jgit.errors.RepositoryNotFoundException
+import org.gradle.api.GradleException
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.Task
@@ -60,7 +61,9 @@ class GithubPagesPlugin implements Plugin<Project> {
             with extension.pages.realSpec
             into { extension.workingDir }
             doFirst {
-                def repo = repo(project, extension)
+                def repo = repo(extension)
+                verifyRepo(repo, extension)
+                resetRepo(repo, extension)
                 if (extension.deleteExistingFiles) {
                     def relDestDir = extension.pages.relativeDestinationDir
                     def targetDir = new File(extension.workingDir, relDestDir)
@@ -75,7 +78,7 @@ class GithubPagesPlugin implements Plugin<Project> {
                 }
             }
             doLast {
-                def repo = repo(project, extension)
+                def repo = repo(extension)
                 repo.with {
                     add(patterns: ['.'])
                     if (status().clean) {
@@ -95,17 +98,18 @@ class GithubPagesPlugin implements Plugin<Project> {
             group = 'publishing'
             // only push if there are commits to push
             onlyIf {
-                def repo = repo(project, extension)
+                def repo = repo(extension)
+                verifyRepo(repo, extension)
                 def status = repo.branch.status(name: repo.branch.current)
                 status.aheadCount > 0
             }
             doLast {
-                repo(project, extension).push()
+                repo(extension).push()
             }
         }
     }
 
-    private Grgit repo(Project project, GithubPagesPluginExtension extension) {
+    private Grgit repo(GithubPagesPluginExtension extension) {
         if (extension.ext.has('repo')) {
             return extension.ext.repo
         }
@@ -113,17 +117,6 @@ class GithubPagesPlugin implements Plugin<Project> {
         try {
             // attempt to reuse existing repository
             repo = Grgit.open(dir: extension.workingDir)
-            if (extension.repoUri == repo.remote.list().find { it.name == 'origin' }?.url &&
-                    repo.branch.current.name == extension.targetBranch) {
-                repo.clean(directories: true, ignore: false)
-                repo.fetch()
-                repo.reset(commit: 'origin/' + extension.targetBranch, mode: ResetOp.Mode.HARD)
-            }
-            else {
-                project.logger.warn('Found a git repository at workingDir, but it does not match configuration. A fresh clone will be used.')
-                repo.close()
-                repo = null
-            }
         } catch (RepositoryNotFoundException ignored) {
             // not a git repo
         } catch (GrgitException ignored) {
@@ -148,5 +141,24 @@ class GithubPagesPlugin implements Plugin<Project> {
         }
         extension.ext.repo = repo
         return repo
+    }
+
+    private void verifyRepo(Grgit repo, GithubPagesPluginExtension extension) {
+        if (extension.repoUri != repo.remote.list().find { it.name == 'origin' }?.url ||
+                repo.branch.current.name != extension.targetBranch) {
+            repo.close()
+            throw new GradleException("Invalid repository at ${extension.workingDir}")
+        }
+    }
+
+    private void resetRepo(Grgit repo, GithubPagesPluginExtension extension) {
+        try {
+            // attempt to reset existing repository to targetBranch
+            repo.clean(directories: true, ignore: false)
+            repo.fetch()
+            repo.reset(commit: 'origin/' + extension.targetBranch, mode: ResetOp.Mode.HARD)
+        } catch (GrgitException e) {
+            throw new GradleException(e)
+        }
     }
 }
