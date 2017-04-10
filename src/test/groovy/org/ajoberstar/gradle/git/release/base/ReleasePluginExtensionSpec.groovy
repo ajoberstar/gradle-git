@@ -16,11 +16,9 @@
 package org.ajoberstar.gradle.git.release.base
 
 import org.ajoberstar.grgit.Grgit
-
 import org.gradle.api.GradleException
 import org.gradle.api.Project
 import org.gradle.testfixtures.ProjectBuilder
-
 import spock.lang.Specification
 
 class ReleasePluginExtensionSpec extends Specification {
@@ -126,5 +124,42 @@ class ReleasePluginExtensionSpec extends Specification {
         project.version.toString()
         then:
         thrown(GradleException)
+    }
+
+    def 'infer of multiple sub-git-projects is done correctly'() {
+        given:
+        Project rootProject = ProjectBuilder.builder().withName("a").build()
+        Project subRootA    = ProjectBuilder.builder().withName("a_1").withParent(rootProject).build()
+        Project subProjectA = ProjectBuilder.builder().withName("a_2").withParent(rootProject).build()
+        Project subProjectB = ProjectBuilder.builder().withName('a_3').withParent(rootProject).build()
+        Project subProjectBA = ProjectBuilder.builder().withName('a_3_1').withParent(subProjectB).build()
+
+        ReleasePluginExtension extensionRoot = new ReleasePluginExtension(rootProject)
+        extensionRoot.grgit = GroovyMock(Grgit)
+        extensionRoot.defaultVersionStrategy = [
+            getName: { 'root' },
+            selector: { proj, grgit -> true },
+            infer: { proj, grgit -> new ReleaseVersion('1.1.1', null, true) }] as VersionStrategy
+
+        ReleasePluginExtension extensionA = new ReleasePluginExtension(subProjectA)
+        extensionA.grgit = GroovyMock(Grgit)
+        extensionA.defaultVersionStrategy = [
+            getName: { 'a' },
+            selector: { proj, grgit -> true },
+            infer: { proj, grgit -> new ReleaseVersion('2.2.2', null, true) }] as VersionStrategy
+
+        ReleasePluginExtension extensionB = new ReleasePluginExtension(subProjectB)
+        extensionB.grgit = GroovyMock(Grgit)
+        extensionB.defaultVersionStrategy = [
+            getName: { 'b' },
+            selector: { proj, grgit -> true },
+            infer: { proj, grgit -> new ReleaseVersion('3.3.3', null, true) }] as VersionStrategy
+
+        expect:
+        rootProject.version.toString() == '1.1.1'
+        subRootA.version.toString() == '1.1.1'
+        subProjectA.version.toString() == '2.2.2'
+        subProjectB.version.toString() == '3.3.3'
+        subProjectBA.version.toString() == '3.3.3'
     }
 }
