@@ -284,6 +284,7 @@ final class Strategies {
         name: '',
         stages: [] as SortedSet,
         allowDirtyRepo: false,
+        allowSnapshotDependencies: false,
         normalStrategy: one(Normal.USE_SCOPE_PROP, Normal.USE_NEAREST_ANY, Normal.useScope(ChangeScope.PATCH)),
         preReleaseStrategy: PreRelease.NONE,
         buildMetadataStrategy: BuildMetadata.NONE,
@@ -300,6 +301,7 @@ final class Strategies {
         name: 'snapshot',
         stages: ['SNAPSHOT'] as SortedSet,
         allowDirtyRepo: true,
+        allowSnapshotDependencies: true,
         preReleaseStrategy: PreRelease.STAGE_FIXED,
         createTag: false,
         enforcePrecedence: false
@@ -318,6 +320,7 @@ final class Strategies {
         name: 'development',
         stages: ['dev'] as SortedSet,
         allowDirtyRepo: true,
+        allowSnapshotDependencies: true,
         preReleaseStrategy: all(PreRelease.STAGE_FLOAT, PreRelease.COUNT_COMMITS_SINCE_ANY, PreRelease.SHOW_UNCOMMITTED),
         buildMetadataStrategy: BuildMetadata.COMMIT_ABBREVIATED_ID,
         createTag: false

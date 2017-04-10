@@ -26,6 +26,8 @@ import org.ajoberstar.grgit.Grgit
 
 import org.gradle.api.GradleException
 import org.gradle.api.Project
+import org.gradle.api.artifacts.Dependency
+import org.gradle.api.artifacts.ProjectDependency
 
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -56,6 +58,11 @@ final class SemVerStrategy implements DefaultVersionStrategy {
      * Whether or not this strategy can be used if the repo has uncommited changes.
      */
     boolean allowDirtyRepo
+
+    /**
+     * Whether or not this strategy can be used if the repo has snapshot dependencies.
+     */
+    boolean allowSnapshotDependencies
 
     /**
      * The strategy used to infer the normal component of the version. There is no enforcement that
@@ -103,6 +110,9 @@ final class SemVerStrategy implements DefaultVersionStrategy {
         } else if (!allowDirtyRepo && !grgit.status().clean) {
             logger.info('Skipping {} default strategy because repo is dirty.', name)
             return false
+        } else if (!allowSnapshotDependencies && hasSnapshotDependencies(project)) {
+            logger.info('Skipping {} default strategy because project has snapshot dependencies.', name)
+            return false
         } else {
             String status = grgit.status().clean ? 'clean' : 'dirty'
             logger.info('Using {} default strategy because repo is {} and no stage defined', name, status)
@@ -126,6 +136,9 @@ final class SemVerStrategy implements DefaultVersionStrategy {
             return false
         } else if (!allowDirtyRepo && !grgit.status().clean) {
             logger.info('Skipping {} strategy because repo is dirty.', name)
+            return false
+        } else if (!allowSnapshotDependencies && hasSnapshotDependencies(project)) {
+            logger.info('Skipping {} strategy because project has snapshot dependencies.', name)
             return false
         } else {
             String status = grgit.status().clean ? 'clean' : 'dirty'
@@ -183,5 +196,28 @@ final class SemVerStrategy implements DefaultVersionStrategy {
 
     private String getPropertyOrNull(Project project, String name) {
         return project.hasProperty(name) ? project.property(name) : null
+    }
+
+    private boolean hasSnapshotDependencies(Project project) {
+        def matcher = { Dependency d -> !(d instanceof ProjectDependency) && d.version?.contains('SNAPSHOT') }
+        def collector = { Dependency d -> "${d.group ?: ''}:${d.name}:${d.version ?: ''}" }
+
+        def message = ""
+
+        project.allprojects.each { pr ->
+            def snapshotDependencies = [] as Set
+            pr.configurations.each { cfg ->
+                snapshotDependencies += cfg.dependencies?.matching(matcher)?.collect(collector)
+            }
+            if (snapshotDependencies.size() > 0) {
+                message += "\n\t${pr.name}: ${snapshotDependencies}"
+            }
+        }
+
+        if (message) {
+            logger.info("Snapshot dependencies detected: ${message}")
+            return true
+        }
+        return false
     }
 }
