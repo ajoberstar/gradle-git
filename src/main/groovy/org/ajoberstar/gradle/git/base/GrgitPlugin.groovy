@@ -36,11 +36,11 @@ class GrgitPlugin implements Plugin<Project> {
             project.rootProject.allprojects { prj ->
                 project.ext.grgit = grgit
             }
-        } catch (RepositoryNotFoundException e1 | GrgitException e2) {
+        } catch (RepositoryNotFoundException | GrgitException e) {
             // not a git repo or invalid/corrupt
-            String msg = "No git repository found in ${project.rootProject.rootDir}"
+            String msg = "No git repository found in ${project.rootProject.rootDir} (${e.message)"
             project.logger.error msg
-            throw new GradleException(msg, e1 ?: e2)
+            throw new GradleException(msg, e)
         }
     }
 }
