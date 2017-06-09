@@ -20,6 +20,7 @@ import org.ajoberstar.grgit.exception.GrgitException
 import org.eclipse.jgit.errors.RepositoryNotFoundException
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.api.GradleException
 
 /**
  * Plugin adding a {@code grgit} property to all projects
@@ -35,9 +36,11 @@ class GrgitPlugin implements Plugin<Project> {
             project.rootProject.allprojects { prj ->
                 project.ext.grgit = grgit
             }
-        } catch (RepositoryNotFoundException | GrgitException ignored) {
+        } catch (RepositoryNotFoundException | GrgitException e) {
             // not a git repo or invalid/corrupt
-            project.logger.warn 'No git repository found. Build may fail with NPE.'
+            String msg = "No git repository found in ${project.rootProject.rootDir} (${e.message})"
+            project.logger.error msg
+            throw new GradleException(msg, e)
         }
     }
 }
