@@ -15,6 +15,7 @@
  */
 package org.ajoberstar.gradle.git.release.base
 
+import org.ajoberstar.gradle.git.release.semver.NearestVersionLocator
 import org.ajoberstar.grgit.Grgit
 import org.ajoberstar.grgit.util.ConfigureUtil
 
@@ -62,6 +63,12 @@ class ReleasePluginExtension {
      * The remote to fetch changes from and push changes to.
      */
     String remote = 'origin'
+
+    /**
+     * The strategy used to choose the ancestor whose version to increment. By default, this is
+     * {@link NearestVersionLocator.AncestorStrategy.NEAREST.
+     */
+    NearestVersionLocator.AncestorStrategy ancestorSelectionStrategy
 
     ReleasePluginExtension(Project project) {
         this.project = project
