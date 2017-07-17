@@ -93,30 +93,47 @@ class NearestVersionLocatorSpec extends Specification {
         addTag('2.1.0-rc.1')
         checkout('test')
         merge('REL_2.1')
+
+        checkout('master')
+        addBranch('fix-merge')
+        checkout('fix-merge')
+        commit('fix')
+        addTag('1.2.0')
+        checkout('master')
+        addBranch('fix')
+        checkout('fix')
+        commit()
+        commit()
+        commit()
+        addTag('1.1.0-rc.2+abcde')
+        checkout('fix-merge')
+        merge('fix')
     }
 
     def cleanupSpec() {
         assert !repoDir.exists() || repoDir.deleteDir()
     }
 
-    @Unroll('when on #head, locator finds normal #normal with nearest #any')
+    @Unroll('[Strategy=Nearest] when on #head, locator finds normal #normal with nearest #any')
     def 'locator returns correct value'() {
         given:
         grgit.checkout(branch: head)
         expect:
-        def nearest = new NearestVersionLocator(new TagStrategy()).locate(grgit)
+        def nearest = new NearestVersionLocator(new TagStrategy(), strategy).locate(grgit)
         nearest.any == Version.valueOf(any)
         nearest.normal == Version.valueOf(normal)
         nearest.distanceFromAny == anyDistance
         nearest.distanceFromNormal == normalDistance
         where:
-        head          | any                | normal                      | anyDistance | normalDistance
-        'master'      | '1.1.0-rc.1+abcde' | '1.0.0'                     | 0           | 1
-        'RB_0.1'      | '0.1.2-beta.1'     | '0.1.1+2010.01.01.12.00.00' | 3           | 7
-        'RB_1.0'      | '1.0.0'            | '1.0.0'                     | 0           | 0
-        'no-normal'   | '0.0.1-beta.3'     | '0.0.0'                     | 0           | 3
-        'unreachable' | '0.0.0'            | '0.0.0'                     | 2           | 2
-        'test'        | '2.1.0-rc.1'       | '1.0.0'                     | 3           | 6
+        head          | any                | normal                      | anyDistance | normalDistance | strategy
+        'master'      | '1.1.0-rc.1+abcde' | '1.0.0'                     | 0           | 1              | null
+        'RB_0.1'      | '0.1.2-beta.1'     | '0.1.1+2010.01.01.12.00.00' | 3           | 7              | null
+        'RB_1.0'      | '1.0.0'            | '1.0.0'                     | 0           | 0              | null
+        'no-normal'   | '0.0.1-beta.3'     | '0.0.0'                     | 0           | 3              | null
+        'unreachable' | '0.0.0'            | '0.0.0'                     | 2           | 2              | null
+        'test'        | '2.1.0-rc.1'       | '1.0.0'                     | 3           | 6              | null
+        'fix-merge'   | '1.1.0-rc.2+abcde' | '1.2.0'                     | 2           | 4              | null
+        'fix-merge'   | '1.2.0'            | '1.2.0'                     | 4           | 4              | NearestVersionLocator.AncestorStrategy.HIGHEST
     }
 
     private void commit(String name = '1.txt') {

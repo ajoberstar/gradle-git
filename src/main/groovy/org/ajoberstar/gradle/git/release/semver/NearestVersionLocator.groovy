@@ -18,7 +18,6 @@ package org.ajoberstar.gradle.git.release.semver
 import com.github.zafarkhaja.semver.Version
 import org.ajoberstar.gradle.git.release.base.TagStrategy
 import org.ajoberstar.grgit.Grgit
-import org.ajoberstar.grgit.Tag
 import org.eclipse.jgit.lib.ObjectId
 import org.eclipse.jgit.revwalk.RevCommit
 import org.eclipse.jgit.revwalk.RevWalk
@@ -44,9 +43,11 @@ class NearestVersionLocator {
     private static final Version UNKNOWN = Version.valueOf('0.0.0')
 
     final TagStrategy strategy
+    final AncestorStrategy ancestorStrategy
 
-    NearestVersionLocator(TagStrategy strategy) {
+    NearestVersionLocator(TagStrategy strategy, AncestorStrategy ancestorStrategy = null) {
         this.strategy = strategy
+        this.ancestorStrategy = ancestorStrategy
     }
 
     /**
@@ -131,13 +132,54 @@ class NearestVersionLocator {
         }
 
         if (reachableVersionTags) {
-            return reachableVersionTags.min { a, b ->
-                def distanceCompare = a.distance <=> b.distance
-                def versionCompare = (a.version <=> b.version) * -1
-                distanceCompare == 0 ? versionCompare : distanceCompare
-            }
+            return (ancestorStrategy ?: AncestorStrategy.NEAREST).chooseAncestor(reachableVersionTags)
         } else {
             return [version: UNKNOWN, distance: RevWalkUtils.count(walk, head, null)]
+        }
+    }
+
+    /**
+     * Strategy used to choose the version in the history to increment in order to generate the current build version.
+     */
+    interface AncestorStrategy {
+
+        /**
+         * Choose the tagged version in the history which will be incremented to generate the current one.
+         *
+         * @param ancestors
+         *              The ancestors considered for selection. This is an iterable of dictionaries with version
+         *              (parsed from the tag), tag, and rev (a [RevCommit] instance).
+         * @return      The chosen ancestor.
+         */
+        Map chooseAncestor(Iterable<Map> ancestors)
+
+        /**
+         * Strategy which chooses the nearest ancestor, i.e. the one which has the least missing history with the
+         * current revision.
+         */
+        AncestorStrategy NEAREST = new AncestorStrategy() {
+
+            @Override
+            Map chooseAncestor(Iterable<Map> ancestors) {
+                return ancestors.min { a, b ->
+                    def distanceCompare = a.distance <=> b.distance
+                    def versionCompare = (a.version <=> b.version) * -1
+                    distanceCompare == 0 ? versionCompare : distanceCompare
+                }
+            }
+        }
+
+        /**
+         * Strategy which chooses the ancestor which is tagged with the highest version.
+         */
+        AncestorStrategy HIGHEST = new AncestorStrategy() {
+
+            @Override
+            Map chooseAncestor(Iterable<Map> ancestors) {
+                return ancestors.max { a, b ->
+                    a.version <=> b.version
+                }
+            }
         }
     }
 }
