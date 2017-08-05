@@ -2,8 +2,20 @@
 
 [![Bintray](https://img.shields.io/bintray/v/ajoberstar/maven/gradle-git.svg?style=flat-square)](https://bintray.com/ajoberstar/maven/gradle-git/_latestVersion)
 [![Travis](https://img.shields.io/travis/ajoberstar/gradle-git.svg?style=flat-square)](https://travis-ci.org/ajoberstar/gradle-git)
-[![Quality Gate](https://sonarqube.ajoberstar.com/api/badges/gate?key=org.ajoberstar:gradle-git)](https://sonarqube.ajoberstar.com/dashboard/index/org.ajoberstar:gradle-git)
 [![GitHub license](https://img.shields.io/github/license/ajoberstar/gradle-git.svg?style=flat-square)](https://github.com/ajoberstar/gradle-git/blob/master/LICENSE)
+
+## Project Status
+
+gradle-git has been around since 2012 and has evolved quite a bit from the original release. In order to continue to evolve these features, this project is being broken up into multiple repositories. As such:
+
+- gradle-git will no longer be enhanced
+- gradle-git may make some fix releases, as issues are identified, presuming they don't break compatibility
+
+| feature | replacement | maturity | comments |
+|---------|-------------|----------|----------|
+| `org.ajoberstar.grgit` | [grgit](https://github.com/ajoberstar/grgit) | stable | Grgit has been an independent project since 2013 and has been stable for quite a while. Version 2.0 removes some deprecated features, but otherwise is fully compatible with existing usage. It does integrate the `org.ajoberstar.grgit` plugin directly into the project. |
+| `org.ajoberstar.github-pages` | [gradle-git-publish](https://github.com/ajoberstar/grgit) | stable | `org.ajoberstar.git-publish` is a more robust version of the old plugin. It is functionally equivalent (or better), but does require porting configuration over as noted in the README. While it was only introduced in early 2017, I plan to cut 1.0 soon after grgit 2.0 is finalized. |
+| `org.ajoberstar.release-*` | [reckon](https://github.com/ajoberstar/reckon) | development | Reckon focuses solely on determining your project version (and assisting with tagging and pushing that tag). It will not pretend to be a full-featured release plugin. It also will not pretend to meet anyone's general version inference needs, instead providing an opinionated model of how to apply [semantic versioning](http://semver.org). There are still some details being worked out in how the algorithm will address some problems gradle-git had (such as parallel development).
 
 ## Why do you care?
 
@@ -35,18 +47,13 @@ configuration for authentication.
 ## Questions, Bugs, and Features
 
 Please use the repo's [issues](https://github.com/ajoberstar/gradle-git/issues)
-for all questions, bug reports, and feature requests.
+for all questions and bug reports.
 
 ## Contributing
 
-Contributions are very welcome and are accepted through pull requests.
+Non-breaking bug fixes are welcome via pull requests.
 
-Smaller changes can come directly as a PR, but larger or more complex
-ones should be discussed in an issue first to flesh out the approach.
-
-If you're interested in implementing a feature on the
-[issues backlog](https://github.com/ajoberstar/gradle-git/issues), add a comment
-to make sure it's not already in progress and for any needed discussion.
+I am no longer accepting feature contributions. See the _Project Status_ section above for details.
 
 ## Acknowledgements
 
