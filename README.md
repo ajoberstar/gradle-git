@@ -15,7 +15,7 @@ gradle-git has been around since 2012 and has evolved quite a bit from the origi
 |---------|-------------|----------|----------|
 | `org.ajoberstar.grgit` | [grgit](https://github.com/ajoberstar/grgit) | stable | Grgit has been an independent project since 2013 and has been stable for quite a while. Version 2.0 removed some deprecated features, but otherwise is fully compatible with existing usage. It also integrates the `org.ajoberstar.grgit` plugin directly into the project. |
 | `org.ajoberstar.github-pages` | [gradle-git-publish](https://github.com/ajoberstar/gradle-git-publish) | stable | `org.ajoberstar.git-publish` is a more robust version of the old plugin. It is functionally equivalent (or better), but does require porting configuration over as noted in the README. |
-| `org.ajoberstar.release-*` | [reckon](https://github.com/ajoberstar/reckon) | development | Reckon focuses solely on determining your project version (and assisting with tagging and pushing that tag). It will not pretend to be a full-featured release plugin. It also will not pretend to meet anyone's general version inference needs, instead providing an opinionated model of how to apply [semantic versioning](http://semver.org). There are still some details being worked out in how the algorithm will address some problems gradle-git had (such as parallel development).
+| `org.ajoberstar.release-*` | [reckon](https://github.com/ajoberstar/reckon) | development | Reckon focuses solely on determining your project version (and assisting with tagging and pushing that tag). It provides an opinionated model of how to apply [semantic versioning](http://semver.org), with more finite configuration options. |
 
 ## Why do you care?
 
